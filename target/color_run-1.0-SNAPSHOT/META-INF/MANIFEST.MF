@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Created-By: IntelliJ IDEA
+Built-By: romai
+Build-Jdk: Eclipse Temurin 23.0.1
+
