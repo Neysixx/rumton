@@ -1,0 +1,12 @@
+<changelist name="Uncommitted_changes_before_Checkout_at_19_03_2025_10_47_[Changes]" date="1742377669363" recycled="true" deleted="true">
+  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_19_03_2025_10_47_[Changes]/shelved.patch" />
+  <option name="DESCRIPTION" value="Uncommitted changes before Checkout at 19/03/2025 10:47 [Changes]" />
+  <binary>
+    <option name="AFTER_PATH" value="target/color_run-1.0-SNAPSHOT/WEB-INF/classes/fr/esgi/color_run/HelloServlet.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_19_03_2025_10_47_[Changes]/HelloServlet.class" />
+  </binary>
+  <binary>
+    <option name="AFTER_PATH" value="target/classes/fr/esgi/color_run/HelloServlet.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_19_03_2025_10_47_[Changes]/HelloServlet1.class" />
+  </binary>
+</changelist>
