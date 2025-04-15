@@ -17,27 +17,24 @@ import org.thymeleaf.context.IContext;
 /**
  * Cette classe aura le pouvoir de traiter des requêtes HTTP
  */
-//@WebServlet(name = "coursesServlet", value = {"/index", "/courses"})
-//public class CoursesServlet extends HttpServlet {
-//    private String message;
-//
-//    private CourseService courseService = new CourseServiceImpl();
-//
-//    public void init() {
-//        message = "Liste des courses";
-//    }
-//
-//    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-//        // On récupère le moteur de template dans le contexte des servlets
-//        TemplateEngine templateEngine = (TemplateEngine) getServletContext().getAttribute("templateEngine");
-//
-//        // On crée un context Thymeleaf qui va accueille des objets Java
-//        // qui seront envoyés à la vue Thymeleaf
-//        Context context = new Context();
-//        context.setVariable("courses", courseService.recupererCourses());
-//
-//        // On invoque la méthode process qui formule la réponse qui sera renvoyée au navigateur
-//        templateEngine.process("courses", context, response.getWriter());
-//    }
-//
-//}
+@WebServlet(name = "coursesServlet", value = {"/index", "/courses"})
+public class CoursesServlet extends HttpServlet {
+    private String message;
+
+    public void init() {
+        message = "Liste des courses";
+    }
+
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        // On récupère le moteur de template dans le contexte des servlets
+        TemplateEngine templateEngine = (TemplateEngine) getServletContext().getAttribute("templateEngine");
+
+        // On crée un context Thymeleaf qui va accueille des objets Java
+        // qui seront envoyés à la vue Thymeleaf
+        Context context = new Context();
+
+        // On invoque la méthode process qui formule la réponse qui sera renvoyée au navigateur
+        templateEngine.process("courses", context, response.getWriter());
+    }
+
+}

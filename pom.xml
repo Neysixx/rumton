@@ -48,6 +48,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Bcrypt -->
+        <dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>0.4</version>
+        </dependency>
+
         <!-- Hibernate / JPA -->
         <dependency>
             <groupId>org.hibernate</groupId>
