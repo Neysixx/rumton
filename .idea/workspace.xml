@@ -10,14 +10,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1b4e73a1-147b-4c72-ad2d-26c1741a7213" name="Changes" comment="Init du projet">
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_19_03_2025_10_47__Changes_.xml" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/configuration/DatabaseConnection.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/configuration/DatabaseConnection.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/repository/impl/ParticipantRepositoryImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/repository/impl/ParticipantRepositoryImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/RegisterServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/RegisterServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/webapp/WEB-INF/templates/register.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/templates/register.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/fr/esgi/color_run/HelloServlet.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/color_run-1.0-SNAPSHOT/WEB-INF/classes/fr/esgi/color_run/HelloServlet.class" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -96,8 +92,10 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Database Script.script.sql (1).executor": "Run",
     "Database Script.script.sql.executor": "Run",
     "DefaultHtmlFileTemplate": "HTML File",
+    "Maven.color_run [clean,validate,compile,test...].executor": "Run",
     "Maven.color_run [clean].executor": "Run",
     "Maven.color_run [install].executor": "Run",
     "Maven.color_run [test].executor": "Run",
@@ -122,6 +120,12 @@
   }
 }]]></component>
   <component name="RunManager" selected="Tomcat Server.Tomcat 10.1.40">
+    <configuration name="script.sql (1)" type="DatabaseScript" editBeforeRun="true" temporary="true" nameIsGenerated="true">
+      <script-file value="$PROJECT_DIR$/src/main/resources/script.sql" />
+      <script-mode>FILE</script-mode>
+      <data-source id="885ace08-6efe-45f5-9dc8-c0bd83c883db" />
+      <method v="2" />
+    </configuration>
     <configuration name="script.sql" type="DatabaseScript" editBeforeRun="true" temporary="true" nameIsGenerated="true">
       <script-file value="$PROJECT_DIR$/src/test/resources/script.sql" />
       <script-mode>FILE</script-mode>
@@ -216,6 +220,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Database Script.script.sql (1)" />
         <item itemvalue="Database Script.script.sql" />
       </list>
     </recent_temporary>
@@ -239,7 +244,7 @@
       <workItem from="1742374918829" duration="2461000" />
       <workItem from="1742377403660" duration="309000" />
       <workItem from="1744733036933" duration="2871000" />
-      <workItem from="1744790783586" duration="4487000" />
+      <workItem from="1744790783586" duration="7411000" />
     </task>
     <task id="LOCAL-00001" summary="Init du projet">
       <option name="closed" value="true" />
