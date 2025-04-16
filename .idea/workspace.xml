@@ -9,14 +9,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1b4e73a1-147b-4c72-ad2d-26c1741a7213" name="Changes" comment="Init du projet">
-      <change afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/util/JwtUtil.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/util/PropertiesUtil.java" afterDir="false" />
+    <list default="true" id="1b4e73a1-147b-4c72-ad2d-26c1741a7213" name="Changes" comment="Feat : Ajout des services ( méthodes CRUD )">
+      <change afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/AdminService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/CauseService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/CourseService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/impl/AdminServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/impl/CauseServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/impl/CourseServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
     </list>
-    <list id="84030972-f788-4c68-9bad-27e52002b692" name="Changes by romai" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -92,35 +93,35 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Database Script.script.sql (1).executor": "Run",
-    "Database Script.script.sql.executor": "Run",
-    "DefaultHtmlFileTemplate": "HTML File",
-    "Maven.color_run [clean,validate,compile,test...].executor": "Run",
-    "Maven.color_run [clean].executor": "Run",
-    "Maven.color_run [install].executor": "Run",
-    "Maven.color_run [test].executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "Tomcat Server.Tomcat 10.1.39.executor": "Run",
-    "Tomcat Server.Tomcat 10.1.40.executor": "Run",
-    "git-widget-placeholder": "#3 on feat/auth",
-    "kotlin-language-version-configured": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Database Script.script.sql (1).executor&quot;: &quot;Run&quot;,
+    &quot;Database Script.script.sql.executor&quot;: &quot;Run&quot;,
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;Maven.color_run [clean,validate,compile,test...].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.color_run [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.color_run [install].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.color_run [test].executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;Tomcat Server.Tomcat 10.1.39.executor&quot;: &quot;Run&quot;,
+    &quot;Tomcat Server.Tomcat 10.1.40.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#3 on feat/auth&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "RunConfigurationTargetLRU": [
-      "885ace08-6efe-45f5-9dc8-c0bd83c883db"
+  &quot;keyToStringList&quot;: {
+    &quot;RunConfigurationTargetLRU&quot;: [
+      &quot;885ace08-6efe-45f5-9dc8-c0bd83c883db&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/main/resources" />
@@ -280,6 +281,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Init du projet" />
-    <option name="LAST_COMMIT_MESSAGE" value="Init du projet" />
+    <MESSAGE value="Feat : Ajout des services ( méthodes CRUD )" />
+    <option name="LAST_COMMIT_MESSAGE" value="Feat : Ajout des services ( méthodes CRUD )" />
   </component>
 </project>
