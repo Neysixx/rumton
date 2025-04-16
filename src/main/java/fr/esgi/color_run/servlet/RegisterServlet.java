@@ -56,6 +56,13 @@ public class RegisterServlet extends HttpServlet {
         String motDePasse = request.getParameter("motDePasse");
         String confirmMotDePasse = request.getParameter("confirmMotDePasse");
 
+        // Debug des données reçues
+        System.out.println("DEBUG - Données reçues:");
+        System.out.println("Nom: " + nom);
+        System.out.println("Prénom: " + prenom);
+        System.out.println("Email: " + email);
+        System.out.println("Mot de passe reçu: " + (motDePasse != null ? "Oui (longueur: " + motDePasse.length() + ")" : "Non"));
+
         // Récupération du moteur de template
         TemplateEngine templateEngine = (TemplateEngine) getServletContext().getAttribute("templateEngine");
         Context context = new Context();
@@ -93,12 +100,14 @@ public class RegisterServlet extends HttpServlet {
                 .dateCreation(new Date())
                 .build();
 
+        System.out.println("DEBUG - Participant créé: " + participant);
+
         // Enregistrement du participant
         try {
             participantService.creerParticipant(participant);
 
             // Redirection vers la page de connexion avec un message de succès
-//            response.sendRedirect(request.getContextPath() + "/login?registered=true");
+            response.sendRedirect(request.getContextPath() + "/login?registered=true");
         } catch (Exception e) {
             context.setVariable("error", "Une erreur est survenue lors de l'inscription: " + e.getMessage());
             templateEngine.process("register", context, response.getWriter());

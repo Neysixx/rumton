@@ -10,6 +10,15 @@ public class DatabaseConnection {
     private static final String USER = "sa";
     private static final String PASSWORD = "";
 
+    static {
+        try {
+            // Chargement explicite du driver H2
+            Class.forName("org.h2.Driver");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Driver H2 non trouvé. Vérifiez vos dépendances Maven.", e);
+        }
+    }
+
     public static Connection getTestConnection() throws SQLException {
         return DriverManager.getConnection(TEST_DB_URL, USER, PASSWORD);
     }

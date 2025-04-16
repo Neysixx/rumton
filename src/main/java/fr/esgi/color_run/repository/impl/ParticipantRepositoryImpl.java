@@ -14,7 +14,7 @@ public class ParticipantRepositoryImpl implements ParticipantRepository {
     @Override
     public Participant save(Participant participant) {
         String sql = "INSERT INTO PARTICIPANT (nom, prenom, email, mot_de_passe, url_profile, est_organisateur, date_creation) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (Connection connection = DatabaseConnection.getTestConnection();
+        try (Connection connection = DatabaseConnection.getProdConnection();
              PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, participant.getNom());
             stmt.setString(2, participant.getPrenom());
@@ -47,7 +47,7 @@ public class ParticipantRepositoryImpl implements ParticipantRepository {
     @Override
     public Optional<Participant> findById(int id) {
         String sql = "SELECT * FROM PARTICIPANT WHERE id_participant = ?";
-        try (Connection connection = DatabaseConnection.getTestConnection();
+        try (Connection connection = DatabaseConnection.getProdConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
@@ -63,7 +63,7 @@ public class ParticipantRepositoryImpl implements ParticipantRepository {
     @Override
     public Optional<Participant> findByEmail(String email) {
         String sql = "SELECT * FROM PARTICIPANT WHERE email = ?";
-        try (Connection connection = DatabaseConnection.getTestConnection();
+        try (Connection connection = DatabaseConnection.getProdConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, email);
             ResultSet rs = stmt.executeQuery();
@@ -80,7 +80,7 @@ public class ParticipantRepositoryImpl implements ParticipantRepository {
     public List<Participant> findAll() {
         List<Participant> participants = new ArrayList<>();
         String sql = "SELECT * FROM PARTICIPANT";
-        try (Connection connection = DatabaseConnection.getTestConnection();
+        try (Connection connection = DatabaseConnection.getProdConnection();
              Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
@@ -96,7 +96,7 @@ public class ParticipantRepositoryImpl implements ParticipantRepository {
     public void update(Participant participant) {
         String sql = "UPDATE PARTICIPANT SET nom = ?, prenom = ?, email = ?, mot_de_passe = ?, " +
                 "url_profile = ?, est_organisateur = ? WHERE id_participant = ?";
-        try (Connection connection = DatabaseConnection.getTestConnection();
+        try (Connection connection = DatabaseConnection.getProdConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, participant.getNom());
             stmt.setString(2, participant.getPrenom());
@@ -115,7 +115,7 @@ public class ParticipantRepositoryImpl implements ParticipantRepository {
     @Override
     public void delete(int id) {
         String sql = "DELETE FROM PARTICIPANT WHERE id_participant = ?";
-        try (Connection connection = DatabaseConnection.getTestConnection();
+        try (Connection connection = DatabaseConnection.getProdConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             stmt.executeUpdate();
