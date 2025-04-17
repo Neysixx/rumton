@@ -3,13 +3,13 @@ package fr.esgi.color_run.servlet;
 import java.io.*;
 import java.sql.Timestamp;
 
-//import fr.esgi.color_run.service.CourseService;
-//import fr.esgi.color_run.service.impl.CourseServiceImpl;
 import fr.esgi.color_run.business.Cause;
 import fr.esgi.color_run.business.Course;
 import fr.esgi.color_run.business.Participant;
+import fr.esgi.color_run.service.AuthService;
 import fr.esgi.color_run.service.CauseService;
 import fr.esgi.color_run.service.CourseService;
+import fr.esgi.color_run.service.impl.AuthServiceImpl;
 import fr.esgi.color_run.service.impl.CauseServiceImpl;
 import fr.esgi.color_run.service.impl.CourseServiceImpl;
 import jakarta.servlet.ServletException;
@@ -24,9 +24,15 @@ import org.thymeleaf.context.Context;
 @WebServlet(name = "coursesServlet", value = {"/index", "/api/courses"})
 public class CourseServlet extends HttpServlet {
     private String message;
+    private AuthService authService;
+    private CourseService courseService;
+    private CauseService causeService;
 
     public void init() {
         message = "Liste des courses";
+        authService = new AuthServiceImpl();
+        courseService = new CourseServiceImpl();
+        causeService = new CauseServiceImpl();
     }
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -36,6 +42,25 @@ public class CourseServlet extends HttpServlet {
         // On crée un context Thymeleaf qui va accueille des objets Java
         // qui seront envoyés à la vue Thymeleaf
         Context context = new Context();
+        
+        // On récupère le token depuis les attributs de la requête (placé par le filtre)
+        String token = (String) request.getAttribute("jwt_token");
+        if (token != null) {
+            // Ajout d'informations supplémentaires au contexte si l'utilisateur est authentifié
+            boolean isOrganisateur = (boolean) request.getAttribute("is_organisateur");
+            boolean isAdmin = (boolean) request.getAttribute("is_admin");
+            context.setVariable("isOrganisateur", isOrganisateur);
+            context.setVariable("isAdmin", isAdmin);
+            
+            // Si l'utilisateur est un participant, on récupère ses données
+            Participant participant = authService.getParticipantFromToken(token);
+            if (participant != null) {
+                context.setVariable("participant", participant);
+            }
+        }
+        
+        // Ajout des courses à la vue
+        context.setVariable("courses", courseService.getAllCourses());
 
         // On invoque la méthode process qui formule la réponse qui sera renvoyée au navigateur
         templateEngine.process("courses", context, response.getWriter());
@@ -43,12 +68,24 @@ public class CourseServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        CourseService courseService = new CourseServiceImpl();
-        CauseService causeService = new CauseServiceImpl();
-
-        // TODO !! Dans cette méthode l'organisateur sera toujours envoyé à null --> à préciser
+        // Récupération du token depuis les attributs de la requête (placé par le filtre)
+        String token = (String) request.getAttribute("jwt_token");
+        
+        // Vérification que l'utilisateur est un organisateur
+        boolean isOrganisateur = (boolean) request.getAttribute("is_organisateur");
+        if (!isOrganisateur) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.getWriter().write("{\"error\": \"Seuls les organisateurs peuvent créer des courses\"}");
+            return;
+        }
 
         try {
+            // Récupération de l'organisateur à partir du token
+            Participant organisateur = authService.getParticipantFromToken(token);
+            if (organisateur == null) {
+                throw new ServletException("Impossible de récupérer les informations de l'organisateur");
+            }
+
             // Récupération des paramètres
             String nom = request.getParameter("nom");
             String description = request.getParameter("description");
@@ -79,10 +116,7 @@ public class CourseServlet extends HttpServlet {
                 throw new ServletException("Impossible de récupérer la cause associée : " + e.getMessage());
             }
 
-            // (Optionnel) Recherche de l'organisateur :
-            Participant organisateur = null; // à récupérer via un service si nécessaire
-
-            // Création de l'objet Course
+            // Création de l'objet Course avec l'organisateur authentifié
             Course course = Course.builder()
                     .nom(nom)
                     .description(description)
@@ -95,7 +129,7 @@ public class CourseServlet extends HttpServlet {
                     .prixParticipation(prixParticipation)
                     .obstacles(obstacles)
                     .cause(cause)
-                    .organisateur(organisateur)
+                    .organisateur(organisateur)  // Affectation de l'organisateur
                     .build();
 
             // Enregistrement
@@ -106,9 +140,8 @@ public class CourseServlet extends HttpServlet {
 
         } catch (Exception e) {
             e.printStackTrace();
-
-            request.setAttribute("error", "Erreur lors de la création de la course : " + e.getMessage());
-            request.getRequestDispatcher("/WEB-INF/templates/courses.html").forward(request, response);
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
         }
     }
 }

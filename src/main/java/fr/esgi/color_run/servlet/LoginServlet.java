@@ -19,11 +19,12 @@ import java.io.PrintWriter;
 public class LoginServlet extends HttpServlet {
 
     private LoginService loginService;
+    private JwtUtil jwtUtil;
 
     @Override
     public void init() {
         ParticipantRepository participantRepository = new ParticipantRepositoryImpl();
-        JwtUtil jwtUtil = new JwtUtil();
+        jwtUtil = JwtUtil.getInstance();;
         loginService = new LoginServiceImpl(participantRepository, jwtUtil);
     }
 
@@ -37,29 +38,40 @@ public class LoginServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
-
-        System.out.println("Email: " + email);
-
+        
+        // Type d'utilisateur (admin ou participant)
+        String userType = request.getParameter("userType");
+        
         String token = null;
-        token = loginService.authenticateParticipant(email, password);
+        
+        // Authentification basée sur le type d'utilisateur
+        if ("admin".equals(userType)) {
+            token = loginService.authenticateAdmin(email, password);
+        } else {
+            token = loginService.authenticateParticipant(email, password);
+        }
 
         if (token != null) {
             // Stockage du token dans un cookie sécurisé
             Cookie jwtCookie = new Cookie("jwt_token", token);
-            jwtCookie.setHttpOnly(true); // Empêche l'accès au cookie via JavaScript
-            jwtCookie.setMaxAge(7200); // 2 heures en secondes
+            jwtCookie.setHttpOnly(true);
+            jwtCookie.setMaxAge(24 * 60 * 60); // 24 heures en secondes
             jwtCookie.setPath("/");
             // jwtCookie.setSecure(true); // À décommenter en production pour HTTPS
             response.addCookie(jwtCookie);
 
-            // Redirection vers la page d'accueil ou une page sécurisée
-//            response.sendRedirect(request.getContextPath() + "/dashboard");
+            // Réponse JSON avec le token et le rôle
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            String role = jwtUtil.getRoleFromToken(token);
+            PrintWriter out = response.getWriter();
+            out.print("{\"success\": true, \"token\": \"" + token + "\", \"role\": \"" + role + "\"}");
         } else {
             // En cas d'échec d'authentification
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
             PrintWriter out = response.getWriter();
-            out.print("{\"error\": \"Identifiants invalides\"}");
+            out.print("{\"success\": false, \"error\": \"Identifiants invalides\"}");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         }
     }
