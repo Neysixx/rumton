@@ -36,3 +36,10 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### InteliJ IDEA ###
+.idea/**
+
+db_file/
+src/main/resources/application.properties
+
