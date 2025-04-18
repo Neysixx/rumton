@@ -35,12 +35,20 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public Optional<Admin> getAdminById(int id) {
+    public Admin getAdminById(int id) {
         if (id <= 0) {
             throw new IllegalArgumentException("ID d'administrateur invalide");
         }
 
-        return adminRepository.findById(id);
+        return adminRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            return false;
+        }
+        return adminRepository.findByEmail(email).isPresent();
     }
 
     @Override

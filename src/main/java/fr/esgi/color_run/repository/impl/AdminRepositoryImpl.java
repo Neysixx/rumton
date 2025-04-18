@@ -1,6 +1,7 @@
 package fr.esgi.color_run.repository.impl;
 
 import fr.esgi.color_run.business.Admin;
+import fr.esgi.color_run.business.Participant;
 import fr.esgi.color_run.configuration.DatabaseConnection;
 import fr.esgi.color_run.repository.AdminRepository;
 
@@ -96,6 +97,22 @@ public class AdminRepositoryImpl implements AdminRepository {
             e.printStackTrace();
         }
         return admins;
+    }
+
+    @Override
+    public Optional<Admin> findByEmail(String email) {
+        String sql = "SELECT * FROM ADMIN WHERE email = ?";
+        try (Connection connection = DatabaseConnection.getProdConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return Optional.of(mapResultSetToAdmin(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Optional.empty();
     }
 
     @Override

@@ -71,7 +71,6 @@ public class MeServlet extends HttpServlet {
                         "\nAdmin: true" +
                         "\nDonnées utilisateur: " + admin.toString();
             }
-
             response.getWriter().write(userText);
 
         } catch (Exception e) {
