@@ -1,6 +1,7 @@
 package fr.esgi.color_run.repository;
 
 import fr.esgi.color_run.business.Cause;
+
 import java.util.List;
 import java.util.Optional;
 

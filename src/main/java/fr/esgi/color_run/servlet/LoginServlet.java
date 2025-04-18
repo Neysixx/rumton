@@ -15,7 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-@WebServlet(name = "loginServlet", value = "/api/login")
+@WebServlet(name = "loginServlet", value = "/login")
 public class LoginServlet extends HttpServlet {
 
     private LoginService loginService;

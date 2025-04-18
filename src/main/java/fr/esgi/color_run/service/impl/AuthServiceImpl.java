@@ -46,6 +46,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Participant getParticipantFromToken(String token) {
         if (!isTokenValid(token)) {
+            System.out.println("Token invalide");
             return null;
         }
         

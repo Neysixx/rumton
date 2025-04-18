@@ -14,7 +14,7 @@ public class AdminRepositoryImpl implements AdminRepository {
     @Override
     public void save(Admin admin) {
         String sql = "INSERT INTO ADMIN (nom, prenom, email, mot_de_passe, url_profile) VALUES (?, ?, ?, ?, ?)";
-        try (Connection connection = DatabaseConnection.getTestConnection();
+        try (Connection connection = DatabaseConnection.getProdConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, admin.getNom());
             stmt.setString(2, admin.getPrenom());
@@ -30,7 +30,7 @@ public class AdminRepositoryImpl implements AdminRepository {
     @Override
     public Optional<Admin> findById(int id) {
         String sql = "SELECT * FROM ADMIN WHERE id_admin = ?";
-        try (Connection connection = DatabaseConnection.getTestConnection();
+        try (Connection connection = DatabaseConnection.getProdConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
@@ -47,7 +47,7 @@ public class AdminRepositoryImpl implements AdminRepository {
     public List<Admin> findAll() {
         List<Admin> admins = new ArrayList<>();
         String sql = "SELECT * FROM ADMIN";
-        try (Connection connection = DatabaseConnection.getTestConnection();
+        try (Connection connection = DatabaseConnection.getProdConnection();
              Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
@@ -62,7 +62,7 @@ public class AdminRepositoryImpl implements AdminRepository {
     @Override
     public void update(Admin admin) {
         String sql = "UPDATE ADMIN SET nom = ?, prenom = ?, email = ?, mot_de_passe = ?, url_profile = ? WHERE id_admin = ?";
-        try (Connection connection = DatabaseConnection.getTestConnection();
+        try (Connection connection = DatabaseConnection.getProdConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, admin.getNom());
             stmt.setString(2, admin.getPrenom());
@@ -79,7 +79,7 @@ public class AdminRepositoryImpl implements AdminRepository {
     @Override
     public void delete(int id) {
         String sql = "DELETE FROM ADMIN WHERE id_admin = ?";
-        try (Connection connection = DatabaseConnection.getTestConnection();
+        try (Connection connection = DatabaseConnection.getProdConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             stmt.executeUpdate();

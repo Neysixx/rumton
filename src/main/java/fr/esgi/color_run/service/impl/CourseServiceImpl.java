@@ -56,7 +56,7 @@ public class CourseServiceImpl implements CourseService {
             throw new IllegalArgumentException("ID de course invalide");
         }
 
-        return Optional.ofNullable(courseRepository.findById(id).orElse(null));
+        return courseRepository.findById(id);
     }
 
     @Override

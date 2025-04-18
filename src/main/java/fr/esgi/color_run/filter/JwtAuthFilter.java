@@ -21,11 +21,11 @@ import java.util.Optional;
 /**
  * Filtre qui intercepte toutes les requêtes pour valider les tokens JWT
  */
-@WebFilter(urlPatterns = {"/api/*"})
+@WebFilter(urlPatterns = {"/*"})
 public class JwtAuthFilter implements Filter {
 
     private AuthService authService;
-    private final List<String> PUBLIC_PATHS = Arrays.asList("/api/login", "/api/register");
+    private final List<String> PUBLIC_PATHS = Arrays.asList("/login", "/register");
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
