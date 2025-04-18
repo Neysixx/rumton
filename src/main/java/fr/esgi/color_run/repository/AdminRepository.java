@@ -7,10 +7,44 @@ import java.util.List;
 import java.util.Optional;
 
 public interface AdminRepository {
-    void save(Admin admin);
+
+    /**
+     * Enregistre un administrateur dans la base de données.
+     * @param admin L'administrateur à sauvegarder
+     * @return L'administrateur avec son ID généré
+     */
+    Admin save(Admin admin);
+
+    /**
+     * Recherche un administrateur par son ID.
+     * @param id L'ID de l'administrateur
+     * @return Un Optional contenant l'administrateur s'il est trouvé
+     */
     Optional<Admin> findById(int id);
+
+    /**
+     * Recherche un administrateur par son adresse email.
+     * @param email L'email de l'administrateur
+     * @return Un Optional contenant l'administrateur s'il est trouvé
+     */
+    Optional<Admin> findByEmail(String email);
+
+    /**
+     * Récupère la liste de tous les administrateurs.
+     * @return Une liste d'administrateurs
+     */
     List<Admin> findAll();
+
+    /**
+     * Met à jour les informations d'un administrateur existant.
+     * @param admin L'administrateur avec les informations mises à jour
+     */
     void update(Admin admin);
+
+    /**
+     * Supprime un administrateur par son identifiant.
+     * @param id L'ID de l'administrateur à supprimer
+     */
     void delete(int id);
 
     /**
