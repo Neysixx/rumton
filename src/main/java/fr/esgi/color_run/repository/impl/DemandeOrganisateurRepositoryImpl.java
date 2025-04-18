@@ -201,7 +201,7 @@ public class DemandeOrganisateurRepositoryImpl implements DemandeOrganisateurRep
         Optional<Admin> traitePar = Optional.empty();
         int idAdmin = rs.getInt("traite_par");
         if (!rs.wasNull()) {
-            Optional<Admin> adminOpt = adminService.getAdminById(idAdmin);
+            Optional<Admin> adminOpt = Optional.ofNullable(adminService.getAdminById(idAdmin));
             if (adminOpt.isPresent()) {
                 traitePar = adminOpt;
             }
