@@ -1,8 +1,8 @@
 package fr.esgi.color_run.repository.impl;
 
+import fr.esgi.color_run.business.Admin;
 import fr.esgi.color_run.configuration.DatabaseConnection;
 import fr.esgi.color_run.repository.AdminRepository;
-import fr.esgi.color_run.business.Admin;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -12,18 +12,35 @@ import java.util.Optional;
 public class AdminRepositoryImpl implements AdminRepository {
 
     @Override
-    public void save(Admin admin) {
+    public Admin save(Admin admin) {
         String sql = "INSERT INTO ADMIN (nom, prenom, email, mot_de_passe, url_profile) VALUES (?, ?, ?, ?, ?)";
         try (Connection connection = DatabaseConnection.getProdConnection();
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
+             PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
             stmt.setString(1, admin.getNom());
             stmt.setString(2, admin.getPrenom());
             stmt.setString(3, admin.getEmail());
             stmt.setString(4, admin.getMotDePasse());
             stmt.setString(5, admin.getUrlProfile());
-            stmt.executeUpdate();
+
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("La création de l'admin a échoué, aucune ligne affectée.");
+            }
+
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    admin.setIdAdmin(generatedKeys.getInt(1));
+                } else {
+                    throw new SQLException("La création de l'admin a échoué, aucun ID généré.");
+                }
+            }
+
+            return admin;
+
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new RuntimeException("Erreur lors de l'enregistrement de l'admin : " + e.getMessage());
         }
     }
 
@@ -32,11 +49,31 @@ public class AdminRepositoryImpl implements AdminRepository {
         String sql = "SELECT * FROM ADMIN WHERE id_admin = ?";
         try (Connection connection = DatabaseConnection.getProdConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
+
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return Optional.of(mapResultSetToAdmin(rs));
             }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Admin> findByEmail(String email) {
+        String sql = "SELECT * FROM ADMIN WHERE email = ?";
+        try (Connection connection = DatabaseConnection.getProdConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return Optional.of(mapResultSetToAdmin(rs));
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -50,9 +87,11 @@ public class AdminRepositoryImpl implements AdminRepository {
         try (Connection connection = DatabaseConnection.getProdConnection();
              Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
+
             while (rs.next()) {
                 admins.add(mapResultSetToAdmin(rs));
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -64,15 +103,19 @@ public class AdminRepositoryImpl implements AdminRepository {
         String sql = "UPDATE ADMIN SET nom = ?, prenom = ?, email = ?, mot_de_passe = ?, url_profile = ? WHERE id_admin = ?";
         try (Connection connection = DatabaseConnection.getProdConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
+
             stmt.setString(1, admin.getNom());
             stmt.setString(2, admin.getPrenom());
             stmt.setString(3, admin.getEmail());
             stmt.setString(4, admin.getMotDePasse());
             stmt.setString(5, admin.getUrlProfile());
             stmt.setInt(6, admin.getIdAdmin());
+
             stmt.executeUpdate();
+
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new RuntimeException("Erreur lors de la mise à jour de l'admin : " + e.getMessage());
         }
     }
 
@@ -81,21 +124,24 @@ public class AdminRepositoryImpl implements AdminRepository {
         String sql = "DELETE FROM ADMIN WHERE id_admin = ?";
         try (Connection connection = DatabaseConnection.getProdConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
+
             stmt.setInt(1, id);
             stmt.executeUpdate();
+
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new RuntimeException("Erreur lors de la suppression de l'admin : " + e.getMessage());
         }
     }
 
     private Admin mapResultSetToAdmin(ResultSet rs) throws SQLException {
-        return new Admin(
-                rs.getInt("id_admin"),
-                rs.getString("nom"),
-                rs.getString("prenom"),
-                rs.getString("email"),
-                rs.getString("mot_de_passe"),
-                rs.getString("url_profile")
-        );
+        return Admin.builder()
+                .idAdmin(rs.getInt("id_admin"))
+                .nom(rs.getString("nom"))
+                .prenom(rs.getString("prenom"))
+                .email(rs.getString("email"))
+                .motDePasse(rs.getString("mot_de_passe"))
+                .urlProfile(rs.getString("url_profile"))
+                .build();
     }
 }

@@ -2,6 +2,7 @@ package fr.esgi.color_run.servlet;
 
 import java.io.*;
 
+import fr.esgi.color_run.business.Admin;
 import fr.esgi.color_run.business.Participant;
 import fr.esgi.color_run.service.AuthService;
 import fr.esgi.color_run.service.impl.AuthServiceImpl;
@@ -32,6 +33,7 @@ public class MeServlet extends HttpServlet {
 
         // Récupération du token depuis les attributs de la requête (placé par le filtre)
         String token = (String) request.getAttribute("jwt_token");
+        System.out.println("[DEBUG] Token JWT récupéré dans /me : " + token);
 
         if (token == null) {
             // Si l'utilisateur n'est pas authentifié, renvoyer un code 401
@@ -41,30 +43,35 @@ public class MeServlet extends HttpServlet {
         }
 
         try {
-            // Récupération des informations de l'utilisateur à partir du token
+            Admin admin = null;
             Participant participant = authService.getParticipantFromToken(token);
-
             if (participant == null) {
+                admin = authService.getAdminFromToken(token);
+            }
+
+            if (participant == null && admin == null) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 response.getWriter().write("{\"error\": \"Informations utilisateur introuvables\"}");
                 return;
             }
 
-            // Récupération des rôles de l'utilisateur
-            boolean isOrganisateur = (boolean) request.getAttribute("is_organisateur");
-            boolean isAdmin = (boolean) request.getAttribute("is_admin");
+            boolean isOrganisateur = Boolean.TRUE.equals(request.getAttribute("is_organisateur"));
 
-            // Création d'un objet anonyme contenant les informations à retourner
-            Object userData = new Object() {
-                public final Participant user = participant;
-                public final boolean organisateur = isOrganisateur;
-                public final boolean admin = isAdmin;
-            };
+            String userText;
 
-            String userText = "Utilisateur: " + participant.getNom() + " " + participant.getPrenom() +
-                    "\nOrganisateur: " + isOrganisateur +
-                    "\nAdmin: " + isAdmin
-                    + "\nDonnées utilisateur: " + participant.toString();
+            if (participant != null) {
+                userText = "Utilisateur: " + participant.getNom() + " " + participant.getPrenom() +
+                        "\nOrganisateur: " + isOrganisateur +
+                        "\nAdmin: false" +
+                        "\nDonnées utilisateur: " + participant.toString();
+
+            } else {
+                userText = "Utilisateur: " + admin.getNom() + " " + admin.getPrenom() +
+                        "\nOrganisateur: false" +
+                        "\nAdmin: true" +
+                        "\nDonnées utilisateur: " + admin.toString();
+            }
+
             response.getWriter().write(userText);
 
         } catch (Exception e) {
