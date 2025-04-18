@@ -44,7 +44,11 @@ public class MessageRepositoryImpl implements MessageRepository {
             }
 
             stmt.setString(4, message.getContenu());
-            stmt.setTimestamp(5, new Timestamp(message.getDatePublication().getTime()));
+
+            // Correction du format de la date
+            // Utiliser java.sql.Timestamp directement pour éviter les problèmes de format
+            java.sql.Timestamp sqlTimestamp = new java.sql.Timestamp(message.getDatePublication().getTime());
+            stmt.setTimestamp(5, sqlTimestamp);
 
             int affectedRows = stmt.executeUpdate();
             if (affectedRows == 0) {

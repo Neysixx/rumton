@@ -121,7 +121,6 @@ public class CourseServlet extends HttpServlet {
             return;
         }
 
-
         try {
             // Récupération de l'organisateur à partir du token
             Participant organisateur = authService.getParticipantFromToken(token);
@@ -129,26 +128,98 @@ public class CourseServlet extends HttpServlet {
                 throw new ServletException("Impossible de récupérer les informations de l'organisateur");
             }
 
-            // Récupération des paramètres
+            // Récupération des paramètres avec validation
             String nom = request.getParameter("nom");
+            if (nom == null || nom.trim().isEmpty()) {
+                throw new IllegalArgumentException("Le nom de la course est obligatoire");
+            }
+            
             String description = request.getParameter("description");
+            // Description peut être null ou vide
+            
             String dateDepartStr = request.getParameter("dateDepart");
             String ville = request.getParameter("ville");
+            if (ville == null || ville.trim().isEmpty()) {
+                throw new IllegalArgumentException("La ville est obligatoire");
+            }
+            
             String codePostalStr = request.getParameter("codePostal");
+            if (codePostalStr == null || codePostalStr.trim().isEmpty()) {
+                throw new IllegalArgumentException("Le code postal est obligatoire");
+            }
+            
             String adresse = request.getParameter("adresse");
+            // Adresse peut être null ou vide
+            
             String distanceStr = request.getParameter("distance");
+            if (distanceStr == null || distanceStr.trim().isEmpty()) {
+                throw new IllegalArgumentException("La distance est obligatoire");
+            }
+            
             String maxParticipantsStr = request.getParameter("maxParticipants");
+            if (maxParticipantsStr == null || maxParticipantsStr.trim().isEmpty()) {
+                throw new IllegalArgumentException("Le nombre maximum de participants est obligatoire");
+            }
+            
             String prixParticipationStr = request.getParameter("prixParticipation");
+            if (prixParticipationStr == null || prixParticipationStr.trim().isEmpty()) {
+                throw new IllegalArgumentException("Le prix de participation est obligatoire");
+            }
+            
             String obstacles = request.getParameter("obstacles");
+            // Obstacles peut être null ou vide
+            
             String idCauseStr = request.getParameter("idCause");
+            if (idCauseStr == null || idCauseStr.trim().isEmpty()) {
+                throw new IllegalArgumentException("L'ID de la cause est obligatoire");
+            }
 
-            // Conversions
-            Timestamp dateDepart = Timestamp.valueOf(dateDepartStr + " 00:00:00");
-            int codePostal = Integer.parseInt(codePostalStr);
-            float distance = Float.parseFloat(distanceStr);
-            int maxParticipants = Integer.parseInt(maxParticipantsStr);
-            float prixParticipation = Float.parseFloat(prixParticipationStr);
-            int idCause = Integer.parseInt(idCauseStr);
+            // Conversions avec gestion des erreurs
+            java.sql.Timestamp dateDepart = new java.sql.Timestamp(System.currentTimeMillis());
+            if (dateDepartStr != null && !dateDepartStr.trim().isEmpty()) {
+                try {
+                    java.text.SimpleDateFormat inputFormat = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+                    java.util.Date parsedDate = inputFormat.parse(dateDepartStr);
+                    dateDepart = new java.sql.Timestamp(parsedDate.getTime());
+                } catch (java.text.ParseException e) {
+                    throw new IllegalArgumentException("Format de date de départ invalide. Utilisez le format yyyy-MM-ddTHH:mm");
+                }
+            }
+            
+            int codePostal;
+            try {
+                codePostal = Integer.parseInt(codePostalStr);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Le code postal doit être un nombre");
+            }
+            
+            float distance;
+            try {
+                distance = Float.parseFloat(distanceStr);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("La distance doit être un nombre");
+            }
+            
+            int maxParticipants;
+            try {
+                maxParticipants = Integer.parseInt(maxParticipantsStr);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Le nombre maximum de participants doit être un nombre entier");
+            }
+            
+            float prixParticipation;
+            try {
+                prixParticipation = Float.parseFloat(prixParticipationStr);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Le prix de participation doit être un nombre");
+            }
+            
+            int idCause;
+            try {
+                idCause = Integer.parseInt(idCauseStr);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("L'ID de la cause doit être un nombre entier");
+            }
 
             // Recherche de la cause
             Cause cause;
@@ -180,12 +251,22 @@ public class CourseServlet extends HttpServlet {
             // Enregistrement
             courseService.createCourse(course);
 
-            // Redirection
-            response.sendRedirect(request.getContextPath() + "/courses");
+            // Réponse
+            response.setStatus(HttpServletResponse.SC_CREATED);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("{\"message\": \"Course créée avec succès\", \"id\": " + course.getIdCourse() + "}");
 
+        } catch (IllegalArgumentException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
         } catch (Exception e) {
             e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
             response.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
         }
     }

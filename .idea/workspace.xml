@@ -10,27 +10,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1b4e73a1-147b-4c72-ad2d-26c1741a7213" name="Changes" comment="Feat : Ajout des services ( méthodes CRUD )">
-      <change afterPath="$PROJECT_DIR$/.idea/discord.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/business/Cause.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/business/Cause.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/filter/JwtAuthFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/filter/JwtAuthFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/repository/CauseRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/repository/CauseRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/repository/impl/AdminRepositoryImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/repository/impl/AdminRepositoryImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/repository/impl/CauseRepositoryImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/repository/impl/CauseRepositoryImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/repository/impl/CourseRepositoryImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/repository/impl/CourseRepositoryImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/impl/AuthServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/impl/AuthServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/impl/CourseServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/impl/CourseServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/AuthServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/MeServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/CauseServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/CauseServlet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/repository/impl/MessageRepositoryImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/repository/impl/MessageRepositoryImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/CourseServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/CourseServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/LoginServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/LoginServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/RegisterServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/RegisterServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/color_run-1.0-SNAPSHOT/META-INF/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/target/color_run-1.0-SNAPSHOT/META-INF/MANIFEST.MF" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/MessageServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/MessageServlet.java" afterDir="false" />
     </list>
-    <list id="23a118b8-4017-49f0-9088-572d087b5d4a" name="Changes by romai" comment="">
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/repository/impl/CourseRepositoryImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/repository/impl/CourseRepositoryImpl.java" afterDir="false" />
-    </list>
+    <list id="23a118b8-4017-49f0-9088-572d087b5d4a" name="Changes by romai" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -97,24 +82,6 @@
   <component name="KubernetesApiProvider">{
   &quot;isMigrated&quot;: true
 }</component>
-  <component name="LineStatusTrackerManager">
-    <file path="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/repository/impl/CourseRepositoryImpl.java">
-      <ranges>
-        <range start1="2" end1="2" start2="2" end2="3" changelist="1b4e73a1-147b-4c72-ad2d-26c1741a7213" />
-        <range start1="3" end1="3" start2="4" end2="5" changelist="1b4e73a1-147b-4c72-ad2d-26c1741a7213" />
-        <range start1="5" end1="5" start2="7" end2="12" changelist="1b4e73a1-147b-4c72-ad2d-26c1741a7213" />
-        <range start1="12" end1="14" start2="19" end2="21" changelist="1b4e73a1-147b-4c72-ad2d-26c1741a7213" />
-        <range start1="24" end1="24" start2="31" end2="34" changelist="23a118b8-4017-49f0-9088-572d087b5d4a" />
-        <range start1="33" end1="34" start2="43" end2="44" changelist="1b4e73a1-147b-4c72-ad2d-26c1741a7213" />
-        <range start1="50" end1="51" start2="60" end2="61" changelist="1b4e73a1-147b-4c72-ad2d-26c1741a7213" />
-        <range start1="63" end1="65" start2="73" end2="75" changelist="1b4e73a1-147b-4c72-ad2d-26c1741a7213" />
-        <range start1="75" end1="76" start2="85" end2="87" changelist="23a118b8-4017-49f0-9088-572d087b5d4a" />
-        <range start1="85" end1="86" start2="96" end2="97" changelist="1b4e73a1-147b-4c72-ad2d-26c1741a7213" />
-        <range start1="95" end1="95" start2="106" end2="120" changelist="23a118b8-4017-49f0-9088-572d087b5d4a" />
-        <range start1="107" end1="107" start2="132" end2="134" changelist="23a118b8-4017-49f0-9088-572d087b5d4a" />
-      </ranges>
-    </file>
-  </component>
   <component name="LogFilters">
     <option name="FILTER_ERRORS" value="false" />
     <option name="FILTER_WARNINGS" value="false" />
@@ -138,43 +105,43 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Database Script.script.sql (1).executor&quot;: &quot;Run&quot;,
-    &quot;Database Script.script.sql.executor&quot;: &quot;Run&quot;,
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;Maven.color_run [clean,validate,compile,test...].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.color_run [clean].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.color_run [install].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.color_run [test].executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;Tomcat Server.Tomcat 10.1.39.executor&quot;: &quot;Run&quot;,
-    &quot;Tomcat Server.Tomcat 10.1.40.executor&quot;: &quot;Run&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;#4 on feat/courses&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Artifacts&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Database Script.script.sql (1).executor": "Run",
+    "Database Script.script.sql.executor": "Run",
+    "DefaultHtmlFileTemplate": "HTML File",
+    "Maven.color_run [clean,validate,compile,test...].executor": "Run",
+    "Maven.color_run [clean].executor": "Run",
+    "Maven.color_run [install].executor": "Run",
+    "Maven.color_run [test].executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Tomcat Server.Tomcat 10.1.39.executor": "Run",
+    "Tomcat Server.Tomcat 10.1.40.executor": "Run",
+    "git-widget-placeholder": "#5 on feat/serlets",
+    "go.import.settings.migrated": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Artifacts",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;RunConfigurationTargetLRU&quot;: [
-      &quot;885ace08-6efe-45f5-9dc8-c0bd83c883db&quot;
+  "keyToStringList": {
+    "RunConfigurationTargetLRU": [
+      "885ace08-6efe-45f5-9dc8-c0bd83c883db"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/main/resources" />

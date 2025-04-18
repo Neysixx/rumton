@@ -25,7 +25,7 @@ import java.util.Optional;
 /**
  * Servlet pour gérer les messages liés aux courses
  */
-@WebServlet(name = "messageServlet", value = {"/messages/*", "/course/*/messages", "/course/*/messages/*"})
+@WebServlet(name = "messageServlet", value = {"/courses/*/messages/*"})
 public class MessageServlet extends HttpServlet {
 
     private AuthService authService;
@@ -40,11 +40,56 @@ public class MessageServlet extends HttpServlet {
     }
 
     /**
+     * Extraire l'ID de la course à partir du chemin de l'URL
+     * /courses/{courseId}/messages/ ou /courses/{courseId}/messages/{messageId}
+     */
+    private int extractCourseId(HttpServletRequest request) {
+        String requestURI = request.getRequestURI();
+        System.out.println("DEBUG - RequestURI pour extraction courseId: " + requestURI);
+
+        // Pattern plus précis pour extraire l'ID de la course
+        String[] parts = requestURI.split("/");
+        // L'URL devrait être /context/courses/ID/messages/...
+        for (int i = 0; i < parts.length; i++) {
+            if ("courses".equals(parts[i]) && i + 1 < parts.length) {
+                try {
+                    return Integer.parseInt(parts[i + 1]);
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("ID de course invalide: " + parts[i + 1]);
+                }
+            }
+        }
+        throw new IllegalArgumentException("Format d'URL invalide pour l'extraction de l'ID de course");
+    }
+
+    /**
+     * Extraire l'ID du message à partir du chemin de l'URL
+     * /courses/{courseId}/messages/{messageId}
+     */
+    private int extractMessageId(HttpServletRequest request) {
+        String requestURI = request.getRequestURI();
+        System.out.println("DEBUG - RequestURI pour extraction messageId: " + requestURI);
+
+        // Pattern plus précis pour extraire l'ID du message
+        String[] parts = requestURI.split("/");
+        // L'URL devrait être /context/courses/ID/messages/ID
+        for (int i = 0; i < parts.length; i++) {
+            if ("messages".equals(parts[i]) && i + 1 < parts.length) {
+                try {
+                    return Integer.parseInt(parts[i + 1]);
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("ID de message invalide: " + parts[i + 1]);
+                }
+            }
+        }
+        throw new IllegalArgumentException("Format d'URL invalide pour l'extraction de l'ID de message");
+    }
+
+    /**
      * Traite les requêtes GET pour afficher les messages
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Vérification de l'authentification
         String token = (String) request.getAttribute("jwt_token");
         if (token == null || !authService.isTokenValid(token)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -52,97 +97,79 @@ public class MessageServlet extends HttpServlet {
             return;
         }
 
-        // On récupère le moteur de template dans le contexte des servlets
+        System.out.println("DEBUG - Token valide: " + token);
+        System.out.println("DEBUG - RequestURI: " + request.getRequestURI());
+        System.out.println("DEBUG - PathInfo: " + request.getPathInfo());
+
         TemplateEngine templateEngine = (TemplateEngine) getServletContext().getAttribute("templateEngine");
         Context context = new Context();
 
-        // Configuration de la réponse
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        // Analyse du chemin pour déterminer le type de requête
-        String pathInfo = request.getPathInfo();
-        String servletPath = request.getServletPath();
+        String requestURI = request.getRequestURI();
 
         try {
-            // URL pattern: /course/{courseId}/messages
-            if (servletPath.matches("/course/\\d+/messages")) {
-                // Extraction de l'ID de la course
-                int courseId = extractCourseIdFromPath(servletPath);
-                
-                // Vérification que la course existe
+            // Vérifier s'il s'agit d'un message spécifique ou d'une liste de messages
+            if (requestURI.matches(".*/courses/\\d+/messages/\\d+/?")) {
+                // Gestion d'un message spécifique
+                int courseId = extractCourseId(request);
+                int messageId = extractMessageId(request);
+
+                System.out.println("DEBUG - ID de course extrait: " + courseId);
+                System.out.println("DEBUG - ID de message extrait: " + messageId);
+
                 Optional<Course> optCourse = courseService.getCourseById(courseId);
                 if (optCourse.isEmpty()) {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                     response.getWriter().write("{\"error\": \"Course non trouvée\"}");
                     return;
                 }
-                
-                // Récupération des messages pour cette course
-                List<Message> messages = messageService.getMessagesByCourse(courseId);
-                
-                // Ajout à la vue
-                context.setVariable("messages", messages);
-                context.setVariable("course", optCourse.get());
-                
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.getWriter().write(messages.toString());
-                templateEngine.process("messages", context, response.getWriter());
-            }
-            // URL pattern: /course/{courseId}/messages/{messageId}
-            else if (servletPath.matches("/course/\\d+/messages/\\d+")) {
-                // Extraction des IDs
-                int courseId = extractCourseIdFromPath(servletPath);
-                int messageId = extractMessageIdFromPath(pathInfo);
-                
-                // Récupération du message
+
                 Optional<Message> optMessage = messageService.getMessageById(messageId);
                 if (optMessage.isEmpty() || optMessage.get().getCourse().getIdCourse() != courseId) {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                    response.getWriter().write("{\"error\": \"Message non trouvé\"}");
+                    response.getWriter().write("{\"error\": \"Message non trouvé pour cette course\"}");
                     return;
                 }
-                
-                // Ajout à la vue
+
                 context.setVariable("message", optMessage.get());
-                
-                // Si c'est un message parent, récupérer ses réponses
+
                 List<Message> replies = messageService.getRepliesByParent(messageId);
                 context.setVariable("replies", replies);
-                
+
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.getWriter().write(optMessage.get().toString());
                 templateEngine.process("message", context, response.getWriter());
-            }
-            // URL pattern: /messages/{messageId}
-            else if (servletPath.equals("/messages") && pathInfo != null && pathInfo.matches("/\\d+")) {
-                int messageId = Integer.parseInt(pathInfo.substring(1));
-                
-                // Récupération du message
-                Optional<Message> optMessage = messageService.getMessageById(messageId);
-                if (optMessage.isEmpty()) {
+            } else if (requestURI.matches(".*/courses/\\d+/messages/?")) {
+                // Gestion de la liste des messages d'une course
+                int courseId = extractCourseId(request);
+
+                System.out.println("DEBUG - ID de course extrait: " + courseId);
+
+                Optional<Course> optCourse = courseService.getCourseById(courseId);
+                if (optCourse.isEmpty()) {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                    response.getWriter().write("{\"error\": \"Message non trouvé\"}");
+                    response.getWriter().write("{\"error\": \"Course non trouvée\"}");
                     return;
                 }
-                
-                // Ajout à la vue
-                context.setVariable("message", optMessage.get());
-                
-                // Si c'est un message parent, récupérer ses réponses
-                List<Message> replies = messageService.getRepliesByParent(messageId);
-                context.setVariable("replies", replies);
-                
+
+                List<Message> messages = messageService.getMessagesByCourse(courseId);
+
+                context.setVariable("messages", messages);
+                context.setVariable("course", optCourse.get());
+
                 response.setStatus(HttpServletResponse.SC_OK);
-                response.getWriter().write(optMessage.get().toString());
-                templateEngine.process("message", context, response.getWriter());
+                response.getWriter().write(messages.toString());
+                templateEngine.process("messages", context, response.getWriter());
             } else {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().write("{\"error\": \"Requête invalide\"}");
+                response.getWriter().write("{\"error\": \"Format d'URL non pris en charge: " + requestURI + "\"}");
             }
-        } catch (NumberFormatException e) {
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"Format d'ID invalide\"}");
+            response.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
         } catch (Exception e) {
             e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -155,7 +182,6 @@ public class MessageServlet extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Vérification de l'authentification
         String token = (String) request.getAttribute("jwt_token");
         if (token == null || !authService.isTokenValid(token)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -164,66 +190,59 @@ public class MessageServlet extends HttpServlet {
         }
 
         try {
-            // Récupération de l'utilisateur courant
             Participant participant = authService.getParticipantFromToken(token);
             if (participant == null) {
                 throw new ServletException("Impossible de récupérer les informations du participant");
             }
-            
-            // Récupération des paramètres
+
             String contenu = request.getParameter("contenu");
             if (contenu == null || contenu.trim().isEmpty()) {
                 throw new IllegalArgumentException("Le contenu du message est obligatoire");
             }
-            
-            String servletPath = request.getServletPath();
-            
-            // URL pattern: /course/{courseId}/messages
-            if (servletPath.matches("/course/\\d+/messages")) {
-                int courseId = extractCourseIdFromPath(servletPath);
-                
-                // Vérification que la course existe
-                Optional<Course> optCourse = courseService.getCourseById(courseId);
-                if (optCourse.isEmpty()) {
-                    throw new IllegalArgumentException("Course non trouvée avec l'ID " + courseId);
-                }
-                
-                Course course = optCourse.get();
-                
-                // Création du message
-                Message message = Message.builder()
-                        .emetteur(participant)
-                        .course(course)
-                        .contenu(contenu)
-                        .datePublication(new Date())
-                        .build();
-                
-                // Vérifier si c'est une réponse à un autre message
-                String parentIdStr = request.getParameter("messageParentId");
-                if (parentIdStr != null && !parentIdStr.trim().isEmpty()) {
-                    int parentId = Integer.parseInt(parentIdStr);
-                    Optional<Message> optParent = messageService.getMessageById(parentId);
-                    if (optParent.isPresent() && optParent.get().getCourse().getIdCourse() == courseId) {
-                        message.setMessageParent(optParent.get());
-                    } else {
-                        throw new IllegalArgumentException("Message parent invalide");
-                    }
-                }
-                
-                // Enregistrement du message
-                messageService.createMessage(message);
-                
-                // Réponse
-                response.setStatus(HttpServletResponse.SC_CREATED);
-                response.getWriter().write("{\"message\": \"Message publié avec succès\"}");
-            } else {
+
+            String requestURI = request.getRequestURI();
+            System.out.println("DEBUG - RequestURI POST: " + requestURI);
+
+            if (!requestURI.matches(".*/courses/\\d+/messages/?")) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().write("{\"error\": \"URL invalide pour la création d'un message\"}");
+                response.getWriter().write("{\"error\": \"Format d'URL invalide. Utilisez /courses/{courseId}/messages/\"}");
+                return;
             }
-            
-        } catch (NumberFormatException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"Format d'ID invalide\"}");
+
+            int courseId = extractCourseId(request);
+            System.out.println("DEBUG - ID de course extrait pour POST: " + courseId);
+
+            Optional<Course> optCourse = courseService.getCourseById(courseId);
+            if (optCourse.isEmpty()) {
+                throw new IllegalArgumentException("Course non trouvée avec l'ID " + courseId);
+            }
+
+            Course course = optCourse.get();
+            Date datePublication = new Date(System.currentTimeMillis());
+
+            Message message = Message.builder()
+                    .emetteur(participant)
+                    .course(course)
+                    .contenu(contenu)
+                    .datePublication(datePublication)
+                    .build();
+
+            String parentIdStr = request.getParameter("messageParentId");
+            if (parentIdStr != null && !parentIdStr.trim().isEmpty()) {
+                int parentId = Integer.parseInt(parentIdStr);
+                Optional<Message> optParent = messageService.getMessageById(parentId);
+                if (optParent.isPresent() && optParent.get().getCourse().getIdCourse() == courseId) {
+                    message.setMessageParent(optParent.get());
+                } else {
+                    throw new IllegalArgumentException("Message parent invalide");
+                }
+            }
+
+            messageService.createMessage(message);
+
+            response.setStatus(HttpServletResponse.SC_CREATED);
+            response.getWriter().write("{\"message\": \"Message publié avec succès\", \"id\": \"" + message.getIdMessage() + "\"}");
+
         } catch (IllegalArgumentException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
@@ -239,7 +258,6 @@ public class MessageServlet extends HttpServlet {
      */
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Vérification de l'authentification
         String token = (String) request.getAttribute("jwt_token");
         if (token == null || !authService.isTokenValid(token)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -248,65 +266,61 @@ public class MessageServlet extends HttpServlet {
         }
 
         try {
-            // Récupération de l'utilisateur courant
             Participant currentUser = authService.getParticipantFromToken(token);
             boolean isAdmin = authService.isAdmin(token);
-            
+
             if (currentUser == null && !isAdmin) {
                 throw new ServletException("Impossible de récupérer les informations de l'utilisateur");
             }
-            
-            // Analyse du chemin pour déterminer l'ID du message
-            String pathInfo = request.getPathInfo();
-            String servletPath = request.getServletPath();
-            
-            int messageId;
-            
-            // URL pattern: /messages/{messageId} ou /course/{courseId}/messages/{messageId}
-            if (servletPath.equals("/messages") && pathInfo != null && pathInfo.matches("/\\d+")) {
-                messageId = Integer.parseInt(pathInfo.substring(1));
-            } else if (servletPath.matches("/course/\\d+/messages") && pathInfo != null && pathInfo.matches("/\\d+")) {
-                messageId = Integer.parseInt(pathInfo.substring(1));
-            } else {
+
+            String requestURI = request.getRequestURI();
+            System.out.println("DEBUG - RequestURI PUT: " + requestURI);
+
+            if (!requestURI.matches(".*/courses/\\d+/messages/\\d+/?")) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().write("{\"error\": \"URL invalide pour la modification d'un message\"}");
+                response.getWriter().write("{\"error\": \"Format d'URL invalide. Utilisez /courses/{courseId}/messages/{messageId}\"}");
                 return;
             }
-            
-            // Récupération du message
-            Optional<Message> optMessage = messageService.getMessageById(messageId);
-            if (optMessage.isEmpty()) {
+
+            int courseId = extractCourseId(request);
+            int messageId = extractMessageId(request);
+
+            System.out.println("DEBUG - ID de course extrait pour PUT: " + courseId);
+            System.out.println("DEBUG - ID de message extrait pour PUT: " + messageId);
+
+            Optional<Course> optCourse = courseService.getCourseById(courseId);
+            if (optCourse.isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                response.getWriter().write("{\"error\": \"Message non trouvé\"}");
+                response.getWriter().write("{\"error\": \"Course non trouvée\"}");
                 return;
             }
-            
+
+            Optional<Message> optMessage = messageService.getMessageById(messageId);
+            if (optMessage.isEmpty() || optMessage.get().getCourse().getIdCourse() != courseId) {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                response.getWriter().write("{\"error\": \"Message non trouvé pour cette course\"}");
+                return;
+            }
+
             Message message = optMessage.get();
-            
-            // Vérification des permissions
+
             if (!isAdmin && (currentUser == null || message.getEmetteur().getIdParticipant() != currentUser.getIdParticipant())) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 response.getWriter().write("{\"error\": \"Vous n'êtes pas autorisé à modifier ce message\"}");
                 return;
             }
-            
-            // Récupération du nouveau contenu
+
             String contenu = request.getParameter("contenu");
             if (contenu == null || contenu.trim().isEmpty()) {
                 throw new IllegalArgumentException("Le contenu du message est obligatoire");
             }
-            
-            // Mise à jour du message
+
             message.setContenu(contenu);
             messageService.updateMessage(message);
-            
-            // Réponse
+
             response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().write("{\"message\": \"Message modifié avec succès\"}");
-            
-        } catch (NumberFormatException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"Format d'ID invalide\"}");
+
         } catch (IllegalArgumentException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
@@ -322,7 +336,6 @@ public class MessageServlet extends HttpServlet {
      */
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Vérification de l'authentification
         String token = (String) request.getAttribute("jwt_token");
         if (token == null || !authService.isTokenValid(token)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -331,47 +344,48 @@ public class MessageServlet extends HttpServlet {
         }
 
         try {
-            // Récupération de l'utilisateur courant
             Participant currentUser = authService.getParticipantFromToken(token);
             boolean isAdmin = authService.isAdmin(token);
-            
-            // Analyse du chemin pour déterminer l'ID du message
-            String pathInfo = request.getPathInfo();
-            String servletPath = request.getServletPath();
-            
-            int messageId;
-            
-            // URL pattern: /messages/{messageId} ou /course/{courseId}/messages/{messageId}
-            if (servletPath.equals("/messages") && pathInfo != null && pathInfo.matches("/\\d+")) {
-                messageId = Integer.parseInt(pathInfo.substring(1));
-            } else if (servletPath.matches("/course/\\d+/messages") && pathInfo != null && pathInfo.matches("/\\d+")) {
-                messageId = Integer.parseInt(pathInfo.substring(1));
-            } else {
+
+            String requestURI = request.getRequestURI();
+            System.out.println("DEBUG - RequestURI DELETE: " + requestURI);
+
+            if (!requestURI.matches(".*/courses/\\d+/messages/\\d+/?")) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().write("{\"error\": \"URL invalide pour la suppression d'un message\"}");
+                response.getWriter().write("{\"error\": \"Format d'URL invalide. Utilisez /courses/{courseId}/messages/{messageId}\"}");
                 return;
             }
-            
-            // Récupération du message
-            Optional<Message> optMessage = messageService.getMessageById(messageId);
-            if (optMessage.isEmpty()) {
+
+            int courseId = extractCourseId(request);
+            int messageId = extractMessageId(request);
+
+            System.out.println("DEBUG - ID de course extrait pour DELETE: " + courseId);
+            System.out.println("DEBUG - ID de message extrait pour DELETE: " + messageId);
+
+            Optional<Course> optCourse = courseService.getCourseById(courseId);
+            if (optCourse.isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                response.getWriter().write("{\"error\": \"Message non trouvé\"}");
+                response.getWriter().write("{\"error\": \"Course non trouvée\"}");
                 return;
             }
-            
+
+            Optional<Message> optMessage = messageService.getMessageById(messageId);
+            if (optMessage.isEmpty() || optMessage.get().getCourse().getIdCourse() != courseId) {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                response.getWriter().write("{\"error\": \"Message non trouvé pour cette course\"}");
+                return;
+            }
+
             Message message = optMessage.get();
-            
-            // Vérification des permissions (l'auteur du message ou un admin)
+
             if (!isAdmin && (currentUser == null || message.getEmetteur().getIdParticipant() != currentUser.getIdParticipant())) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 response.getWriter().write("{\"error\": \"Vous n'êtes pas autorisé à supprimer ce message\"}");
                 return;
             }
-            
-            // Suppression du message
+
             boolean deleted = messageService.deleteMessage(messageId);
-            
+
             if (deleted) {
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.getWriter().write("{\"message\": \"Message supprimé avec succès\"}");
@@ -379,31 +393,14 @@ public class MessageServlet extends HttpServlet {
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 response.getWriter().write("{\"error\": \"Échec de la suppression du message\"}");
             }
-            
-        } catch (NumberFormatException e) {
+
+        } catch (IllegalArgumentException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"Format d'ID invalide\"}");
+            response.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
         } catch (Exception e) {
             e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("{\"error\": \"Une erreur est survenue: " + e.getMessage() + "\"}");
         }
-    }
-
-    /**
-     * Extrait l'ID de la course à partir du chemin de la requête
-     */
-    private int extractCourseIdFromPath(String path) {
-        // Format attendu: /course/{courseId}/messages
-        String[] parts = path.split("/");
-        return Integer.parseInt(parts[2]);
-    }
-
-    /**
-     * Extrait l'ID du message à partir du chemin de la requête
-     */
-    private int extractMessageIdFromPath(String pathInfo) {
-        // Format attendu: /{messageId}
-        return Integer.parseInt(pathInfo.substring(1));
     }
 }
