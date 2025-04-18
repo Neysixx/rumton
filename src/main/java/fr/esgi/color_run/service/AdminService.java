@@ -19,7 +19,7 @@ public interface AdminService {
      * @param id L'identifiant de l'administrateur
      * @return Un Optional contenant l'administrateur s'il existe, ou vide sinon
      */
-    Optional<Admin> getAdminById(int id);
+    Admin getAdminById(int id);
 
     /**
      * Récupère la liste de tous les administrateurs enregistrés.
@@ -40,4 +40,11 @@ public interface AdminService {
      * @return true si la suppression a réussi, false sinon
      */
     boolean deleteAdmin(int id);
+
+    /**
+     * Vérifie si un participant existe avec l'email donné
+     * @param email L'email à vérifier
+     * @return true si un participant existe avec cet email, false sinon
+     */
+    boolean existsByEmail(String email);
 }

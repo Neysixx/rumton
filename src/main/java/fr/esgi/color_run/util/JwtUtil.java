@@ -14,7 +14,8 @@ import java.security.Key;
 import java.util.Date;
 
 /**
- * Classe utilitaire pour la génération et vérification des JWT (JSON Web Tokens)
+ * Classe utilitaire pour la génération et vérification des JWT (JSON Web
+ * Tokens)
  * Implémentation en Singleton pour éviter de créer plusieurs instances
  */
 public class JwtUtil {
@@ -35,6 +36,7 @@ public class JwtUtil {
 
     /**
      * Méthode pour obtenir l'instance unique de JwtUtil
+     * 
      * @return L'instance unique de JwtUtil
      */
     public static synchronized JwtUtil getInstance() {
@@ -46,9 +48,11 @@ public class JwtUtil {
 
     /**
      * Génère un token JWT pour l'utilisateur spécifié
+     * 
      * @param user L'utilisateur (Participant ou Admin)
      * @return Le token JWT généré
-     * @throws IllegalArgumentException si l'utilisateur n'est ni un Admin ni un Participant
+     * @throws IllegalArgumentException si l'utilisateur n'est ni un Admin ni un
+     *                                  Participant
      */
     public String generateToken(Object user) {
         Date now = new Date();
@@ -83,6 +87,7 @@ public class JwtUtil {
 
     /**
      * Parse et vérifie un token JWT
+     * 
      * @param token Le token JWT à vérifier
      * @return Les claims du token si valide
      * @throws Exception si le token est invalide
@@ -97,6 +102,7 @@ public class JwtUtil {
 
     /**
      * Valide un token JWT
+     * 
      * @param token Le token JWT à valider
      * @return true si le token est valide, false sinon
      */
@@ -107,14 +113,15 @@ public class JwtUtil {
                     .build()
                     .parseClaimsJws(token);
             return true;
-        } catch (SignatureException | MalformedJwtException | ExpiredJwtException |
-                 UnsupportedJwtException | IllegalArgumentException e) {
+        } catch (SignatureException | MalformedJwtException | ExpiredJwtException | UnsupportedJwtException
+                | IllegalArgumentException e) {
             return false;
         }
     }
 
     /**
      * Extrait l'ID utilisateur du token
+     * 
      * @param token Le token JWT
      * @return L'ID de l'utilisateur
      */
@@ -125,6 +132,7 @@ public class JwtUtil {
 
     /**
      * Extrait le rôle de l'utilisateur du token
+     * 
      * @param token Le token JWT
      * @return Le rôle de l'utilisateur (ADMIN, PARTICIPANT, ORGANISATEUR)
      */
@@ -135,6 +143,7 @@ public class JwtUtil {
 
     /**
      * Extrait l'email (subject) du token
+     * 
      * @param token Le token JWT
      * @return L'email de l'utilisateur
      */
