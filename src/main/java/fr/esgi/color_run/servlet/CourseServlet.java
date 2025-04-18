@@ -23,13 +23,11 @@ import org.thymeleaf.context.Context;
  */
 @WebServlet(name = "courseServlet", value = {"/courses", "/courses/*"})
 public class CourseServlet extends HttpServlet {
-    private String message;
     private AuthService authService;
     private CourseService courseService;
     private CauseService causeService;
 
     public void init() {
-        message = "Liste des courses";
         authService = new AuthServiceImpl();
         courseService = new CourseServiceImpl();
         causeService = new CauseServiceImpl();

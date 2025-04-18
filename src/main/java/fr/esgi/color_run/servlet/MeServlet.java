@@ -54,13 +54,6 @@ public class MeServlet extends HttpServlet {
             boolean isOrganisateur = (boolean) request.getAttribute("is_organisateur");
             boolean isAdmin = (boolean) request.getAttribute("is_admin");
 
-            // Création d'un objet anonyme contenant les informations à retourner
-            Object userData = new Object() {
-                public final Participant user = participant;
-                public final boolean organisateur = isOrganisateur;
-                public final boolean admin = isAdmin;
-            };
-
             String userText = "Utilisateur: " + participant.getNom() + " " + participant.getPrenom() +
                     "\nOrganisateur: " + isOrganisateur +
                     "\nAdmin: " + isAdmin

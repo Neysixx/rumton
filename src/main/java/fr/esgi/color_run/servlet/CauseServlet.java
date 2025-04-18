@@ -8,7 +8,6 @@ import fr.esgi.color_run.service.CourseService;
 import fr.esgi.color_run.service.impl.AuthServiceImpl;
 import fr.esgi.color_run.service.impl.CauseServiceImpl;
 import fr.esgi.color_run.service.impl.CourseServiceImpl;
-import fr.esgi.color_run.util.JwtUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
