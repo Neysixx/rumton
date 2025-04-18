@@ -19,7 +19,7 @@ import static fr.esgi.color_run.util.CryptUtil.hashPassword;
 /**
  * Servlet qui gère l'inscription des nouveaux participants
  */
-@WebServlet(name = "registerServlet", value = "/api/register")
+@WebServlet(name = "registerServlet", value = "/register")
 public class RegisterServlet extends HttpServlet {
 
     private ParticipantService participantService;

@@ -14,16 +14,10 @@ public class CauseRepositoryImpl implements CauseRepository {
     @Override
     public void save(Cause cause) {
         String sql = "INSERT INTO CAUSE (intitule) VALUES (?)";
-        try (Connection connection = DatabaseConnection.getTestConnection();
-             PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setString(1, cause.getIntitule());
-            stmt.executeUpdate();
-
-            // Récupérer l'ID généré
-            ResultSet generatedKeys = stmt.getGeneratedKeys();
-            if (generatedKeys.next()) {
-                cause.setIdCause(generatedKeys.getInt(1));
-            }
+        try (Connection connection = DatabaseConnection.getProdConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+             stmt.setString(1, cause.getIntitule());
+             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -32,7 +26,7 @@ public class CauseRepositoryImpl implements CauseRepository {
     @Override
     public Optional<Cause> findById(int id) {
         String sql = "SELECT * FROM CAUSE WHERE id_cause = ?";
-        try (Connection connection = DatabaseConnection.getTestConnection();
+        try (Connection connection = DatabaseConnection.getProdConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
@@ -49,7 +43,7 @@ public class CauseRepositoryImpl implements CauseRepository {
     public List<Cause> findAll() {
         List<Cause> causes = new ArrayList<>();
         String sql = "SELECT * FROM CAUSE";
-        try (Connection connection = DatabaseConnection.getTestConnection();
+        try (Connection connection = DatabaseConnection.getProdConnection();
              Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
@@ -64,7 +58,7 @@ public class CauseRepositoryImpl implements CauseRepository {
     @Override
     public void update(Cause cause) {
         String sql = "UPDATE CAUSE SET intitule = ? WHERE id_cause = ?";
-        try (Connection connection = DatabaseConnection.getTestConnection();
+        try (Connection connection = DatabaseConnection.getProdConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, cause.getIntitule());
             stmt.setInt(2, cause.getIdCause());
@@ -77,7 +71,7 @@ public class CauseRepositoryImpl implements CauseRepository {
     @Override
     public void delete(int id) {
         String sql = "DELETE FROM CAUSE WHERE id_cause = ?";
-        try (Connection connection = DatabaseConnection.getTestConnection();
+        try (Connection connection = DatabaseConnection.getProdConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             stmt.executeUpdate();

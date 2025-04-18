@@ -6,7 +6,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
@@ -16,26 +15,33 @@ import java.util.Date;
 
 /**
  * Classe utilitaire pour la génération et vérification des JWT (JSON Web Tokens)
+ * Implémentation en Singleton pour éviter de créer plusieurs instances
  */
 public class JwtUtil {
-    
+    private static final String SECRET_KEY_STRING = "ColorRunSecretKeyForJWTSigningMustBeLongEnoughForSecurity";
     private final Key secretKey;
     private final long expiration;
-    
+
+    // Instance unique du Singleton
+    private static JwtUtil instance;
+
     /**
-     * Constructeur par défaut avec clé générée aléatoirement et expiration de 24 heures
+     * Constructeur privé pour empêcher l'instanciation directe
      */
-    public JwtUtil() {
-        this.secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private JwtUtil() {
+        this.secretKey = Keys.hmacShaKeyFor(SECRET_KEY_STRING.getBytes());
         this.expiration = 24 * 60 * 60 * 1000; // 24 heures
     }
-    
+
     /**
-     * Constructeur avec clé et durée d'expiration personnalisées
+     * Méthode pour obtenir l'instance unique de JwtUtil
+     * @return L'instance unique de JwtUtil
      */
-    public JwtUtil(Key secretKey, long expiration) {
-        this.secretKey = secretKey;
-        this.expiration = expiration;
+    public static synchronized JwtUtil getInstance() {
+        if (instance == null) {
+            instance = new JwtUtil();
+        }
+        return instance;
     }
 
     /**
@@ -74,7 +80,7 @@ public class JwtUtil {
                 .signWith(this.secretKey)
                 .compact();
     }
-    
+
     /**
      * Parse et vérifie un token JWT
      * @param token Le token JWT à vérifier
@@ -88,7 +94,7 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody();
     }
-    
+
     /**
      * Valide un token JWT
      * @param token Le token JWT à valider
@@ -97,16 +103,16 @@ public class JwtUtil {
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token);
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token);
             return true;
-        } catch (SignatureException | MalformedJwtException | ExpiredJwtException | 
-                UnsupportedJwtException | IllegalArgumentException e) {
+        } catch (SignatureException | MalformedJwtException | ExpiredJwtException |
+                 UnsupportedJwtException | IllegalArgumentException e) {
             return false;
         }
     }
-    
+
     /**
      * Extrait l'ID utilisateur du token
      * @param token Le token JWT
@@ -116,7 +122,7 @@ public class JwtUtil {
         Claims claims = parseToken(token);
         return claims.get("userId", Integer.class);
     }
-    
+
     /**
      * Extrait le rôle de l'utilisateur du token
      * @param token Le token JWT
@@ -126,7 +132,7 @@ public class JwtUtil {
         Claims claims = parseToken(token);
         return claims.get("role", String.class);
     }
-    
+
     /**
      * Extrait l'email (subject) du token
      * @param token Le token JWT
