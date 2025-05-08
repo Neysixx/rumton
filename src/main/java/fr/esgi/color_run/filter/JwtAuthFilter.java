@@ -83,7 +83,9 @@ public class JwtAuthFilter implements Filter {
      * Vérifie si le chemin est public (ne nécessite pas d'authentification)
      */
     private boolean isPublicPath(String path) {
-        return PUBLIC_PATHS.stream().anyMatch(path::startsWith);
+        return "/".equals(path) ||
+                PUBLIC_PATHS.stream()
+                        .anyMatch(path::startsWith);
     }
 
     /**
