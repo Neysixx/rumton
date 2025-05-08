@@ -63,23 +63,6 @@ public class AdminRepositoryImpl implements AdminRepository {
         return Optional.empty();
     }
 
-    @Override
-    public Optional<Admin> findByEmail(String email) {
-        String sql = "SELECT * FROM ADMIN WHERE email = ?";
-        try (Connection connection = DatabaseConnection.getProdConnection();
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
-
-            stmt.setString(1, email);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return Optional.of(mapResultSetToAdmin(rs));
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return Optional.empty();
-    }
 
     @Override
     public List<Admin> findAll() {

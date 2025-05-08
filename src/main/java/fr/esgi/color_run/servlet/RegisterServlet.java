@@ -39,6 +39,7 @@ public class RegisterServlet extends HttpServlet {
 
         // Création du contexte Thymeleaf
         Context context = new Context();
+        context.setVariable("test", "Bonjour !");
 
         // Traitement de la page
         templateEngine.process("register", context, response.getWriter());

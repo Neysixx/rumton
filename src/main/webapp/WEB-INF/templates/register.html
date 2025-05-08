@@ -2,60 +2,105 @@
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Inscription | Color Run</title>
-    <style>
-        .debug-info {
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin-top: 20px;
-            font-family: monospace;
-        }
-        .error-message {
-            color: red;
-            margin-bottom: 15px;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rumton - S'inscrire</title>
+    <link rel="stylesheet" href="/color_run_war_exploded/assets/css/normalize.css">
+    <link rel="stylesheet" href="/color_run_war_exploded/assets/css/style.css">
 </head>
 <body>
-    <h1>Inscription</h1>
+    <div class="container-no-gap">
+        <header>
+            <nav>
+                <a href="#"><img src="/color_run_war_exploded/assets/img/logo.png" alt="logo rumton "></a>
+
+                <button id="menu-toggle" aria-label="Ouvrir le menu">&#9776;</button>
+                
+                <ul id="nav-links">
+                    <li><a href="../../index.html">Accueil</a></li>
+                    <li><a href="../courses/list.html">Liste des courses</a></li>
+                    <li><a href="login.html">Se connecter</a></li>
+                    <li><a class="btn-primary active" href="#">S'inscrire</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <section class="title-section" id="register-title-section">
+            <p>Venez vivre l'expérience unique de la Color Run dans votre ville</p>
+            <h1>S'inscrire</h1>
+        </section>
+
+        <section id="register-section">
+            <form method="post" class="form-container">
+                <div id="form-first-line">
+                    <div class="form-group">
+                        <label for="firstname">Prénom:</label>
+                        <input type="text" placeholder="Prénom" id="firstname" name="prenom" class="input-classic" required>
+                    </div>
+        
+                    <div class="form-group">
+                        <label for="lastname">Nom de famille:</label>
+                        <input type="text" name="nom" id="lastname" placeholder="Nom de famille" class="input-classic" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="email">E-mail:</label>
+                    <input type="email" placeholder="exemple@mail.fr" id="email" name="email" class="input-classic" required>
+                </div>
     
-    <div th:if="${error}" class="error-message" th:text="${error}"></div>
+                <div class="form-group">
+                    <label for="password">Mot de passe:</label>
+                    <input type="password" name="password" id="password" placeholder="Mot de passe" class="input-classic" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Confirmation du mot de passe:</label>
+                    <input type="password" name="confirmMotDePasse" placeholder="Confirmation du mot de passe" class="input-classic" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="role">Choisir le rôle voulu:</label>
+
+                    <select name="role" id="role" class="input-classic" required>
+                        <option value="participant" selected>Participant</option>
+                        <option value="organisateur">Organisateur</option>
+                    </select>
+                </div>
+
+                <div class="form-group hide" id="explainationFormGroup">
+                    <label for="explaination">Explication de votre demande:</label>
+                    <textarea name="explaination" id="explaination" class="text-area-classic" placeholder="Expliquez votre demande"></textarea>
+                </div>
+
+                <div th:if="${error}" class="error-message" th:text="${error}"></div>
     
-    <form method="post" action="/api/register">
-        <div>
-            <label for="nom">Nom:</label>
-            <input type="text" id="nom" name="nom" required>
-        </div>
-        <div>
-            <label for="prenom">Prénom:</label>
-            <input type="text" id="prenom" name="prenom" required>
-        </div>
-        <div>
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
-        </div>
-        <div>
-            <label for="motDePasse">Mot de passe:</label>
-            <input type="password" id="motDePasse" name="motDePasse" required>
-        </div>
-        <div>
-            <label for="confirmMotDePasse">Confirmer le mot de passe:</label>
-            <input type="password" id="confirmMotDePasse" name="confirmMotDePasse" required>
-        </div>
-        <div>
-            <button type="submit">S'inscrire</button>
-        </div>
-    </form>
-    
-    <!-- Section de debug (visible uniquement en développement) -->
-    <div th:if="${debugMode}" class="debug-info">
-        <h3>Informations de débogage</h3>
-        <p>Session ID: <span th:text="${#session.id}"></span></p>
-        <p>Paramètres de la requête:</p>
-        <ul>
-            <li th:each="param : ${param}" th:text="${param.key} + '=' + ${param.value}"></li>
-        </ul>
+                <input type="submit" value="S'inscrire" class="btn-primary">
+
+                <p class="subLine">Vous avez déjà une compte ? <a href="login.html">Se Connecter</a></p>
+                
+            </form>
+        </section>
     </div>
+    <footer>
+        <div class="footer-container">
+            <a href="#"><img src="/color_run_war_exploded/assets/img/logo.png" alt="logo rumton "></a>
+            <div class="text-container">
+                <h3>Liens utiles</h3>    
+                <ul class="link-list">
+                    <li><a href="">A propos</a></li>
+                    <li><a href="">FAQ</a></li>
+                    <li><a href="">Nous contacter</a></li>
+                    <li><a href="">Mentions légales</a></li>
+                </ul>
+            </div>
+            <div class="icons-container">
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="69"  height="69"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-instagram"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 8a4 4 0 0 1 4 -4h8a4 4 0 0 1 4 4v8a4 4 0 0 1 -4 4h-8a4 4 0 0 1 -4 -4z" /><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M16.5 7.5v.01" /></svg>
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="69"  height="69"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-tiktok"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M21 7.917v4.034a9.948 9.948 0 0 1 -5 -1.951v4.5a6.5 6.5 0 1 1 -8 -6.326v4.326a2.5 2.5 0 1 0 4 2v-11.5h4.083a6.005 6.005 0 0 0 4.917 4.917z" /></svg>
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="69"  height="69"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-facebook"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 10v4h3v7h4v-7h3l1 -4h-4v-2a1 1 0 0 1 1 -1h3v-4h-3a5 5 0 0 0 -5 5v2h-3" /></svg>
+            </div>
+            <p class="self-end">2025 © Color Run par AH & FX. Tous les droits réservés</p>
+        </div>
+    </footer>
+    <script src="/color_run_war_exploded/assets/js/register.js"></script>
+    <script src="/color_run_war_exploded/assets/js/main.js"></script>
 </body>
 </html>
