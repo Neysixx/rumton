@@ -127,6 +127,14 @@ a{
     display: none !important;
 }
 
+.error-message{
+    background-color: #fef3f3;
+    color: #dc262c;
+    padding: 0.5em 1em;
+    border: solid 1px #dc262c;
+    border-radius: 12px;
+}
+
 .btn-primary{
     background-color: var(--primary-color);
     color: white;

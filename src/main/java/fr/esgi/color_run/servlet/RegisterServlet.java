@@ -72,21 +72,21 @@ public class RegisterServlet extends HttpServlet {
                 nom.isEmpty() || prenom.isEmpty() || email.isEmpty() || motDePasse.isEmpty()) {
 
             context.setVariable("error", "Tous les champs sont obligatoires");
-            templateEngine.process("register", context, response.getWriter());
+            templateEngine.process("auth/register", context, response.getWriter());
             return;
         }
 
         // Vérification que les mots de passe correspondent
         if (!motDePasse.equals(confirmMotDePasse)) {
             context.setVariable("error", "Les mots de passe ne correspondent pas");
-            templateEngine.process("register", context, response.getWriter());
+            templateEngine.process("auth/register", context, response.getWriter());
             return;
         }
 
         // Vérification si l'email est déjà utilisé
         if (participantService.existsByEmail(email)) {
             context.setVariable("error", "Cette adresse email est déjà utilisée");
-            templateEngine.process("register", context, response.getWriter());
+            templateEngine.process("auth/register", context, response.getWriter());
             return;
         }
 
@@ -107,10 +107,10 @@ public class RegisterServlet extends HttpServlet {
             participantService.creerParticipant(participant);
 
             // Redirection vers la page de connexion avec un message de succès
-            response.sendRedirect(request.getContextPath() + "/login?registered=true");
+            response.sendRedirect(request.getContextPath() + "login?registered=true");
         } catch (Exception e) {
             context.setVariable("error", "Une erreur est survenue lors de l'inscription: " + e.getMessage());
-            templateEngine.process("register", context, response.getWriter());
+            templateEngine.process("auth/register", context, response.getWriter());
         }
     }
 }
