@@ -79,7 +79,7 @@ public class CourseServlet extends BaseWebServlet {
             context.setVariable("isOrganisateur", request.getAttribute("is_organisateur"));
 
             // Rendu de la page
-            renderTemplate(request, response, "courses", context);
+            renderTemplate(request, response, "courses/list", context);
         }
     }
 
