@@ -17,7 +17,8 @@ CREATE TABLE IF NOT EXISTS PARTICIPANT (
                                            mot_de_passe VARCHAR(255) NOT NULL,
                                            url_profile VARCHAR(255),
                                            est_organisateur BOOLEAN DEFAULT FALSE,
-                                           date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                                           date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                           isVerified BOOLEAN
 );
 
 -- Table CAUSE
