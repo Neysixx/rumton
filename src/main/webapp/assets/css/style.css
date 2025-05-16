@@ -41,6 +41,61 @@ body{
     font-family: var(--body-font), sans-serif;
 }
 
+.profile-button {
+    border: none;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+    border-radius: 50%;
+    overflow: hidden;
+    width: 50px;
+    height: 50px;
+    position: relative;
+}
+
+.profile-button img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.popover {
+    display: none;
+    position: absolute;
+    top: 60px;
+    right: 0;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    padding: 10px;
+    z-index: 100;
+    min-width: 120px;
+}
+
+.popover button {
+    display: block;
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 8px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 14px;
+    &:last-child {
+        color: red;
+    }
+}
+
+.popover button:hover {
+    background-color: #f0f0f0;
+}
+
+.profile-container {
+    position: relative;
+    display: inline-block;
+}
+
 .container{
     padding: 2.4em 21.25em 0 21.25em;
     display: flex;

@@ -36,7 +36,7 @@ public class CourseServlet extends BaseWebServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         // Vérification de l'authentification
         if (!isAuthenticated(request, response)) {
-            return;
+            // faire redirection
         }
 
         Context context = new Context();

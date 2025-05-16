@@ -38,40 +38,36 @@ public class JwtAuthFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
+            HttpServletRequest httpRequest = (HttpServletRequest) request;
+            HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-        // Récupération du chemin de la requête
-        String path = httpRequest.getRequestURI().substring(httpRequest.getContextPath().length());
+            String path = httpRequest.getRequestURI().substring(httpRequest.getContextPath().length());
 
-        // Passer les requêtes pour les chemins publics
-        if (isPublicPath(path) || httpRequest.getMethod().equals("OPTIONS")) {
-            chain.doFilter(request, response);
-            return;
-        }
+            // Récupération du token depuis le header ou les cookies
+            String authHeader = httpRequest.getHeader("Authorization");
+            String cookieToken = extractTokenFromCookies(httpRequest.getCookies());
+            String token = authService.extractToken(authHeader, cookieToken);
 
-        // Récupération du token depuis le header Authorization ou le cookie
-        String authHeader = httpRequest.getHeader("Authorization");
-        String cookieToken = extractTokenFromCookies(httpRequest.getCookies());
+            // Si un token est présent et valide, on injecte les attributs utilisateur
+            if (token != null && authService.isTokenValid(token)) {
+                httpRequest.setAttribute("jwt_token", token);
+                httpRequest.setAttribute("user_id", authService.getUserIdFromToken(token));
+                httpRequest.setAttribute("is_admin", authService.isAdmin(token));
+                httpRequest.setAttribute("is_organisateur", authService.isOrganisateur(token));
+            }
 
-        // Extraction du token
-        String token = authService.extractToken(authHeader, cookieToken);
+            // Si la route est publique ou OPTIONS → on continue même sans token
+            if (isPublicPath(path) || httpRequest.getMethod().equals("OPTIONS")) {
+                chain.doFilter(httpRequest, httpResponse);
+                return;
+            }
 
-        if (token != null && authService.isTokenValid(token)) {
-            // Stockage du token dans la requête pour les servlets
-            httpRequest.setAttribute("jwt_token", token);
-
-            // Ajout d'attributs utilisateur pour faciliter l'accès
-            httpRequest.setAttribute("user_id", authService.getUserIdFromToken(token));
-            httpRequest.setAttribute("is_admin", authService.isAdmin(token));
-            httpRequest.setAttribute("is_organisateur", authService.isOrganisateur(token));
-
-            // Continuation de la chaîne de filtres
-            chain.doFilter(request, response);
-        } else {
-            // Tous les endpoints nécessitent une authentification, rediriger vers login
-            httpResponse.sendRedirect(httpRequest.getContextPath() + "/login");
-        }
+            // Sinon (route protégée), il faut un token valide
+            if (token != null && authService.isTokenValid(token)) {
+                chain.doFilter(httpRequest, httpResponse);
+            } else {
+                httpResponse.sendRedirect(httpRequest.getContextPath() + "/login");
+            }
     }
 
     @Override

@@ -1,5 +1,7 @@
 package fr.esgi.color_run.servlet;
 
+import fr.esgi.color_run.service.impl.CauseServiceImpl;
+import fr.esgi.color_run.service.impl.CourseServiceImpl;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -14,20 +16,23 @@ import java.io.IOException;
  * Servlet qui gère l'inscription des nouveaux participants
  */
 @WebServlet(name = "homeServlet", value = "")
-public class HomeServlet extends HttpServlet {
+public class HomeServlet extends BaseWebServlet {
+
+    @Override
+    public void init() {
+        super.init();
+    }
 
     /**
      * Affiche le formulaire d'inscription
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Récupération du moteur de template
-        TemplateEngine templateEngine = (TemplateEngine) getServletContext().getAttribute("templateEngine");
 
         // Création du contexte Thymeleaf
         Context context = new Context();
 
-        // Traitement de la page
-        templateEngine.process("home", context, response.getWriter());
+        // Rendu de la page
+        renderTemplate(request, response, "home", context);
     }
 }
