@@ -5,10 +5,8 @@ import fr.esgi.color_run.service.ParticipantService;
 import fr.esgi.color_run.service.impl.ParticipantServiceImpl;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.io.IOException;
@@ -20,12 +18,13 @@ import static fr.esgi.color_run.util.CryptUtil.hashPassword;
  * Servlet qui gère l'inscription des nouveaux participants
  */
 @WebServlet(name = "registerServlet", value = "/register")
-public class RegisterServlet extends HttpServlet {
+public class RegisterServlet extends BaseWebServlet {
 
     private ParticipantService participantService;
 
     @Override
     public void init() {
+        super.init();
         participantService = new ParticipantServiceImpl();
     }
 
@@ -34,14 +33,12 @@ public class RegisterServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Récupération du moteur de template
-        TemplateEngine templateEngine = (TemplateEngine) getServletContext().getAttribute("templateEngine");
 
         // Création du contexte Thymeleaf
         Context context = new Context();
 
         // Traitement de la page
-        templateEngine.process("auth/register", context, response.getWriter());
+        renderTemplate(request, response, "auth/register", context);
     }
 
     /**
@@ -63,8 +60,6 @@ public class RegisterServlet extends HttpServlet {
         System.out.println("Email: " + email);
         System.out.println("Mot de passe reçu: " + (motDePasse != null ? "Oui (longueur: " + motDePasse.length() + ")" : "Non"));
 
-        // Récupération du moteur de template
-        TemplateEngine templateEngine = (TemplateEngine) getServletContext().getAttribute("templateEngine");
         Context context = new Context();
 
         // Validation des données
@@ -72,21 +67,21 @@ public class RegisterServlet extends HttpServlet {
                 nom.isEmpty() || prenom.isEmpty() || email.isEmpty() || motDePasse.isEmpty()) {
 
             context.setVariable("error", "Tous les champs sont obligatoires");
-            templateEngine.process("auth/register", context, response.getWriter());
+            renderTemplate(request, response, "auth/register", context);
             return;
         }
 
         // Vérification que les mots de passe correspondent
         if (!motDePasse.equals(confirmMotDePasse)) {
             context.setVariable("error", "Les mots de passe ne correspondent pas");
-            templateEngine.process("auth/register", context, response.getWriter());
+            renderTemplate(request, response, "auth/register", context);
             return;
         }
 
         // Vérification si l'email est déjà utilisé
         if (participantService.existsByEmail(email)) {
             context.setVariable("error", "Cette adresse email est déjà utilisée");
-            templateEngine.process("auth/register", context, response.getWriter());
+            renderTemplate(request, response, "auth/register", context);
             return;
         }
 
@@ -110,7 +105,7 @@ public class RegisterServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "login?registered=true");
         } catch (Exception e) {
             context.setVariable("error", "Une erreur est survenue lors de l'inscription: " + e.getMessage());
-            templateEngine.process("auth/register", context, response.getWriter());
+            renderTemplate(request, response, "auth/register", context);
         }
     }
 }
