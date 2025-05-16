@@ -25,7 +25,15 @@ import java.util.Optional;
 public class JwtAuthFilter implements Filter {
 
     private AuthService authService;
-    private final List<String> PUBLIC_PATHS = Arrays.asList("/login", "/register");
+    private final List<String> PUBLIC_PATHS = Arrays.asList(
+            "/login", 
+            "/register", 
+            "/css/", 
+            "/js/", 
+            "/images/", 
+            "/assets/", 
+            "/favicon.ico"
+    );
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -68,10 +76,8 @@ public class JwtAuthFilter implements Filter {
             // Continuation de la chaîne de filtres
             chain.doFilter(request, response);
         } else {
-            // Requête non authentifiée
-            httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            httpResponse.setContentType("application/json");
-            httpResponse.getWriter().write("{\"error\": \"Authentification requise\"}");
+            // Tous les endpoints nécessitent une authentification, rediriger vers login
+            httpResponse.sendRedirect(httpRequest.getContextPath() + "/login");
         }
     }
 

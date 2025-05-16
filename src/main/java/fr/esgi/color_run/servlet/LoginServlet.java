@@ -11,10 +11,14 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
+/**
+ * Servlet de gestion de l'authentification utilisateur
+ */
 @WebServlet(name = "loginServlet", value = "/login")
 public class LoginServlet extends HttpServlet {
 
@@ -24,14 +28,28 @@ public class LoginServlet extends HttpServlet {
     @Override
     public void init() {
         ParticipantRepository participantRepository = new ParticipantRepositoryImpl();
-        jwtUtil = JwtUtil.getInstance();;
+        jwtUtil = JwtUtil.getInstance();
         loginService = new LoginServiceImpl(participantRepository, jwtUtil);
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Redirection vers la page de login
-        request.getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);
+        // Récupération du moteur de template
+        TemplateEngine templateEngine = (TemplateEngine) getServletContext().getAttribute("templateEngine");
+
+        // Création du contexte Thymeleaf
+        Context context = new Context();
+        
+        // Vérifier s'il y a un message d'erreur dans la session
+        Object errorMessage = request.getSession().getAttribute("loginError");
+        if (errorMessage != null) {
+            context.setVariable("error", errorMessage);
+            request.getSession().removeAttribute("loginError");
+        }
+
+        // Rendu de la page de login avec Thymeleaf
+        response.setContentType("text/html;charset=UTF-8");
+        templateEngine.process("login", context, response.getWriter());
     }
 
     @Override
@@ -60,19 +78,12 @@ public class LoginServlet extends HttpServlet {
             // jwtCookie.setSecure(true); // À décommenter en production pour HTTPS
             response.addCookie(jwtCookie);
 
-            // Réponse JSON avec le token et le rôle
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            String role = jwtUtil.getRoleFromToken(token);
-            PrintWriter out = response.getWriter();
-            out.print("{\"success\": true, \"token\": \"" + token + "\", \"role\": \"" + role + "\"}");
+            // Redirection vers la page d'accueil
+            response.sendRedirect(request.getContextPath() + "/me");
         } else {
-            // En cas d'échec d'authentification
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            PrintWriter out = response.getWriter();
-            out.print("{\"success\": false, \"error\": \"Identifiants invalides\"}");
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            // En cas d'échec d'authentification, ajouter un message d'erreur et rediriger
+            request.getSession().setAttribute("loginError", "Identifiants invalides");
+            response.sendRedirect(request.getContextPath() + "/login");
         }
     }
 }

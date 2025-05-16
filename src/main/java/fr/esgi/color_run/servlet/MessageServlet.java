@@ -3,18 +3,14 @@ package fr.esgi.color_run.servlet;
 import fr.esgi.color_run.business.Course;
 import fr.esgi.color_run.business.Message;
 import fr.esgi.color_run.business.Participant;
-import fr.esgi.color_run.service.AuthService;
 import fr.esgi.color_run.service.CourseService;
 import fr.esgi.color_run.service.MessageService;
-import fr.esgi.color_run.service.impl.AuthServiceImpl;
 import fr.esgi.color_run.service.impl.CourseServiceImpl;
 import fr.esgi.color_run.service.impl.MessageServiceImpl;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.io.IOException;
@@ -32,16 +28,14 @@ import java.util.Optional;
  * - DELETE /messages/X pour supprimer un message
  */
 @WebServlet(name = "messageServlet", value = {"/messages", "/messages/*"})
-public class MessageServlet extends HttpServlet {
+public class MessageServlet extends BaseWebServlet {
 
-    private AuthService authService;
     private MessageService messageService;
     private CourseService courseService;
 
     @Override
     public void init() {
-        System.out.println("DEBUG - Initialisation de MessageServlet");
-        authService = new AuthServiceImpl();
+        super.init();
         messageService = new MessageServiceImpl();
         courseService = new CourseServiceImpl();
     }
@@ -51,7 +45,6 @@ public class MessageServlet extends HttpServlet {
      */
     private int extractMessageId(HttpServletRequest request) {
         String pathInfo = request.getPathInfo();
-        System.out.println("DEBUG - PathInfo: " + pathInfo);
         
         if (pathInfo == null || pathInfo.equals("/")) {
             throw new IllegalArgumentException("Aucun ID de message spécifié");
@@ -59,7 +52,6 @@ public class MessageServlet extends HttpServlet {
         
         String[] pathParts = pathInfo.split("/");
         String idStr = pathParts[pathParts.length > 1 ? 1 : 0];
-        System.out.println("DEBUG - ID extrait de l'URL: " + idStr);
         
         try {
             return Integer.parseInt(idStr);
@@ -75,24 +67,13 @@ public class MessageServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        System.out.println("DEBUG - Début doGet: " + request.getRequestURI());
-        
-        String token = (String) request.getAttribute("jwt_token");
-        if (token == null || !authService.isTokenValid(token)) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"error\": \"Utilisateur non authentifié\"}");
+        // Vérification de l'authentification
+        if (!isAuthenticated(request, response)) {
             return;
         }
 
-        TemplateEngine templateEngine = (TemplateEngine) getServletContext().getAttribute("templateEngine");
         Context context = new Context();
-
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-
         String pathInfo = request.getPathInfo();
-        System.out.println("DEBUG - PathInfo: " + pathInfo);
-        System.out.println("DEBUG - QueryString: " + request.getQueryString());
 
         try {
             // /messages/X : récupérer un message spécifique
@@ -101,8 +82,7 @@ public class MessageServlet extends HttpServlet {
                 
                 Optional<Message> optMessage = messageService.getMessageById(messageId);
                 if (optMessage.isEmpty()) {
-                    response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                    response.getWriter().write("{\"error\": \"Message non trouvé\"}");
+                    renderError(request, response, "Message non trouvé");
                     return;
                 }
 
@@ -111,19 +91,17 @@ public class MessageServlet extends HttpServlet {
 
                 List<Message> replies = messageService.getRepliesByParent(messageId);
                 context.setVariable("replies", replies);
+                context.setVariable("isAdmin", request.getAttribute("is_admin"));
+                context.setVariable("isOrganisateur", request.getAttribute("is_organisateur"));
 
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.getWriter().write("{\"message\":" + message.toString() + ", \"replies\":" + replies.toString() + "}");
-                templateEngine.process("message", context, response.getWriter());
+                renderTemplate(request, response, "message", context);
             } 
             // /messages?courseId=X : liste des messages d'une course
             else {
                 String courseIdStr = request.getParameter("courseId");
-                System.out.println("DEBUG - courseId parameter: " + courseIdStr);
                 
                 if (courseIdStr == null || courseIdStr.isEmpty()) {
-                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                    response.getWriter().write("{\"error\": \"Le paramètre courseId est requis\"}");
+                    renderError(request, response, "Le paramètre courseId est requis");
                     return;
                 }
                 
@@ -131,38 +109,30 @@ public class MessageServlet extends HttpServlet {
                 try {
                     courseId = Integer.parseInt(courseIdStr);
                 } catch (NumberFormatException e) {
-                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                    response.getWriter().write("{\"error\": \"ID de course invalide: " + courseIdStr + "\"}");
+                    renderError(request, response, "ID de course invalide: " + courseIdStr);
                     return;
                 }
 
                 Optional<Course> optCourse = courseService.getCourseById(courseId);
                 if (optCourse.isEmpty()) {
-                    response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                    response.getWriter().write("{\"error\": \"Course non trouvée\"}");
+                    renderError(request, response, "Course non trouvée");
                     return;
                 }
 
                 List<Message> messages = messageService.getMessagesByCourse(courseId);
-                System.out.println("DEBUG - Nombre de messages trouvés: " + messages.size());
-
                 context.setVariable("messages", messages);
                 context.setVariable("course", optCourse.get());
+                context.setVariable("isAdmin", request.getAttribute("is_admin"));
+                context.setVariable("isOrganisateur", request.getAttribute("is_organisateur"));
 
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.getWriter().write(messages.toString());
-                templateEngine.process("messages", context, response.getWriter());
+                renderTemplate(request, response, "messages", context);
             }
         } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
+            renderError(request, response, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"error\": \"Une erreur est survenue: " + e.getMessage() + "\"}");
+            renderError(request, response, "Une erreur est survenue: " + e.getMessage());
         }
-        System.out.println("DEBUG - Fin doGet");
     }
 
     /**
@@ -171,41 +141,42 @@ public class MessageServlet extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        System.out.println("DEBUG - Début doPost");
-        
-        String token = (String) request.getAttribute("jwt_token");
-        if (token == null || !authService.isTokenValid(token)) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"error\": \"Utilisateur non authentifié\"}");
+        // Vérification de l'authentification
+        if (!isAuthenticated(request, response)) {
             return;
         }
 
         try {
-            Participant participant = authService.getParticipantFromToken(token);
+            Participant participant = getAuthenticatedParticipant(request);
             if (participant == null) {
-                throw new ServletException("Impossible de récupérer les informations du participant");
+                renderError(request, response, "Impossible de récupérer les informations du participant");
+                return;
             }
 
             String contenu = request.getParameter("contenu");
             if (contenu == null || contenu.trim().isEmpty()) {
-                throw new IllegalArgumentException("Le contenu du message est obligatoire");
+                renderError(request, response, "Le contenu du message est obligatoire");
+                return;
             }
 
             String courseIdStr = request.getParameter("courseId");
             if (courseIdStr == null || courseIdStr.trim().isEmpty()) {
-                throw new IllegalArgumentException("L'ID de course est obligatoire");
+                renderError(request, response, "L'ID de course est obligatoire");
+                return;
             }
 
             int courseId;
             try {
                 courseId = Integer.parseInt(courseIdStr);
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("ID de course invalide: " + courseIdStr);
+                renderError(request, response, "ID de course invalide: " + courseIdStr);
+                return;
             }
 
             Optional<Course> optCourse = courseService.getCourseById(courseId);
             if (optCourse.isEmpty()) {
-                throw new IllegalArgumentException("Course non trouvée avec l'ID " + courseId);
+                renderError(request, response, "Course non trouvée avec l'ID " + courseId);
+                return;
             }
 
             Course course = optCourse.get();
@@ -226,167 +197,105 @@ public class MessageServlet extends HttpServlet {
                     if (optParent.isPresent() && optParent.get().getCourse().getIdCourse() == courseId) {
                         message.setMessageParent(optParent.get());
                     } else {
-                        throw new IllegalArgumentException("Message parent invalide ou n'appartient pas à la même course");
+                        renderError(request, response, "Message parent invalide ou n'appartient pas à la même course");
+                        return;
                     }
                 } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("ID de message parent invalide: " + parentIdStr);
+                    renderError(request, response, "ID de message parent invalide: " + parentIdStr);
+                    return;
                 }
             }
 
             messageService.createMessage(message);
-            
-            System.out.println("DEBUG - Message créé avec ID: " + message.getIdMessage());
 
-            response.setStatus(HttpServletResponse.SC_CREATED);
-            response.getWriter().write("{\"message\": \"Message publié avec succès\", \"id\": \"" + message.getIdMessage() + "\"}");
+            // Redirection vers la liste des messages de la course
+            response.sendRedirect(request.getContextPath() + "/messages?courseId=" + courseId);
 
-        } catch (IllegalArgumentException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
         } catch (Exception e) {
             e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"error\": \"Une erreur est survenue: " + e.getMessage() + "\"}");
+            renderError(request, response, "Une erreur est survenue: " + e.getMessage());
         }
-        System.out.println("DEBUG - Fin doPost");
     }
 
-    /**
-     * Traite les requêtes PUT pour modifier un message
-     * PUT /messages/X
-     */
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        System.out.println("DEBUG - Début doPut");
-        
-        String token = (String) request.getAttribute("jwt_token");
-        if (token == null || !authService.isTokenValid(token)) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"error\": \"Utilisateur non authentifié\"}");
+        // Vérification de l'authentification
+        if (!isAuthenticated(request, response)) {
             return;
         }
 
         try {
-            Participant currentUser = authService.getParticipantFromToken(token);
-            boolean isAdmin = authService.isAdmin(token);
-
-            if (currentUser == null && !isAdmin) {
-                throw new ServletException("Impossible de récupérer les informations de l'utilisateur");
-            }
-
-            // Vérifier si l'URL contient un ID de message
-            String pathInfo = request.getPathInfo();
-            if (pathInfo == null || pathInfo.equals("/")) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().write("{\"error\": \"L'ID du message est requis pour la modification\"}");
-                return;
-            }
-
             int messageId = extractMessageId(request);
-            System.out.println("DEBUG - ID du message à modifier: " + messageId);
-
             Optional<Message> optMessage = messageService.getMessageById(messageId);
             if (optMessage.isEmpty()) {
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                response.getWriter().write("{\"error\": \"Message non trouvé\"}");
+                renderError(request, response, "Message non trouvé");
                 return;
             }
 
             Message message = optMessage.get();
+            Participant currentUser = getAuthenticatedParticipant(request);
 
-            // Vérifier si l'utilisateur est autorisé à modifier le message
-            if (!isAdmin && (currentUser == null || message.getEmetteur().getIdParticipant() != currentUser.getIdParticipant())) {
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                response.getWriter().write("{\"error\": \"Vous n'êtes pas autorisé à modifier ce message\"}");
+            // Vérification que l'utilisateur est l'auteur du message
+            if (message.getEmetteur().getIdParticipant() != currentUser.getIdParticipant()) {
+                renderError(request, response, "Vous n'êtes pas autorisé à modifier ce message");
                 return;
             }
 
             String contenu = request.getParameter("contenu");
             if (contenu == null || contenu.trim().isEmpty()) {
-                throw new IllegalArgumentException("Le contenu du message est obligatoire");
+                renderError(request, response, "Le contenu du message est obligatoire");
+                return;
             }
 
             message.setContenu(contenu);
             messageService.updateMessage(message);
 
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.getWriter().write("{\"message\": \"Message modifié avec succès\"}");
+            // Redirection vers la liste des messages de la course
+            response.sendRedirect(request.getContextPath() + "/messages?courseId=" + message.getCourse().getIdCourse());
 
         } catch (IllegalArgumentException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
+            renderError(request, response, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"error\": \"Une erreur est survenue: " + e.getMessage() + "\"}");
+            renderError(request, response, "Une erreur est survenue: " + e.getMessage());
         }
-        System.out.println("DEBUG - Fin doPut");
     }
 
-    /**
-     * Traite les requêtes DELETE pour supprimer un message
-     * DELETE /messages/X
-     */
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        System.out.println("DEBUG - Début doDelete");
-        
-        String token = (String) request.getAttribute("jwt_token");
-        if (token == null || !authService.isTokenValid(token)) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"error\": \"Utilisateur non authentifié\"}");
+        // Vérification de l'authentification
+        if (!isAuthenticated(request, response)) {
             return;
         }
 
         try {
-            Participant currentUser = authService.getParticipantFromToken(token);
-            boolean isAdmin = authService.isAdmin(token);
-
-            // Vérifier si l'URL contient un ID de message
-            String pathInfo = request.getPathInfo();
-            if (pathInfo == null || pathInfo.equals("/")) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().write("{\"error\": \"L'ID du message est requis pour la suppression\"}");
-                return;
-            }
-
             int messageId = extractMessageId(request);
-            System.out.println("DEBUG - ID du message à supprimer: " + messageId);
-
             Optional<Message> optMessage = messageService.getMessageById(messageId);
             if (optMessage.isEmpty()) {
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                response.getWriter().write("{\"error\": \"Message non trouvé\"}");
+                renderError(request, response, "Message non trouvé");
                 return;
             }
 
             Message message = optMessage.get();
+            Participant currentUser = getAuthenticatedParticipant(request);
 
-            // Vérifier si l'utilisateur est autorisé à supprimer le message
-            if (!isAdmin && (currentUser == null || message.getEmetteur().getIdParticipant() != currentUser.getIdParticipant())) {
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                response.getWriter().write("{\"error\": \"Vous n'êtes pas autorisé à supprimer ce message\"}");
+            // Vérification que l'utilisateur est l'auteur du message
+            if (message.getEmetteur().getIdParticipant() != currentUser.getIdParticipant()) {
+                renderError(request, response, "Vous n'êtes pas autorisé à supprimer ce message");
                 return;
             }
 
-            boolean deleted = messageService.deleteMessage(messageId);
+            int courseId = message.getCourse().getIdCourse();
+            messageService.deleteMessage(messageId);
 
-            if (deleted) {
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.getWriter().write("{\"message\": \"Message supprimé avec succès\"}");
-            } else {
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                response.getWriter().write("{\"error\": \"Échec de la suppression du message\"}");
-            }
+            // Redirection vers la liste des messages de la course
+            response.sendRedirect(request.getContextPath() + "/messages?courseId=" + courseId);
 
         } catch (IllegalArgumentException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
+            renderError(request, response, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"error\": \"Une erreur est survenue: " + e.getMessage() + "\"}");
+            renderError(request, response, "Une erreur est survenue: " + e.getMessage());
         }
-        System.out.println("DEBUG - Fin doDelete");
     }
 }
