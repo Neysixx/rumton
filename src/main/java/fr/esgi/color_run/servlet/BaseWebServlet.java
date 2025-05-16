@@ -82,7 +82,9 @@ public abstract class BaseWebServlet extends HttpServlet {
         TemplateEngine templateEngine = (TemplateEngine) getServletContext().getAttribute("templateEngine");
         response.setContentType("text/html;charset=UTF-8");
         boolean isAuthValue = this.isAuthenticated(request, response);
+        Participant participant = getAuthenticatedParticipant(request);
         context.setVariable("isAuth", isAuthValue);
+        context.setVariable("participant", participant);
         templateEngine.process(templateName, context, response.getWriter());
     }
 
