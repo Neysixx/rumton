@@ -1,7 +1,9 @@
 package fr.esgi.color_run.servlet;
 
 import fr.esgi.color_run.business.Participant;
+import fr.esgi.color_run.service.EmailService;
 import fr.esgi.color_run.service.ParticipantService;
+import fr.esgi.color_run.service.impl.EmailServiceImpl;
 import fr.esgi.color_run.service.impl.ParticipantServiceImpl;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -21,11 +23,13 @@ import static fr.esgi.color_run.util.CryptUtil.hashPassword;
 public class RegisterServlet extends BaseWebServlet {
 
     private ParticipantService participantService;
+    private EmailService emailService;
 
     @Override
     public void init() {
         super.init();
         participantService = new ParticipantServiceImpl();
+        emailService = new EmailServiceImpl();
     }
 
     /**
@@ -52,13 +56,6 @@ public class RegisterServlet extends BaseWebServlet {
         String email = request.getParameter("email");
         String motDePasse = request.getParameter("motDePasse");
         String confirmMotDePasse = request.getParameter("confirmMotDePasse");
-
-        // Debug des données reçues
-        System.out.println("DEBUG - Données reçues:");
-        System.out.println("Nom: " + nom);
-        System.out.println("Prénom: " + prenom);
-        System.out.println("Email: " + email);
-        System.out.println("Mot de passe reçu: " + (motDePasse != null ? "Oui (longueur: " + motDePasse.length() + ")" : "Non"));
 
         Context context = new Context();
 
@@ -93,12 +90,12 @@ public class RegisterServlet extends BaseWebServlet {
                 .motDePasse(hashPassword(motDePasse))
                 .estOrganisateur(false)
                 .dateCreation(new Date())
+                .estVerifie(false)
                 .build();
-
-        System.out.println("DEBUG - Participant créé: " + participant);
 
         // Enregistrement du participant
         try {
+            emailService.envoyerEmailVerification(email);
             participantService.creerParticipant(participant);
 
             // Redirection vers la page de connexion avec un message de succès
