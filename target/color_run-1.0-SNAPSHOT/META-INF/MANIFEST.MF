@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
 Created-By: IntelliJ IDEA
-Built-By: Furri
-Build-Jdk: Eclipse Temurin 23.0.2
+Built-By: Kyllian
+Build-Jdk: Oracle OpenJDK 23.0.1
 

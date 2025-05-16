@@ -99,7 +99,6 @@
             <scope>runtime</scope>
         </dependency>
 
-
         <!-- SMTP -->
         <dependency>
             <groupId>com.sun.mail</groupId>
