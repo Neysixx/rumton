@@ -25,6 +25,9 @@ public class ParticipantServiceImpl implements ParticipantService {
         if (existsByEmail(participant.getEmail())) {
             throw new IllegalArgumentException("Un participant avec cet email existe déjà");
         }
+        if (participant.getMotDePasse() == null || participant.getMotDePasse().trim().isEmpty()) {
+            throw new IllegalArgumentException("Le mot de passe est obligatoire");
+        }
 
         return participantRepository.save(participant);
     }

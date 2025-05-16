@@ -1,6 +1,8 @@
 package fr.esgi.color_run.servlet;
 
+import fr.esgi.color_run.repository.AdminRepository;
 import fr.esgi.color_run.repository.ParticipantRepository;
+import fr.esgi.color_run.repository.impl.AdminRepositoryImpl;
 import fr.esgi.color_run.repository.impl.ParticipantRepositoryImpl;
 import fr.esgi.color_run.service.LoginService;
 import fr.esgi.color_run.service.impl.LoginServiceImpl;
@@ -28,8 +30,9 @@ public class LoginServlet extends HttpServlet {
     @Override
     public void init() {
         ParticipantRepository participantRepository = new ParticipantRepositoryImpl();
-        jwtUtil = JwtUtil.getInstance();
-        loginService = new LoginServiceImpl(participantRepository, jwtUtil);
+        AdminRepository adminRepository = new AdminRepositoryImpl();
+        jwtUtil = JwtUtil.getInstance();;
+        loginService = new LoginServiceImpl(participantRepository, adminRepository, jwtUtil);
     }
 
     @Override

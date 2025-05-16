@@ -1,5 +1,7 @@
 package fr.esgi.color_run.servlet;
 
+import java.io.*;
+
 import fr.esgi.color_run.business.Participant;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -27,7 +29,7 @@ public class MeServlet extends BaseWebServlet {
         }
 
         try {
-            // Récupération des informations utilisateur avec la méthode héritée
+            // Récupération des informations de l'utilisateur à partir du token
             Participant participant = getAuthenticatedParticipant(request);
 
             if (participant == null) {
