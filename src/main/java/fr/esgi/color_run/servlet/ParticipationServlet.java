@@ -12,7 +12,6 @@ import fr.esgi.color_run.service.impl.ParticipationServiceImpl;
 import fr.esgi.color_run.util.DebugUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.thymeleaf.TemplateEngine;
@@ -27,15 +26,12 @@ import java.util.Optional;
  * Servlet pour gérer les participations aux courses
  */
 @WebServlet(name = "participationServlet", value = { "/participations", "/participations/*" })
-public class ParticipationServlet extends HttpServlet {
-
-    private AuthService authService;
+public class ParticipationServlet extends BaseWebServlet {
     private ParticipationService participationService;
     private CourseService courseService;
 
     @Override
     public void init() {
-        authService = new AuthServiceImpl();
         participationService = new ParticipationServiceImpl();
         courseService = new CourseServiceImpl();
     }
@@ -45,19 +41,12 @@ public class ParticipationServlet extends HttpServlet {
      * participation spécifique
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        // Récupération du token depuis les attributs de la requête (placé par le
-        // filtre)
-        String token = (String) request.getAttribute("jwt_token");
-        if (token == null || !authService.isTokenValid(token)) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"error\": \"Utilisateur non authentifié\"}");
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if (!isAuthenticated(request, response)) {
+            renderError(request, response, "Utilisateur non authentifié");
             return;
         }
 
-        // On récupère le moteur de template dans le contexte des servlets
-        TemplateEngine templateEngine = (TemplateEngine) getServletContext().getAttribute("templateEngine");
         Context context = new Context();
 
         // Configuration de la réponse en JSON pour les requêtes d'API
@@ -79,15 +68,13 @@ public class ParticipationServlet extends HttpServlet {
                                 participation -> {
                                     try {
                                         // Vérification que l'utilisateur est autorisé à voir cette participation
-                                        Participant currentUser = authService.getParticipantFromToken(token);
+                                        Participant currentUser = getAuthenticatedParticipant(request);
                                         if (currentUser == null ||
                                                 (!currentUser.equals(participation.getParticipant()) &&
-                                                        !authService.isAdmin(token) &&
+                                                        !isAdmin(request, response) &&
                                                         !isOrganisateurOfCourse(currentUser,
                                                                 participation.getCourse()))) {
-                                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                                            response.getWriter().write(
-                                                    "{\"error\": \"Vous n'avez pas accès à cette participation\"}");
+                                            renderError(request, response,"Vous n'avez pas accès à cette participation");
                                             return;
                                         }
 
@@ -96,34 +83,34 @@ public class ParticipationServlet extends HttpServlet {
 
                                         // Pour les vues HTML
                                         context.setVariable("participation", participation);
-                                        templateEngine.process("participation", context, response.getWriter());
+                                        renderTemplate(request, response, "participation", context);
                                     } catch (IOException e) {
+                                        e.printStackTrace();
+                                    } catch (ServletException e) {
                                         e.printStackTrace();
                                     }
                                 },
                                 () -> {
                                     try {
-                                        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                                        response.getWriter().write("{\"error\": \"Participation non trouvée avec l'ID "
-                                                + participationId + "\"}");
+                                        renderError(request, response,
+                                                "Participation non trouvée avec l'ID " + participationId);
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     }
                                 });
             } catch (NumberFormatException e) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().write("{\"error\": \"ID de participation invalide\"}");
+                renderError(request, response, "ID de participation invalide");
             }
         } else {
             // Si l'utilisateur est un admin, afficher toutes les participations
-            if (authService.isAdmin(token)) {
+            if (isAdmin(request, response)) {
                 List<Participation> participations = participationService.getAllParticipations();
                 context.setVariable("participations", participations);
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.getWriter().write(participations.toString());
             } else {
                 // Sinon, afficher uniquement les participations de l'utilisateur
-                Participant currentUser = authService.getParticipantFromToken(token);
+                Participant currentUser = getAuthenticatedParticipant(request);
                 if (currentUser != null) {
                     List<Participation> userParticipations = participationService
                             .getParticipationsByParticipant(currentUser.getIdParticipant());
@@ -131,11 +118,10 @@ public class ParticipationServlet extends HttpServlet {
                     response.setStatus(HttpServletResponse.SC_OK);
                     response.getWriter().write(userParticipations.toString());
                 } else {
-                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                    response.getWriter().write("{\"error\": \"Accès refusé\"}");
+                    renderError(request, response, "Accès refusé");
                 }
             }
-            templateEngine.process("participations", context, response.getWriter());
+            renderTemplate(request, response, "participations", context);
         }
     }
 
@@ -143,19 +129,15 @@ public class ParticipationServlet extends HttpServlet {
      * Traite les requêtes POST pour créer une nouvelle participation
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        // Vérification de l'authentification
-        String token = (String) request.getAttribute("jwt_token");
-        if (token == null || !authService.isTokenValid(token)) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"error\": \"Utilisateur non authentifié\"}");
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if (!isAuthenticated(request, response)) {
+            renderError(request, response, "Utilisateur non authentifié");
             return;
         }
 
         try {
             // Récupération de l'utilisateur courant
-            Participant participant = authService.getParticipantFromToken(token);
+            Participant participant = getAuthenticatedParticipant(request);
             if (participant == null) {
                 throw new ServletException("Impossible de récupérer les informations du participant");
             }
@@ -209,15 +191,12 @@ public class ParticipationServlet extends HttpServlet {
                     .write("{\"message\": \"Inscription réussie\", \"numeroDossard\": " + numeroDossard + "}");
 
         } catch (NumberFormatException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"Format de données invalide: " + e.getMessage() + "\"}");
+            renderError(request, response, "Format de données invalide: " + e.getMessage());
         } catch (IllegalArgumentException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
+            renderError(request, response, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"error\": \"Erreur lors de l'inscription: " + e.getMessage() + "\"}");
+            renderError(request, response, "Erreur lors de l'inscription: " + e.getMessage());
         }
     }
 
@@ -225,13 +204,9 @@ public class ParticipationServlet extends HttpServlet {
      * Traite les requêtes DELETE pour supprimer une participation (annulation)
      */
     @Override
-    protected void doDelete(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        // Vérification de l'authentification
-        String token = (String) request.getAttribute("jwt_token");
-        if (token == null || !authService.isTokenValid(token)) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"error\": \"Utilisateur non authentifié\"}");
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if (!isAuthenticated(request, response)) {
+            renderError(request, response, "Utilisateur non authentifié");
             return;
         }
 
@@ -247,20 +222,18 @@ public class ParticipationServlet extends HttpServlet {
             // Récupération de la participation
             Optional<Participation> optParticipation = participationService.getParticipationById(participationId);
             if (optParticipation.isEmpty()) {
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                response.getWriter().write("{\"error\": \"Participation non trouvée\"}");
+                renderError(request, response, "Participation non trouvée");
                 return;
             }
 
             Participation participation = optParticipation.get();
 
             // Vérification des permissions
-            Participant currentUser = authService.getParticipantFromToken(token);
-            boolean isAdmin = authService.isAdmin(token);
+            Participant currentUser = getAuthenticatedParticipant(request);
+            boolean isAdmin = isAdmin(request, response);
 
             if (!isAdmin && (currentUser == null || !currentUser.equals(participation.getParticipant()))) {
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                response.getWriter().write("{\"error\": \"Vous n'êtes pas autorisé à annuler cette participation\"}");
+                renderError(request, response, "Vous n'êtes pas autorisé à annuler cette participation");
                 return;
             }
 
@@ -271,20 +244,16 @@ public class ParticipationServlet extends HttpServlet {
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.getWriter().write("{\"message\": \"Participation annulée avec succès\"}");
             } else {
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                response.getWriter().write("{\"error\": \"Échec de l'annulation de la participation\"}");
+                renderError(request, response, "Échec de l'annulation de la participation");
             }
 
         } catch (NumberFormatException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"ID de participation invalide\"}");
+            renderError(request, response, "ID de participation invalide");
         } catch (IllegalArgumentException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
+            renderError(request, response, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"error\": \"Une erreur est survenue: " + e.getMessage() + "\"}");
+            renderError(request, response, "Une erreur est survenue: " + e.getMessage());
         }
     }
 

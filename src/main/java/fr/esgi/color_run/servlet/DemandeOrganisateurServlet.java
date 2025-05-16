@@ -26,15 +26,13 @@ import java.util.Optional;
  * Servlet pour gérer les demandes pour devenir organisateur
  */
 @WebServlet(name = "demandeOrganisateurServlet", value = {"/demandes", "/demandes/*"})
-public class DemandeOrganisateurServlet extends HttpServlet {
+public class DemandeOrganisateurServlet extends BaseWebServlet {
 
-    private AuthService authService;
     private DemandeOrganisateurService demandeService;
     private ParticipantService participantService;
 
     @Override
     public void init() {
-        authService = new AuthServiceImpl();
         demandeService = new DemandeOrganisateurServiceImpl();
         participantService = new ParticipantServiceImpl();
     }
@@ -45,24 +43,15 @@ public class DemandeOrganisateurServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Vérification de l'authentification
-        String token = (String) request.getAttribute("jwt_token");
-        if (token == null || !authService.isTokenValid(token)) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"error\": \"Utilisateur non authentifié\"}");
+        if (!isAuthenticated(request, response)) {
             return;
         }
 
         // On récupère le moteur de template dans le contexte des servlets
-        TemplateEngine templateEngine = (TemplateEngine) getServletContext().getAttribute("templateEngine");
         Context context = new Context();
-
-        // Configuration de la réponse
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
 
         // Analyse du chemin pour déterminer le type de requête
         String pathInfo = request.getPathInfo();
-
         try {
             // URL pattern: /demandes/{id}
             if (pathInfo != null && pathInfo.matches("/\\d+")) {
@@ -71,34 +60,30 @@ public class DemandeOrganisateurServlet extends HttpServlet {
                 // Récupération de la demande
                 Optional<DemandeOrganisateur> optDemande = demandeService.getDemandeById(demandeId);
                 if (optDemande.isEmpty()) {
-                    response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                    response.getWriter().write("{\"error\": \"Demande non trouvée\"}");
+                    renderError(request, response, "Demande non trouvée");
                     return;
                 }
                 
                 DemandeOrganisateur demande = optDemande.get();
                 
                 // Vérification des permissions (admin ou participant concerné)
-                boolean isAdmin = authService.isAdmin(token);
-                Participant currentUser = authService.getParticipantFromToken(token);
+                boolean isAdmin = isAdmin(request, response);
+                Participant currentUser = getAuthenticatedParticipant(request);
                 
                 if (!isAdmin && (currentUser == null || currentUser.getIdParticipant() != demande.getParticipant().getIdParticipant())) {
-                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                    response.getWriter().write("{\"error\": \"Vous n'êtes pas autorisé à consulter cette demande\"}");
+                    renderError(request, response, "Vous n'êtes pas autorisé à consulter cette demande");
                     return;
                 }
                 
                 // Ajout à la vue
                 context.setVariable("demande", demande);
                 
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.getWriter().write(demande.toString());
-                templateEngine.process("demande-organisateur", context, response.getWriter());
+                renderTemplate(request, response, "demande-organisateur", context);
             }
             // URL pattern: /demandes
             else {
-                boolean isAdmin = authService.isAdmin(token);
-                Participant currentUser = authService.getParticipantFromToken(token);
+                boolean isAdmin = isAdmin(request, response);
+                Participant currentUser = getAuthenticatedParticipant(request);
                 
                 List<DemandeOrganisateur> demandes;
                 
@@ -116,8 +101,7 @@ public class DemandeOrganisateurServlet extends HttpServlet {
                 else if (currentUser != null) {
                     demandes = demandeService.getDemandesByParticipant(currentUser.getIdParticipant());
                 } else {
-                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                    response.getWriter().write("{\"error\": \"Accès refusé\"}");
+                    renderError(request, response, "Accès refusé");
                     return;
                 }
                 
@@ -125,18 +109,14 @@ public class DemandeOrganisateurServlet extends HttpServlet {
                 context.setVariable("demandes", demandes);
                 context.setVariable("isAdmin", isAdmin);
                 
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.getWriter().write(demandes.toString());
-                templateEngine.process("demandes-organisateur", context, response.getWriter());
+                renderTemplate(request, response, "demandes-organisateur", context);
             }
             
         } catch (NumberFormatException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"Format d'ID invalide\"}");
+            renderError(request, response, "Format d'ID invalide");
         } catch (Exception e) {
             e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"error\": \"Une erreur est survenue: " + e.getMessage() + "\"}");
+            renderError(request, response, "Une erreur est survenue: " + e.getMessage());
         }
     }
 
@@ -146,31 +126,26 @@ public class DemandeOrganisateurServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Vérification de l'authentification
-        String token = (String) request.getAttribute("jwt_token");
-        if (token == null || !authService.isTokenValid(token)) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"error\": \"Utilisateur non authentifié\"}");
+        if (!isAuthenticated(request, response)) {
             return;
         }
 
         try {
             // Récupération de l'utilisateur courant
-            Participant participant = authService.getParticipantFromToken(token);
+            Participant participant = getAuthenticatedParticipant(request);
             if (participant == null) {
                 throw new ServletException("Impossible de récupérer les informations du participant");
             }
             
             // Vérification que le participant n'est pas déjà organisateur
             if (participant.isEstOrganisateur()) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().write("{\"error\": \"Vous êtes déjà organisateur\"}");
+                renderError(request, response, "Vous êtes déjà organisateur");
                 return;
             }
             
             // Vérification qu'une demande en cours n'existe pas déjà
             if (demandeService.hasDemandeEnCours(participant.getIdParticipant())) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().write("{\"error\": \"Vous avez déjà une demande en cours\"}");
+                renderError(request, response, "Vous avez déjà une demande en cours");
                 return;
             }
             
@@ -196,12 +171,10 @@ public class DemandeOrganisateurServlet extends HttpServlet {
             response.getWriter().write("{\"message\": \"Demande enregistrée avec succès\"}");
             
         } catch (IllegalArgumentException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
+            renderError(request, response, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"error\": \"Une erreur est survenue: " + e.getMessage() + "\"}");
+            renderError(request, response, "Une erreur est survenue: " + e.getMessage());
         }
     }
 
@@ -211,10 +184,13 @@ public class DemandeOrganisateurServlet extends HttpServlet {
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Vérification de l'authentification et des droits d'administrateur
-        String token = (String) request.getAttribute("jwt_token");
-        if (token == null || !authService.isTokenValid(token) || !authService.isAdmin(token)) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.getWriter().write("{\"error\": \"Droits d'administrateur requis\"}");
+        if (!isAuthenticated(request, response)) {
+            return;
+        }
+
+        boolean isAdmin = isAdmin(request, response);
+        if (!isAdmin) {
+            renderError(request, response, "Droits d'administrateur requis");
             return;
         }
         
@@ -230,8 +206,7 @@ public class DemandeOrganisateurServlet extends HttpServlet {
             // Récupération de la demande
             Optional<DemandeOrganisateur> optDemande = demandeService.getDemandeById(demandeId);
             if (optDemande.isEmpty()) {
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                response.getWriter().write("{\"error\": \"Demande non trouvée\"}");
+                renderError(request, response, "Demande non trouvée");
                 return;
             }
             
@@ -239,8 +214,7 @@ public class DemandeOrganisateurServlet extends HttpServlet {
             
             // Vérification que la demande n'a pas déjà été traitée
             if (!"EN_ATTENTE".equals(demande.getStatus())) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().write("{\"error\": \"Cette demande a déjà été traitée\"}");
+                renderError(request, response, "Cette demande a déjà été traitée");
                 return;
             }
             
@@ -253,7 +227,7 @@ public class DemandeOrganisateurServlet extends HttpServlet {
             boolean decision = Boolean.parseBoolean(decisionStr);
             
             // Récupération de l'admin qui traite la demande
-            Admin admin = authService.getAdminFromToken(token);
+            Admin admin = getAuthenticatedAdmin(request);
             if (admin == null) {
                 throw new ServletException("Impossible de récupérer les informations de l'administrateur");
             }
@@ -279,15 +253,12 @@ public class DemandeOrganisateurServlet extends HttpServlet {
             response.getWriter().write("{\"message\": \"Demande " + (decision ? "acceptée" : "refusée") + " avec succès\"}");
             
         } catch (NumberFormatException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"Format d'ID invalide\"}");
+            renderError(request, response, "Format d'ID invalide");
         } catch (IllegalArgumentException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
+            renderError(request, response, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"error\": \"Une erreur est survenue: " + e.getMessage() + "\"}");
+            renderError(request, response, "Une erreur est survenue: " + e.getMessage());
         }
     }
 }

@@ -8,7 +8,6 @@ import fr.esgi.color_run.service.impl.ParticipantServiceImpl;
 import fr.esgi.color_run.util.CryptUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.thymeleaf.TemplateEngine;
@@ -22,7 +21,7 @@ import java.util.List;
  * Servlet pour gérer les participants
  */
 @WebServlet(name = "participantServlet", value = {"/participants", "/participants/*"})
-public class ParticipantServlet extends HttpServlet {
+public class ParticipantServlet extends BaseWebServlet {
 
     private AuthService authService;
     private ParticipantService participantService;
@@ -39,23 +38,18 @@ public class ParticipantServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Vérification de l'authentification
-        String token = (String) request.getAttribute("jwt_token");
-        if (token == null || !authService.isTokenValid(token)) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"error\": \"Utilisateur non authentifié\"}");
+        if (!isAuthenticated(request, response)) {
+            renderError(request, response, "Utilisateur non authentifié");
             return;
         }
 
         // Vérification que l'utilisateur est admin (seul un admin peut lister les participants)
-        boolean isAdmin = authService.isAdmin(token);
+        boolean isAdmin = isAdmin(request, response);
         if (!isAdmin) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.getWriter().write("{\"error\": \"Accès non autorisé\"}");
+            renderError(request, response, "Accès non autorisé");
             return;
         }
 
-        // On récupère le moteur de template dans le contexte des servlets
-        TemplateEngine templateEngine = (TemplateEngine) getServletContext().getAttribute("templateEngine");
         Context context = new Context();
 
         // Configuration de la réponse
@@ -73,8 +67,7 @@ public class ParticipantServlet extends HttpServlet {
                 // Récupération du participant
                 Participant participant = participantService.getParticipantById(participantId);
                 if (participant == null) {
-                    response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                    response.getWriter().write("{\"error\": \"Participant non trouvé\"}");
+                    renderError(request, response, "Participant non trouvé");
                     return;
                 }
                 
@@ -84,9 +77,7 @@ public class ParticipantServlet extends HttpServlet {
                 // Ajout à la vue
                 context.setVariable("participant", participant);
                 
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.getWriter().write(participant.toString());
-                templateEngine.process("participant", context, response.getWriter());
+                renderTemplate(request, response, pathInfo, context);
             }
             // URL pattern: /participants
             else {
@@ -99,18 +90,14 @@ public class ParticipantServlet extends HttpServlet {
                 // Ajout à la vue
                 context.setVariable("participants", participants);
                 
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.getWriter().write(participants.toString());
-                templateEngine.process("participants", context, response.getWriter());
+                renderTemplate(request, response, pathInfo, context);
             }
             
-        } catch (NumberFormatException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"Format d'ID invalide\"}");
+        } catch (NumberFormatException e) { 
+            renderError(request, response, "Format d'ID invalide");
         } catch (Exception e) {
             e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"error\": \"Une erreur est survenue: " + e.getMessage() + "\"}");
+            renderError(request, response, "Une erreur est survenue: " + e.getMessage());
         }
     }
 
@@ -120,10 +107,14 @@ public class ParticipantServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Vérification de l'authentification et des droits d'administrateur
-        String token = (String) request.getAttribute("jwt_token");
-        if (token == null || !authService.isTokenValid(token) || !authService.isAdmin(token)) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.getWriter().write("{\"error\": \"Droits d'administrateur requis\"}");
+        if (!isAuthenticated(request, response)) {
+            renderError(request, response, "Droits d'administrateur requis");
+            return;
+        }
+
+        boolean isAdmin = isAdmin(request, response);
+        if (!isAdmin) {
+            renderError(request, response, "Droits d'administrateur requis");
             return;
         }
 
@@ -139,15 +130,13 @@ public class ParticipantServlet extends HttpServlet {
             if (nom == null || prenom == null || email == null || motDePasse == null ||
                 nom.isEmpty() || prenom.isEmpty() || email.isEmpty() || motDePasse.isEmpty()) {
                 
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().write("{\"error\": \"Tous les champs sont obligatoires\"}");
+                renderError(request, response, "Tous les champs sont obligatoires");
                 return;
             }
             
             // Vérification si l'email est déjà utilisé
             if (participantService.existsByEmail(email)) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().write("{\"error\": \"Cette adresse email est déjà utilisée\"}");
+                renderError(request, response, "Cette adresse email est déjà utilisée");
                 return;
             }
             
@@ -171,12 +160,10 @@ public class ParticipantServlet extends HttpServlet {
             response.getWriter().write("{\"message\": \"Participant créé avec succès\", \"id\": " + participant.getIdParticipant() + "}");
             
         } catch (IllegalArgumentException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
+            renderError(request, response, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"error\": \"Une erreur est survenue: " + e.getMessage() + "\"}");
+            renderError(request, response, "Une erreur est survenue: " + e.getMessage());
         }
     }
 
@@ -186,10 +173,8 @@ public class ParticipantServlet extends HttpServlet {
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Vérification de l'authentification
-        String token = (String) request.getAttribute("jwt_token");
-        if (token == null || !authService.isTokenValid(token)) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"error\": \"Utilisateur non authentifié\"}");
+        if (!isAuthenticated(request, response)) {
+            renderError(request, response, "Utilisateur non authentifié");
             return;
         }
         
@@ -205,19 +190,17 @@ public class ParticipantServlet extends HttpServlet {
             // Récupération du participant
             Participant participant = participantService.getParticipantById(participantId);
             if (participant == null) {
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                response.getWriter().write("{\"error\": \"Participant non trouvé\"}");
+                renderError(request, response, "Participant non trouvé");
                 return;
             }
             
             // Vérification des autorisations
-            Participant currentUser = authService.getParticipantFromToken(token);
-            boolean isAdmin = authService.isAdmin(token);
+            Participant currentUser = getAuthenticatedParticipant(request);
+            boolean isAdmin = isAdmin(request, response);
             
             // Seul l'admin ou le participant lui-même peut modifier ses informations
             if (!isAdmin && (currentUser == null || currentUser.getIdParticipant() != participantId)) {
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                response.getWriter().write("{\"error\": \"Vous n'êtes pas autorisé à modifier ce participant\"}");
+                renderError(request, response, "Vous n'êtes pas autorisé à modifier ce participant");
                 return;
             }
             
@@ -236,8 +219,7 @@ public class ParticipantServlet extends HttpServlet {
             if (email != null && !email.trim().isEmpty() && !email.equals(participant.getEmail())) {
                 // Vérifier que l'email n'est pas déjà utilisé
                 if (participantService.existsByEmail(email)) {
-                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                    response.getWriter().write("{\"error\": \"Cette adresse email est déjà utilisée\"}");
+                    renderError(request, response, "Cette adresse email est déjà utilisée");
                     return;
                 }
                 participant.setEmail(email);
@@ -266,15 +248,12 @@ public class ParticipantServlet extends HttpServlet {
             response.getWriter().write("{\"message\": \"Participant mis à jour avec succès\"}");
             
         } catch (NumberFormatException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"Format d'ID invalide\"}");
+            renderError(request, response, "Format d'ID invalide");
         } catch (IllegalArgumentException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
+            renderError(request, response, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"error\": \"Une erreur est survenue: " + e.getMessage() + "\"}");
+            renderError(request, response, "Une erreur est survenue: " + e.getMessage());
         }
     }
 
@@ -285,9 +264,14 @@ public class ParticipantServlet extends HttpServlet {
     protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Vérification de l'authentification et des droits d'administrateur
         String token = (String) request.getAttribute("jwt_token");
-        if (token == null || !authService.isTokenValid(token) || !authService.isAdmin(token)) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.getWriter().write("{\"error\": \"Droits d'administrateur requis\"}");
+        if (!isAuthenticated(request, response)) {
+            renderError(request, response, "Droits d'administrateur requis");
+            return;
+        }
+
+        boolean isAdmin = isAdmin(request, response);
+        if (!isAdmin) {
+            renderError(request, response, "Droits d'administrateur requis");
             return;
         }
         
@@ -303,8 +287,7 @@ public class ParticipantServlet extends HttpServlet {
             // Vérification que le participant existe
             Participant participant = participantService.getParticipantById(participantId);
             if (participant == null) {
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                response.getWriter().write("{\"error\": \"Participant non trouvé\"}");
+                renderError(request, response, "Participant non trouvé");
                 return;
             }
             
@@ -315,20 +298,16 @@ public class ParticipantServlet extends HttpServlet {
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.getWriter().write("{\"message\": \"Participant supprimé avec succès\"}");
             } else {
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                response.getWriter().write("{\"error\": \"Échec de la suppression du participant\"}");
+                renderError(request, response, "Échec de la suppression du participant");
             }
             
         } catch (NumberFormatException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"Format d'ID invalide\"}");
+            renderError(request, response, "Format d'ID invalide");
         } catch (IllegalArgumentException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
+            renderError(request, response, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"error\": \"Une erreur est survenue: " + e.getMessage() + "\"}");
+            renderError(request, response, "Une erreur est survenue: " + e.getMessage());
         }
     }
 }

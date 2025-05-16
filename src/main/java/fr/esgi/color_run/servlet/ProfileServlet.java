@@ -1,19 +1,15 @@
 package fr.esgi.color_run.servlet;
 
 import fr.esgi.color_run.business.Participant;
-import fr.esgi.color_run.service.AuthService;
 import fr.esgi.color_run.service.ParticipantService;
-import fr.esgi.color_run.service.impl.AuthServiceImpl;
 import fr.esgi.color_run.service.impl.ParticipantServiceImpl;
 import fr.esgi.color_run.util.CryptUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
-import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.io.File;
@@ -33,15 +29,14 @@ import java.util.UUID;
     maxFileSize = 1024 * 1024 * 10,      // 10 MB
     maxRequestSize = 1024 * 1024 * 15    // 15 MB
 )
-public class ProfileServlet extends HttpServlet {
+public class ProfileServlet extends BaseWebServlet {
 
-    private AuthService authService;
     private ParticipantService participantService;
     private static final String UPLOAD_DIRECTORY = "uploads";
 
     @Override
     public void init() {
-        authService = new AuthServiceImpl();
+        super.init();
         participantService = new ParticipantServiceImpl();
         
         // Création du répertoire d'upload s'il n'existe pas
@@ -56,39 +51,33 @@ public class ProfileServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Vérification de l'authentification
-        String token = (String) request.getAttribute("jwt_token");
-        if (token == null || !authService.isTokenValid(token)) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"error\": \"Utilisateur non authentifié\"}");
+        if (!isAuthenticated(request, response)) {
             return;
         }
 
-        // On récupère le moteur de template dans le contexte des servlets
-        TemplateEngine templateEngine = (TemplateEngine) getServletContext().getAttribute("templateEngine");
-        Context context = new Context();
-
         try {
-            Participant currentUser = authService.getParticipantFromToken(token);
+            Participant currentUser = getAuthenticatedParticipant(request);
             if (currentUser == null) {
-                throw new ServletException("Impossible de récupérer les informations de l'utilisateur");
+                renderError(request, response, "Impossible de récupérer les informations de l'utilisateur");
+                return;
             }
             
             String pathInfo = request.getPathInfo();
+            Context context = new Context();
             
             // Si l'URL contient un ID utilisateur, afficher ce profil spécifique
             if (pathInfo != null && pathInfo.matches("/\\d+")) {
                 int userId = Integer.parseInt(pathInfo.substring(1));
                 
                 // Vérifier si on est admin ou si on consulte son propre profil
-                boolean isAdmin = authService.isAdmin(token);
+                boolean isAdmin = isAdmin(request, response);
                 boolean isOwnProfile = currentUser.getIdParticipant() == userId;
                 
                 if (!isAdmin && !isOwnProfile) {
                     // Affichage du profil public (moins d'informations)
                     Participant publicUser = participantService.getParticipantById(userId);
                     if (publicUser == null) {
-                        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                        response.getWriter().write("{\"error\": \"Utilisateur non trouvé\"}");
+                        renderError(request, response, "Utilisateur non trouvé");
                         return;
                     }
                     
@@ -101,8 +90,7 @@ public class ProfileServlet extends HttpServlet {
                     // Affichage du profil complet
                     Participant user = participantService.getParticipantById(userId);
                     if (user == null) {
-                        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                        response.getWriter().write("{\"error\": \"Utilisateur non trouvé\"}");
+                        renderError(request, response, "Utilisateur non trouvé");
                         return;
                     }
                     
@@ -115,41 +103,36 @@ public class ProfileServlet extends HttpServlet {
                 // Affichage de son propre profil par défaut
                 context.setVariable("participant", currentUser);
                 context.setVariable("isPublicView", false);
-                context.setVariable("isAdmin", authService.isAdmin(token));
+                context.setVariable("isAdmin", request.getAttribute("is_admin"));
                 context.setVariable("isOwnProfile", true);
             }
             
-            // Traitement de la page
-            response.setContentType("text/html");
-            templateEngine.process("profile", context, response.getWriter());
+            // Rendu de la page
+            renderTemplate(request, response, "profile", context);
             
         } catch (NumberFormatException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"Format d'ID d'utilisateur invalide\"}");
+            renderError(request, response, "Format d'ID d'utilisateur invalide");
         } catch (Exception e) {
             e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"error\": \"Une erreur est survenue: " + e.getMessage() + "\"}");
+            renderError(request, response, "Une erreur est survenue: " + e.getMessage());
         }
     }
 
     /**
-     * Traite les requêtes PUT pour mettre à jour le profil utilisateur
+     * Traite les requêtes POST pour mettre à jour le profil utilisateur
      */
     @Override
-    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Vérification de l'authentification
-        String token = (String) request.getAttribute("jwt_token");
-        if (token == null || !authService.isTokenValid(token)) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"error\": \"Utilisateur non authentifié\"}");
+        if (!isAuthenticated(request, response)) {
             return;
         }
 
         try {
-            Participant currentUser = authService.getParticipantFromToken(token);
+            Participant currentUser = getAuthenticatedParticipant(request);
             if (currentUser == null) {
-                throw new ServletException("Impossible de récupérer les informations de l'utilisateur");
+                renderError(request, response, "Impossible de récupérer les informations de l'utilisateur");
+                return;
             }
             
             String pathInfo = request.getPathInfo();
@@ -160,12 +143,11 @@ public class ProfileServlet extends HttpServlet {
                 userId = Integer.parseInt(pathInfo.substring(1));
                 
                 // Vérification des permissions
-                boolean isAdmin = authService.isAdmin(token);
+                boolean isAdmin = isAdmin(request, response);
                 boolean isOwnProfile = currentUser.getIdParticipant() == userId;
                 
                 if (!isAdmin && !isOwnProfile) {
-                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                    response.getWriter().write("{\"error\": \"Vous n'êtes pas autorisé à modifier ce profil\"}");
+                    renderError(request, response, "Vous n'êtes pas autorisé à modifier ce profil");
                     return;
                 }
             } else {
@@ -176,8 +158,7 @@ public class ProfileServlet extends HttpServlet {
             // Récupération du participant à modifier
             Participant participant = participantService.getParticipantById(userId);
             if (participant == null) {
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                response.getWriter().write("{\"error\": \"Utilisateur non trouvé\"}");
+                renderError(request, response, "Utilisateur non trouvé");
                 return;
             }
             
@@ -200,15 +181,13 @@ public class ProfileServlet extends HttpServlet {
             if (newPassword != null && !newPassword.trim().isEmpty()) {
                 // Vérification que le mot de passe actuel est correct
                 if (currentPassword == null || !CryptUtil.checkPassword(currentPassword, participant.getMotDePasse())) {
-                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                    response.getWriter().write("{\"error\": \"Le mot de passe actuel est incorrect\"}");
+                    renderError(request, response, "Le mot de passe actuel est incorrect");
                     return;
                 }
                 
                 // Vérification que les nouveaux mots de passe correspondent
                 if (!newPassword.equals(confirmPassword)) {
-                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                    response.getWriter().write("{\"error\": \"Les nouveaux mots de passe ne correspondent pas\"}");
+                    renderError(request, response, "Les nouveaux mots de passe ne correspondent pas");
                     return;
                 }
                 
@@ -241,36 +220,25 @@ public class ProfileServlet extends HttpServlet {
             // Sauvegarde des modifications
             participantService.updateParticipant(participant);
             
-            // Réponse
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.getWriter().write("{\"message\": \"Profil mis à jour avec succès\"}");
+            // Redirection vers la page de profil
+            response.sendRedirect(request.getContextPath() + "/profile/" + userId);
             
         } catch (NumberFormatException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"Format d'ID d'utilisateur invalide\"}");
-        } catch (IllegalArgumentException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
+            renderError(request, response, "Format d'ID d'utilisateur invalide");
         } catch (Exception e) {
             e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"error\": \"Une erreur est survenue: " + e.getMessage() + "\"}");
+            renderError(request, response, "Une erreur est survenue: " + e.getMessage());
         }
     }
 
-    /**
-     * Extrait le nom du fichier à partir de l'en-tête Content-Disposition
-     */
     private String getFileName(Part part) {
         String contentDisp = part.getHeader("content-disposition");
         String[] tokens = contentDisp.split(";");
-        
         for (String token : tokens) {
             if (token.trim().startsWith("filename")) {
-                return token.substring(token.indexOf('=') + 1).trim().replace("\"", "");
+                return token.substring(token.indexOf("=") + 2, token.length() - 1);
             }
         }
-        
-        return null;
+        return "";
     }
 }
