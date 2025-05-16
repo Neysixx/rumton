@@ -22,13 +22,14 @@ import java.io.IOException;
  * Servlet de gestion de l'authentification utilisateur
  */
 @WebServlet(name = "loginServlet", value = "/login")
-public class LoginServlet extends HttpServlet {
+public class LoginServlet extends BaseWebServlet  {
 
     private LoginService loginService;
     private JwtUtil jwtUtil;
 
     @Override
     public void init() {
+        super.init();
         ParticipantRepository participantRepository = new ParticipantRepositoryImpl();
         AdminRepository adminRepository = new AdminRepositoryImpl();
         jwtUtil = JwtUtil.getInstance();;
@@ -37,12 +38,10 @@ public class LoginServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Récupération du moteur de template
-        TemplateEngine templateEngine = (TemplateEngine) getServletContext().getAttribute("templateEngine");
 
         // Création du contexte Thymeleaf
         Context context = new Context();
-        
+
         // Vérifier s'il y a un message d'erreur dans la session
         Object errorMessage = request.getSession().getAttribute("loginError");
         if (errorMessage != null) {
@@ -50,13 +49,14 @@ public class LoginServlet extends HttpServlet {
             request.getSession().removeAttribute("loginError");
         }
 
-        // Rendu de la page de login avec Thymeleaf
-        response.setContentType("text/html;charset=UTF-8");
-        templateEngine.process("login", context, response.getWriter());
+        // Rendu de la page
+        renderTemplate(request, response, "auth/login", context);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Context context = new Context();
+
         String email = request.getParameter("email");
         String password = request.getParameter("password");
         
@@ -81,12 +81,12 @@ public class LoginServlet extends HttpServlet {
             // jwtCookie.setSecure(true); // À décommenter en production pour HTTPS
             response.addCookie(jwtCookie);
 
-            // Redirection vers la page d'accueil
-            response.sendRedirect(request.getContextPath() + "/me");
+            // Redirection vers la page liste des courses
+            response.sendRedirect(request.getContextPath() + "/courses");
         } else {
-            // En cas d'échec d'authentification, ajouter un message d'erreur et rediriger
-            request.getSession().setAttribute("loginError", "Identifiants invalides");
-            response.sendRedirect(request.getContextPath() + "/login");
+            // En cas d'échec d'authentification
+            context.setVariable("error", "Les identifiants sont incorrects");
+            renderTemplate(request, response, "auth/login", context);
         }
     }
 }

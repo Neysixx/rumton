@@ -43,3 +43,4 @@ build/
 db_file/
 src/main/resources/application.properties
 
+.idea/workspace.xml

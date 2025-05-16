@@ -23,13 +23,6 @@ public interface AdminRepository {
     Optional<Admin> findById(int id);
 
     /**
-     * Recherche un administrateur par son adresse email.
-     * @param email L'email de l'administrateur
-     * @return Un Optional contenant l'administrateur s'il est trouvé
-     */
-    Optional<Admin> findByEmail(String email);
-
-    /**
      * Récupère la liste de tous les administrateurs.
      * @return Une liste d'administrateurs
      */

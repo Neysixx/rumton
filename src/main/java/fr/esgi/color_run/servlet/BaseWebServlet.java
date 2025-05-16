@@ -34,13 +34,7 @@ public abstract class BaseWebServlet extends HttpServlet {
      */
     protected boolean isAuthenticated(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String token = (String) request.getAttribute("jwt_token");
-
-        if (token == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
-            return false;
-        }
-
-        return true;
+        return token != null;
     }
 
     /**
@@ -87,6 +81,8 @@ public abstract class BaseWebServlet extends HttpServlet {
     protected void renderTemplate(HttpServletRequest request, HttpServletResponse response, String templateName, Context context) throws IOException {
         TemplateEngine templateEngine = (TemplateEngine) getServletContext().getAttribute("templateEngine");
         response.setContentType("text/html;charset=UTF-8");
+        boolean isAuthValue = this.isAuthenticated(request, response);
+        context.setVariable("isAuth", isAuthValue);
         templateEngine.process(templateName, context, response.getWriter());
     }
 
