@@ -28,9 +28,9 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="HTML File" />
         <option value="Interface" />
         <option value="Class" />
-        <option value="HTML File" />
       </list>
     </option>
   </component>
@@ -104,6 +104,7 @@
   &quot;associatedIndex&quot;: 7
 }</component>
   <component name="ProjectId" id="2uWqwBxe2kwvxhu2hxRy8OS3jU8" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
