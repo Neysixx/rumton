@@ -55,6 +55,7 @@ public class VerificationServiceImpl implements VerificationService {
             participant.setEstVerifie(true);
             participantRepository.update(participant);
             verificationRepository.deleteByParticipantId(participant.getIdParticipant());
+            return true;
         }
         return false;
     }
