@@ -16,6 +16,7 @@ import java.sql.Timestamp;
 public class Verification {
     private int idVerification;
     private Participant participant;
+    private String code;
     private Timestamp dateTime;
     private Timestamp dateTimeCompleted;
 }

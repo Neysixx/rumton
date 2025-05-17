@@ -7,7 +7,6 @@ import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.Properties;
-import java.util.UUID;
 
 public class EmailServiceImpl implements EmailService {
     private static final Properties properties = new Properties();
@@ -25,12 +24,11 @@ public class EmailServiceImpl implements EmailService {
 
 
     @Override
-    public String envoyerEmailVerification(String email) throws MessagingException {
+    public String envoyerEmailVerification(String email, String code) throws MessagingException {
         if (email == null || email.trim().isEmpty()) {
             throw new IllegalArgumentException("L'email ne peut pas être null ou vide");
         }
 
-        String token = genererCodeVerification();
         String verificationUrl = BASE_URL + "/verify?email=" + email;
 
         // Corps du message en HTML
@@ -39,11 +37,11 @@ public class EmailServiceImpl implements EmailService {
                 + "<p><a href='" + verificationUrl + "'>Vérifier mon email</a></p>"
                 + "<p>Si le lien ne fonctionne pas, copiez et collez l'URL suivante dans votre navigateur :</p>"
                 + "<p>" + verificationUrl + "</p>"
-                + "<p>Votre code de vérification est : " + token + "</p>";
+                + "<p>Votre code de vérification est : " + code + "</p>";
 
         envoyerEmail(email, "Vérification de votre adresse email", htmlContent);
 
-        return token;
+        return code;
     }
 
     /**
@@ -51,7 +49,8 @@ public class EmailServiceImpl implements EmailService {
      * 
      * @return Le code de vérification
      */
-    private String genererCodeVerification() {
+    @Override
+    public String genererCodeVerification() {
         int code = (int) (Math.random() * 900000) + 100000; // Génère un nombre aléatoire entre 100000 et 999999
         return String.valueOf(code);
     }

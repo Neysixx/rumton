@@ -1,10 +1,13 @@
 package fr.esgi.color_run.servlet;
 
 import fr.esgi.color_run.business.Participant;
+import fr.esgi.color_run.business.Verification;
 import fr.esgi.color_run.service.EmailService;
 import fr.esgi.color_run.service.ParticipantService;
+import fr.esgi.color_run.service.VerificationService;
 import fr.esgi.color_run.service.impl.EmailServiceImpl;
 import fr.esgi.color_run.service.impl.ParticipantServiceImpl;
+import fr.esgi.color_run.service.impl.VerificationServiceImpl;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,6 +15,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.thymeleaf.context.Context;
 
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 import static fr.esgi.color_run.util.CryptUtil.hashPassword;
@@ -24,12 +30,14 @@ public class RegisterServlet extends BaseWebServlet {
 
     private ParticipantService participantService;
     private EmailService emailService;
+    private VerificationService verificationService;
 
     @Override
     public void init() {
         super.init();
         participantService = new ParticipantServiceImpl();
         emailService = new EmailServiceImpl();
+        verificationService = new VerificationServiceImpl();
     }
 
     /**
@@ -60,9 +68,7 @@ public class RegisterServlet extends BaseWebServlet {
         Context context = new Context();
 
         // Validation des données
-        if (nom == null || prenom == null || email == null || motDePasse == null ||
-                nom.isEmpty() || prenom.isEmpty() || email.isEmpty() || motDePasse.isEmpty()) {
-
+        if (nom == null || prenom == null || email == null || motDePasse == null || nom.isEmpty() || prenom.isEmpty() || email.isEmpty() || motDePasse.isEmpty()) {
             context.setVariable("error", "Tous les champs sont obligatoires");
             renderTemplate(request, response, "auth/register", context);
             return;
@@ -93,10 +99,21 @@ public class RegisterServlet extends BaseWebServlet {
                 .estVerifie(false)
                 .build();
 
+        String code = emailService.genererCodeVerification();
+
+        // Création de l'objet Verification expirant dans 1 heure
+        Verification verification = Verification.builder()
+                .participant(participant)
+                .code(code)
+                .dateTime(Timestamp.from(Instant.now()))
+                .dateTimeCompleted(Timestamp.from(Instant.now().plus(1, ChronoUnit.HOURS)))
+                .build();
+
         // Enregistrement du participant et envoi de l'email de vérification
         try {
-            emailService.envoyerEmailVerification(email);
             participantService.creerParticipant(participant);
+            emailService.envoyerEmailVerification(email, code);
+            verificationService.creerVerification(verification);
 
             // Redirection vers la page de connexion avec un message de succès
             response.sendRedirect(request.getContextPath() + "login?registered=true");

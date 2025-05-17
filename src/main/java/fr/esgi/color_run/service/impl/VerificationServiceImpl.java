@@ -2,16 +2,23 @@ package fr.esgi.color_run.service.impl;
 
 import fr.esgi.color_run.business.Participant;
 import fr.esgi.color_run.business.Verification;
+import fr.esgi.color_run.repository.ParticipantRepository;
 import fr.esgi.color_run.repository.VerificationRepository;
+import fr.esgi.color_run.repository.impl.ParticipantRepositoryImpl;
 import fr.esgi.color_run.repository.impl.VerificationRepositoryImpl;
 import fr.esgi.color_run.service.VerificationService;
+
+import java.sql.Timestamp;
+import java.time.Instant;
 
 public class VerificationServiceImpl implements VerificationService {
 
     private final VerificationRepository verificationRepository;
+    private final ParticipantRepository participantRepository;
 
     public VerificationServiceImpl() {
         this.verificationRepository = new VerificationRepositoryImpl();
+        this.participantRepository = new ParticipantRepositoryImpl();
     }
 
     @Override
@@ -30,13 +37,25 @@ public class VerificationServiceImpl implements VerificationService {
         }
 
         // Vérifier si le code de vérification correspond à celui du participant
-        // Parmis toute les vérifications, on va chercher celle qui correspond à l'email du participant (donc à son id)
-        boolean check = verificationRepository .verifierCode(code, participant);
-        if (check) {
+        // Parmi toute les vérifications, on va chercher celle qui correspond à l'email du participant (donc à son id)
+
+        Verification verif = verificationRepository.findByParticipantId(participant.getIdParticipant());
+        if (verif != null) {
+            if (!verif.getCode().equals(code)) {
+                return false;
+            }
+
+            // Vérifier si la date de vérification est dépassée
+            if (verif.getDateTimeCompleted() != null && verif.getDateTimeCompleted().before(Timestamp.from(Instant.now()))) {
+                verificationRepository.deleteByParticipantId(participant.getIdParticipant());
+                return false;
+            }
+
             // Si le code est correct, on met à jour le participant pour le marquer comme vérifié et on supprime la vérification
             participant.setEstVerifie(true);
+            participantRepository.update(participant);
             verificationRepository.deleteByParticipantId(participant.getIdParticipant());
         }
-        return check;
+        return false;
     }
 }

@@ -12,11 +12,11 @@ public interface VerificationRepository {
 
     Optional<Verification> findById(int id);
 
+    Verification findByParticipantId(int id);
+
     List<Verification> findAll();
 
     void delete(int id);
-
-    boolean verifierCode(String code, Participant participant);
 
     void deleteByParticipantId(int participantId);
 }
