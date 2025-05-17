@@ -1,5 +1,6 @@
 package fr.esgi.color_run.repository;
 
+import fr.esgi.color_run.business.Participant;
 import fr.esgi.color_run.business.Verification;
 
 import java.util.List;
@@ -14,5 +15,9 @@ public interface VerificationRepository {
     List<Verification> findAll();
 
     void delete(int id);
+
+    boolean verifierCode(String code, Participant participant);
+
+    void deleteByParticipantId(int participantId);
 }
 

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vérification de votre email - Color Run</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .verification-container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .verification-title {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .verification-text {
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .code-input {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .code-input input {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 24px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .submit-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .submit-button:hover {
+            background-color: #45a049;
+        }
+
+        .error-message {
+            color: #ff0000;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+<div class="verification-container">
+    <h1 class="verification-title">Vérification de votre adresse email</h1>
+
+    <p class="verification-text">Nous avons envoyé un code de vérification à <strong th:text="${email}">votre@email.com</strong>. Veuillez saisir ce code pour finaliser votre inscription.</p>
+
+    <div th:if="${error}" class="error-message" th:text="${error}">Message d'erreur</div>
+
+    <form method="post" th:action="@{/verify}">
+        <input type="hidden" name="email" th:value="${email}">
+
+        <div class="code-input">
+            <input type="text" name="verification_code" pattern="[0-9]{6}" maxlength="6" required autocomplete="off" inputmode="numeric">
+        </div>
+
+        <button type="submit" class="submit-button">Vérifier</button>
+    </form>
+
+    <p>Vous n'avez pas reçu de code ? <a href="#">Renvoyer le code</a></p>
+</div>
+</body>
+</html>

@@ -106,4 +106,38 @@ public class VerificationRepositoryImpl implements VerificationRepository {
                 .dateTimeCompleted(rs.getTimestamp("date_time_completed"))
                 .build();
     }
+
+    @Override
+    public boolean verifierCode(String code, Participant participant) {
+        if (code == null || participant == null) {
+            throw new IllegalArgumentException("Le code et l'email ne peuvent pas être null");
+        }
+
+        // Vérifier si le code de vérification correspond à celui du participant
+        // Parmis toute les vérifications, on va chercher celle qui correspond à l'email du participant (donc à son id)
+        String sql = "SELECT * FROM VERIFICATION WHERE id_participant = ? AND code = ?";
+        try (Connection connection = DatabaseConnection.getProdConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, participant.getIdParticipant());
+            stmt.setString(2, code);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public void deleteByParticipantId(int participantId) {
+        String sql = "DELETE FROM VERIFICATION WHERE id_participant = ?";
+        try (Connection connection = DatabaseConnection.getProdConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, participantId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Erreur lors de la suppression de la vérification: " + e.getMessage());
+        }
+    }
 }

@@ -4,6 +4,7 @@ import fr.esgi.color_run.business.Participant;
 import fr.esgi.color_run.repository.ParticipantRepository;
 import fr.esgi.color_run.repository.impl.ParticipantRepositoryImpl;
 import fr.esgi.color_run.service.ParticipantService;
+import fr.esgi.color_run.util.DebugUtil;
 
 import java.util.List;
 import java.util.Optional;

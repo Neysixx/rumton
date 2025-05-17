@@ -93,7 +93,7 @@ public class RegisterServlet extends BaseWebServlet {
                 .estVerifie(false)
                 .build();
 
-        // Enregistrement du participant
+        // Enregistrement du participant et envoi de l'email de vérification
         try {
             emailService.envoyerEmailVerification(email);
             participantService.creerParticipant(participant);

@@ -10,11 +10,19 @@ import java.util.Properties;
 import java.util.UUID;
 
 public class EmailServiceImpl implements EmailService {
+    private static final Properties properties = new Properties();
+//    private static final String SMTP_HOST =properties.getProperty("SMTP_HOST");
+//    private static final String SMTP_PORT = properties.getProperty("SMTP_PORT");
+//    private static final String USERNAME = properties.getProperty("SMTP_USER");
+//    private static final String PASSWORD = properties.getProperty("SMTP_PASSWORD");
+//    private static final String BASE_URL =  properties.getProperty("base.url");
+
     private static final String SMTP_HOST = "smtp.gmail.com";
     private static final String SMTP_PORT = "587";
-    private static final String USERNAME = "votre-email@gmail.com";
-    private static final String PASSWORD = "votre-mot-de-passe";
-    private static final String BASE_URL = "http://votre-domaine.com";
+    private static final String USERNAME = "";
+    private static final String PASSWORD = "";
+    private static final String BASE_URL = "http://localhost:8080";
+
 
     @Override
     public String envoyerEmailVerification(String email) throws MessagingException {
