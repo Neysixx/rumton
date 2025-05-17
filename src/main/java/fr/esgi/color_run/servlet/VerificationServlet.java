@@ -87,7 +87,7 @@ public class VerificationServlet extends BaseWebServlet {
                 response.sendRedirect(request.getContextPath() + "/login");
             } else {
                 context.setVariable("error", "Invalid verification code");
-                renderTemplate(request, response, "verification.html", context);
+                renderTemplate(request, response, "auth/verification.html", context);
             }
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
