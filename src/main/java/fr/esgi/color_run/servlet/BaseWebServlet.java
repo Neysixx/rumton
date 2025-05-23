@@ -42,7 +42,6 @@ public abstract class BaseWebServlet extends HttpServlet {
      */
     protected boolean isAdmin(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         if (request.getAttribute("is_admin") == null || !(boolean) request.getAttribute("is_admin")) {
-            renderError(request, response, "Accès réservé aux administrateurs");
             return false;
         }
         return true;
