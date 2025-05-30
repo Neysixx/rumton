@@ -3,6 +3,7 @@ package fr.esgi.color_run.servlet;
 import fr.esgi.color_run.business.Admin;
 import fr.esgi.color_run.business.DemandeOrganisateur;
 import fr.esgi.color_run.business.Participant;
+import fr.esgi.color_run.business.enums.EDemandeStatus;
 import fr.esgi.color_run.service.AuthService;
 import fr.esgi.color_run.service.DemandeOrganisateurService;
 import fr.esgi.color_run.service.ParticipantService;
@@ -159,7 +160,7 @@ public class DemandeOrganisateurServlet extends BaseWebServlet {
             DemandeOrganisateur demande = DemandeOrganisateur.builder()
                     .participant(participant)
                     .motivations(motivations)
-                    .status("EN_ATTENTE")
+                    .status(EDemandeStatus.EN_ATTENTE.toString())
                     .dateCreation(new Date())
                     .build();
             
@@ -213,7 +214,7 @@ public class DemandeOrganisateurServlet extends BaseWebServlet {
             DemandeOrganisateur demande = optDemande.get();
             
             // Vérification que la demande n'a pas déjà été traitée
-            if (!"EN_ATTENTE".equals(demande.getStatus())) {
+            if (!EDemandeStatus.EN_ATTENTE.toString().equals(demande.getStatus())) {
                 renderError(request, response, "Cette demande a déjà été traitée");
                 return;
             }
@@ -233,7 +234,7 @@ public class DemandeOrganisateurServlet extends BaseWebServlet {
             }
             
             // Mise à jour de la demande
-            demande.setStatus(decision ? "ACCEPTEE" : "REFUSEE");
+            demande.setStatus(decision ? EDemandeStatus.ACCEPTEE.toString() : EDemandeStatus.REFUSEE.toString());
             demande.setReponse(decision);
             demande.setTraitePar(Optional.of(admin));
             demande.setDateTraitement(Optional.of(new Date()));
