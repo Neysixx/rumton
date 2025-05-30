@@ -59,12 +59,14 @@ public class CauseServlet extends BaseWebServlet {
                                         renderTemplate(request, response, "cause_details", context);
                                     } catch (IOException e) {
                                         e.printStackTrace();
+                                    } catch (ServletException e) {
+                                        e.printStackTrace();
                                     }
                                 },
                                 () -> {
                                     try {
                                         renderError(request, response, "Cause non trouvée avec l'ID " + causeId);
-                                    } catch (IOException e) {
+                                    } catch (IOException | ServletException e) {
                                         e.printStackTrace();
                                     }
                                 }

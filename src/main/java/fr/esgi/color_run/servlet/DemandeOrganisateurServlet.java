@@ -34,6 +34,7 @@ public class DemandeOrganisateurServlet extends BaseWebServlet {
 
     @Override
     public void init() {
+        super.init();
         demandeService = new DemandeOrganisateurServiceImpl();
         participantService = new ParticipantServiceImpl();
     }

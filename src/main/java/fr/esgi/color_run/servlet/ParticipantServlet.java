@@ -28,6 +28,7 @@ public class ParticipantServlet extends BaseWebServlet {
 
     @Override
     public void init() {
+        super.init();
         authService = new AuthServiceImpl();
         participantService = new ParticipantServiceImpl();
     }
