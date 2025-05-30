@@ -51,9 +51,6 @@ public class ProfileServlet extends BaseWebServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Vérification de l'authentification
-        if (!isAuthenticated(request, response)) {
-            return;
-        }
 
         try {
             Participant currentUser = getAuthenticatedParticipant(request);
@@ -84,7 +81,7 @@ public class ProfileServlet extends BaseWebServlet {
                     // On cache certaines informations sensibles
                     publicUser.setMotDePasse(null);
                     
-                    context.setVariable("participant", publicUser);
+                    context.setVariable("user", publicUser);
                     context.setVariable("isPublicView", true);
                 } else {
                     // Affichage du profil complet
@@ -94,21 +91,26 @@ public class ProfileServlet extends BaseWebServlet {
                         return;
                     }
                     
-                    context.setVariable("participant", user);
+                    context.setVariable("user", user);
                     context.setVariable("isPublicView", false);
                     context.setVariable("isAdmin", isAdmin);
                     context.setVariable("isOwnProfile", isOwnProfile);
+                    if(isOwnProfile){
+                        // Rendu de la page
+                        renderTemplate(request, response, "profile/editProfile", context);
+                        return;
+                    }
                 }
             } else {
                 // Affichage de son propre profil par défaut
-                context.setVariable("participant", currentUser);
+                context.setVariable("user", currentUser);
                 context.setVariable("isPublicView", false);
                 context.setVariable("isAdmin", request.getAttribute("is_admin"));
                 context.setVariable("isOwnProfile", true);
             }
             
             // Rendu de la page
-            renderTemplate(request, response, "profile", context);
+            renderTemplate(request, response, "profile/profile", context);
             
         } catch (NumberFormatException e) {
             renderError(request, response, "Format d'ID d'utilisateur invalide");
@@ -123,10 +125,6 @@ public class ProfileServlet extends BaseWebServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Vérification de l'authentification
-        if (!isAuthenticated(request, response)) {
-            return;
-        }
 
         try {
             Participant currentUser = getAuthenticatedParticipant(request);
@@ -221,7 +219,7 @@ public class ProfileServlet extends BaseWebServlet {
             participantService.updateParticipant(participant);
             
             // Redirection vers la page de profil
-            response.sendRedirect(request.getContextPath() + "/profile/" + userId);
+            response.sendRedirect(request.getContextPath() + "/profile");
             
         } catch (NumberFormatException e) {
             renderError(request, response, "Format d'ID d'utilisateur invalide");

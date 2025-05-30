@@ -82,9 +82,6 @@ body{
     text-align: left;
     cursor: pointer;
     font-size: 14px;
-    &:last-child {
-        color: red;
-    }
 }
 
 .popover button:hover {
@@ -113,15 +110,15 @@ body{
 
 h1{
     font-family: var(--title-font);
-    font-size: 64px !important;
+    font-size: 64px;
 }
 h2{
     font-family: var(--title-font);
-    font-size: 48px !important;
+    font-size: 48px;
 }
 h3{
     font-family: var(--title-font);
-    font-size: 30px !important;
+    font-size: 30px;
 }
 
 ul{

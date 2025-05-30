@@ -42,7 +42,6 @@ public abstract class BaseWebServlet extends HttpServlet {
      */
     protected boolean isAdmin(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         if (request.getAttribute("is_admin") == null || !(boolean) request.getAttribute("is_admin")) {
-            renderError(request, response, "Accès réservé aux administrateurs");
             return false;
         }
         return true;
@@ -82,7 +81,9 @@ public abstract class BaseWebServlet extends HttpServlet {
         TemplateEngine templateEngine = (TemplateEngine) getServletContext().getAttribute("templateEngine");
         response.setContentType("text/html;charset=UTF-8");
         boolean isAuthValue = this.isAuthenticated(request, response);
+        Participant participant = getAuthenticatedParticipant(request);
         context.setVariable("isAuth", isAuthValue);
+        context.setVariable("participant", participant);
         templateEngine.process(templateName, context, response.getWriter());
     }
 
