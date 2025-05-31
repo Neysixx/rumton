@@ -800,15 +800,15 @@ footer{
 @media (max-width: 767px) {
     h1{
         font-family: var(--title-font);
-        font-size: 28px;
+        font-size: 28px !important;
     }
     h2{
         font-family: var(--title-font);
-        font-size: 18px;
+        font-size: 18px !important;
     }
     h3{
         font-family: var(--title-font);
-        font-size: 15px;
+        font-size: 15px !important;
     }
 
     .container{
@@ -1068,15 +1068,15 @@ footer{
 @media (min-width: 768px) and (max-width: 1700px) {
     h1{
         font-family: var(--title-font);
-        font-size: 48px;
+        font-size: 48px !important;
     }
     h2{
         font-family: var(--title-font);
-        font-size: 30px;
+        font-size: 30px !important;
     }
     h3{
         font-family: var(--title-font);
-        font-size: 20px;
+        font-size: 20px !important;
     }
 
     .container{

@@ -53,10 +53,6 @@ public class ParticipantServlet extends BaseWebServlet {
 
         Context context = new Context();
 
-        // Configuration de la réponse
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-
         // Analyse du chemin pour déterminer le type de requête
         String pathInfo = request.getPathInfo();
 
@@ -90,8 +86,8 @@ public class ParticipantServlet extends BaseWebServlet {
                 
                 // Ajout à la vue
                 context.setVariable("participants", participants);
-                
-                renderTemplate(request, response, pathInfo, context);
+
+                renderTemplate(request, response, "admin/users", context);
             }
             
         } catch (NumberFormatException e) { 
@@ -295,10 +291,7 @@ public class ParticipantServlet extends BaseWebServlet {
             // Suppression du participant
             boolean supprime = participantService.deleteParticipant(participantId);
             
-            if (supprime) {
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.getWriter().write("{\"message\": \"Participant supprimé avec succès\"}");
-            } else {
+            if (!supprime) {
                 renderError(request, response, "Échec de la suppression du participant");
             }
             
