@@ -109,9 +109,8 @@ public class DemandeOrganisateurServlet extends BaseWebServlet {
                 
                 // Ajout à la vue
                 context.setVariable("demandes", demandes);
-                context.setVariable("isAdmin", isAdmin);
                 
-                renderTemplate(request, response, "demandes-organisateur", context);
+                renderTemplate(request, response, "admin/demandesOrganisateurs", context);
             }
             
         } catch (NumberFormatException e) {
