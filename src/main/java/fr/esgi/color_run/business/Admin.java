@@ -13,4 +13,8 @@ public class Admin {
     private String email;
     private String motDePasse;
     private String urlProfile;
+
+    public String getUrlProfile() {
+        return urlProfile != null ? urlProfile : "/color_run_war_exploded/assets/img/defaultProfile.png";
+    }
 }
