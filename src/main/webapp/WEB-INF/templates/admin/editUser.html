@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/color_run_war_exploded/assets/css/normalize.css">
     <link rel="stylesheet" href="/color_run_war_exploded/assets/css/style.css">
-    <title>Rumton - Modification du profile</title>
+    <title>Rumton - Modification de l'utilisateur</title>
 </head>
 <body>
 <div class="container-no-gap">
@@ -20,7 +20,7 @@
                 <li><a href="/color_run_war_exploded/courses">Liste des courses</a></li>
                 <li th:if="${!isAuth}"><a href="/color_run_war_exploded/login">Se connecter</a></li>
                 <li th:if="${!isAuth}"><a class="btn-primary" href="/color_run_war_exploded/register">S'inscrire</a></li>
-                <li th:if="${isAuth && isAdmin}"><a href="/color_run_war_exploded/participants">Liste des participants</a></li>
+                <li th:if="${isAuth && isAdmin}"><a class="active" href="/color_run_war_exploded/participants">Liste des participants</a></li>
                 <li th:if="${isAuth && isAdmin}"><a href="/color_run_war_exploded/demandes">Demandes organisateur</a></li>
                 <li th:if="${isAuth}" class="profile-container">
                     <button class="profile-button" id="profileBtn">
@@ -38,11 +38,11 @@
 
     <section class="title-section" id="update-profile-title-section">
         <p>Venez vivre l'expérience unique de la Color Run dans votre ville</p>
-        <h1>Modification du profile</h1>
+        <h1>Modification de l'utilisateur</h1>
     </section>
 
     <section id="update-profile-section" class="mt-2">
-        <form method="POST" class="form-container" enctype="multipart/form-data">
+        <form method="POST" class="form-container">
             <div id="form-first-line">
                 <div class="form-group">
                     <label for="firstname">Prénom:</label>
@@ -54,18 +54,19 @@
                     <input th:value="${user.getNom()}" type="text" name="nom" id="lastname" placeholder="Nom de famille" class="input-classic" required>
                 </div>
             </div>
+
             <div class="form-group">
-                <label for="currentPassword">Mot de passe:</label>
-                <input type="password" name="currentPassword" id="currentPassword" placeholder="Mot de passe actuel" class="input-classic">
-            </div>
-            <div class="form-group">
-                <label for="newPassword">Mot de passe:</label>
-                <input type="password" name="newPassword" id="newPassword" placeholder="Nouveau mot de passe" class="input-classic">
+                <label for="email">Nom de famille:</label>
+                <input th:value="${user.getEmail()}" type="email" name="email" id="email" placeholder="Email" class="input-classic" required>
             </div>
 
             <div class="form-group">
-                <label for="confirmPassword">Confirmation du mot de passe:</label>
-                <input type="password" name="confirmPassword" id="confirmPassword" placeholder="Confirmation du mot de passe" class="input-classic">
+                <label for="role">Choisir le rôle voulu:</label>
+
+                <select name="role" id="role" class="input-classic" required>
+                    <option value="participant" th:selected="${!user.isEstOrganisateur()}">Participant</option>
+                    <option value="organisateur" th:selected="${user.isEstOrganisateur()}">Organisateur</option>
+                </select>
             </div>
 
             <input type="submit" value="Enregistrer" class="btn-primary">

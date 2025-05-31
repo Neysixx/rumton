@@ -20,9 +20,12 @@
                     <li><a href="/color_run_war_exploded/courses">Liste des courses</a></li>
                     <li th:if="${!isAuth}"><a href="/color_run_war_exploded/login">Se connecter</a></li>
                     <li th:if="${!isAuth}"><a class="btn-primary active" href="#">S'inscrire</a></li>
+                    <li th:if="${isAuth && isAdmin}"><a href="/color_run_war_exploded/participants">Liste des participants</a></li>
+                    <li th:if="${isAuth && isAdmin}"><a href="/color_run_war_exploded/demandes">Demandes organisateur</a></li>
                     <li th:if="${isAuth}" class="profile-container">
                         <button class="profile-button" id="profileBtn">
-                            <img th:src="${participant.getUrlProfile()}" alt="User Profile">
+                            <img th:if="${isAdmin}" th:src="${admin.getUrlProfile()}" alt="User Profile">
+                            <img th:if="${!isAdmin}" th:src="${participant.getUrlProfile()}" alt="User Profile">
                         </button>
                         <div class="popover" id="profilePopover">
                             <a href="/color_run_war_exploded/profile"><button>Profil</button></a>
@@ -76,8 +79,8 @@
                 </div>
 
                 <div class="form-group hide" id="explainationFormGroup">
-                    <label for="explaination">Explication de votre demande:</label>
-                    <textarea name="explaination" id="explaination" class="text-area-classic" placeholder="Expliquez votre demande"></textarea>
+                    <label for="motivations">Explication de votre demande:</label>
+                    <textarea name="motivations" id="motivations" class="text-area-classic" placeholder="Expliquez votre demande"></textarea>
                 </div>
 
                 <div th:if="${error}" class="error-message" th:text="${error}"></div>

@@ -59,12 +59,14 @@ public class CourseServlet extends BaseWebServlet {
                                         renderTemplate(request, response, "course_details", context);
                                     } catch (IOException e) {
                                         e.printStackTrace();
+                                    } catch (ServletException e) {
+                                        e.printStackTrace();
                                     }
                                 },
                                 () -> {
                                     try {
                                         renderError(request, response, "Course non trouvée avec l'ID " + courseId);
-                                    } catch (IOException e) {
+                                    } catch (IOException | ServletException e) {
                                         e.printStackTrace();
                                     }
                                 }

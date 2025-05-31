@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/color_run_war_exploded/assets/css/normalize.css">
     <link rel="stylesheet" href="/color_run_war_exploded/assets/css/style.css">
-    <title>Rumton - Modification du profile</title>
+    <title>Rumton - Liste des utilisateurs</title>
 </head>
 <body>
-<div class="container-no-gap">
+<div class="container">
     <header>
         <nav>
             <a href="#"><img src="/color_run_war_exploded/assets/img/logo.png" alt="logo rumton "></a>
@@ -18,9 +18,9 @@
             <ul id="nav-links">
                 <li><a href="/color_run_war_exploded/">Accueil</a></li>
                 <li><a href="/color_run_war_exploded/courses">Liste des courses</a></li>
-                <li th:if="${!isAuth}"><a href="/color_run_war_exploded/login">Se connecter</a></li>
+                <li th:if="${!isAuth}"><a class="" href="#">Se connecter</a></li>
                 <li th:if="${!isAuth}"><a class="btn-primary" href="/color_run_war_exploded/register">S'inscrire</a></li>
-                <li th:if="${isAuth && isAdmin}"><a href="/color_run_war_exploded/participants">Liste des participants</a></li>
+                <li th:if="${isAuth && isAdmin}"><a class="active" href="/color_run_war_exploded/participants">Liste des participants</a></li>
                 <li th:if="${isAuth && isAdmin}"><a href="/color_run_war_exploded/demandes">Demandes organisateur</a></li>
                 <li th:if="${isAuth}" class="profile-container">
                     <button class="profile-button" id="profileBtn">
@@ -36,43 +36,32 @@
         </nav>
     </header>
 
-    <section class="title-section" id="update-profile-title-section">
-        <p>Venez vivre l'expérience unique de la Color Run dans votre ville</p>
-        <h1>Modification du profile</h1>
+    <section class="title-section">
+        <h1>Liste des utilisateurs</h1>
+        <p>Gérez et consultez les profils des utilisateurs inscrits</p>
     </section>
 
-    <section id="update-profile-section" class="mt-2">
-        <form method="POST" class="form-container" enctype="multipart/form-data">
-            <div id="form-first-line">
-                <div class="form-group">
-                    <label for="firstname">Prénom:</label>
-                    <input th:value="${user.getPrenom()}" type="text" placeholder="Prénom" id="firstname" name="prenom" class="input-classic" required>
+    <section id="user-list-section">
+        <div class="users-list">
+            <article th:each="user : ${participants}" class="user-card">
+                <div class="user-info">
+                    <img th:src="${user.urlProfile}" alt="User Profile">
+                    <div>
+                        <p><strong>Nom :</strong> <span th:text="${user.nom}"> </span></p>
+                        <p><strong>Prénom :</strong> <span th:text="${user.prenom}"> </span></p>
+                        <p><strong>Email :</strong> <span th:text="${user.email}"> </span></p>
+                        <p><strong>Role :</strong> <span th:text="${user.isEstOrganisateur() ? 'Organisateur' : 'Participant'}"> </span></p>
+                    </div>
                 </div>
-
-                <div class="form-group">
-                    <label for="lastname">Nom de famille:</label>
-                    <input th:value="${user.getNom()}" type="text" name="nom" id="lastname" placeholder="Nom de famille" class="input-classic" required>
+                <div class="btn-containers">
+                    <a th:href="'/color_run_war_exploded/participants/' + ${user.idParticipant}" class="btn-primary-outlined">Modifier</a>
+                    <button th:attr="onclick=|deleteParticipant(${user.idParticipant})|" class="btn-secondary">Supprimer</button>
                 </div>
-            </div>
-            <div class="form-group">
-                <label for="currentPassword">Mot de passe:</label>
-                <input type="password" name="currentPassword" id="currentPassword" placeholder="Mot de passe actuel" class="input-classic">
-            </div>
-            <div class="form-group">
-                <label for="newPassword">Mot de passe:</label>
-                <input type="password" name="newPassword" id="newPassword" placeholder="Nouveau mot de passe" class="input-classic">
-            </div>
-
-            <div class="form-group">
-                <label for="confirmPassword">Confirmation du mot de passe:</label>
-                <input type="password" name="confirmPassword" id="confirmPassword" placeholder="Confirmation du mot de passe" class="input-classic">
-            </div>
-
-            <input type="submit" value="Enregistrer" class="btn-primary">
-
-        </form>
+            </article>
+        </div>
     </section>
 </div>
+
 <footer>
     <div class="footer-container">
         <a href="#"><img src="/color_run_war_exploded/assets/img/logo.png" alt="logo rumton "></a>
@@ -93,7 +82,7 @@
         <p class="self-end">2025 © Color Run par AH & FX. Tous les droits réservés</p>
     </div>
 </footer>
-<script src="/color_run_war_exploded/assets/js/register.js"></script>
 <script src="/color_run_war_exploded/assets/js/main.js"></script>
+<script src="/color_run_war_exploded/assets/js/services/participant.js"></script>
 </body>
 </html>
