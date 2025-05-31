@@ -72,9 +72,9 @@ public class ParticipantServlet extends BaseWebServlet {
                 participant.setMotDePasse(null);
                 
                 // Ajout à la vue
-                context.setVariable("participant", participant);
-                
-                renderTemplate(request, response, pathInfo, context);
+                context.setVariable("user", participant);
+
+                renderTemplate(request, response, "admin/editUser", context);
             }
             // URL pattern: /participants
             else {
@@ -99,76 +99,10 @@ public class ParticipantServlet extends BaseWebServlet {
     }
 
     /**
-     * Traite les requêtes POST pour créer un nouveau participant (inscription par admin)
+     * Traite les requêtes POST pour mettre à jour un participant
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Vérification de l'authentification et des droits d'administrateur
-        if (!isAuthenticated(request, response)) {
-            renderError(request, response, "Droits d'administrateur requis");
-            return;
-        }
-
-        boolean isAdmin = isAdmin(request, response);
-        if (!isAdmin) {
-            renderError(request, response, "Droits d'administrateur requis");
-            return;
-        }
-
-        try {
-            // Récupération des paramètres du formulaire
-            String nom = request.getParameter("nom");
-            String prenom = request.getParameter("prenom");
-            String email = request.getParameter("email");
-            String motDePasse = request.getParameter("motDePasse");
-            String estOrganisateurStr = request.getParameter("estOrganisateur");
-            
-            // Validation des données
-            if (nom == null || prenom == null || email == null || motDePasse == null ||
-                nom.isEmpty() || prenom.isEmpty() || email.isEmpty() || motDePasse.isEmpty()) {
-                
-                renderError(request, response, "Tous les champs sont obligatoires");
-                return;
-            }
-            
-            // Vérification si l'email est déjà utilisé
-            if (participantService.existsByEmail(email)) {
-                renderError(request, response, "Cette adresse email est déjà utilisée");
-                return;
-            }
-            
-            boolean estOrganisateur = Boolean.parseBoolean(estOrganisateurStr);
-            
-            // Création du participant
-            Participant participant = Participant.builder()
-                    .nom(nom)
-                    .prenom(prenom)
-                    .email(email)
-                    .motDePasse(CryptUtil.hashPassword(motDePasse))
-                    .estOrganisateur(estOrganisateur)
-                    .dateCreation(new Date())
-                    .build();
-            
-            // Enregistrement du participant
-            participantService.creerParticipant(participant);
-            
-            // Réponse
-            response.setStatus(HttpServletResponse.SC_CREATED);
-            response.getWriter().write("{\"message\": \"Participant créé avec succès\", \"id\": " + participant.getIdParticipant() + "}");
-            
-        } catch (IllegalArgumentException e) {
-            renderError(request, response, e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-            renderError(request, response, "Une erreur est survenue: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Traite les requêtes PUT pour mettre à jour un participant
-     */
-    @Override
-    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Vérification de l'authentification
         if (!isAuthenticated(request, response)) {
             renderError(request, response, "Utilisateur non authentifié");
@@ -224,25 +158,18 @@ public class ParticipantServlet extends BaseWebServlet {
             
             // Seul l'admin peut modifier ces champs
             if (isAdmin) {
-                String estOrganisateurStr = request.getParameter("estOrganisateur");
-                if (estOrganisateurStr != null) {
-                    boolean estOrganisateur = Boolean.parseBoolean(estOrganisateurStr);
+                String role = request.getParameter("role");
+                if (role != null) {
+                    boolean estOrganisateur = role.equals("organisateur");
                     participant.setEstOrganisateur(estOrganisateur);
                 }
-            }
-            
-            // Mise à jour du mot de passe si fourni
-            String motDePasse = request.getParameter("motDePasse");
-            if (motDePasse != null && !motDePasse.trim().isEmpty()) {
-                participant.setMotDePasse(CryptUtil.hashPassword(motDePasse));
             }
             
             // Enregistrement des modifications
             participantService.updateParticipant(participant);
             
             // Réponse
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.getWriter().write("{\"message\": \"Participant mis à jour avec succès\"}");
+            response.sendRedirect(request.getContextPath() + "/participants");
             
         } catch (NumberFormatException e) {
             renderError(request, response, "Format d'ID invalide");
