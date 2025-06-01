@@ -74,7 +74,7 @@ public class ProfileServlet extends BaseWebServlet {
                 
                 // Vérifier si on est admin ou si on consulte son propre profil
                 boolean isAdmin = isAdmin(request, response);
-                boolean isOwnProfile = isAdmin ? currentAdmin.getIdAdmin() == userId : currentUser.getIdParticipant() == userId;
+                boolean isOwnProfile = currentAdmin != null ? currentAdmin.getIdAdmin() == userId : currentUser.getIdParticipant() == userId;
                 
                 if (!isAdmin && !isOwnProfile) {
                     // Affichage du profil public (moins d'informations)
@@ -141,7 +141,8 @@ public class ProfileServlet extends BaseWebServlet {
 
         try {
             Participant currentUser = getAuthenticatedParticipant(request);
-            if (currentUser == null) {
+            Admin currentAdmin = getAuthenticatedAdmin(request);
+            if (currentUser == null && currentAdmin == null) {
                 renderError(request, response, "Impossible de récupérer les informations de l'utilisateur");
                 return;
             }
@@ -155,7 +156,7 @@ public class ProfileServlet extends BaseWebServlet {
                 
                 // Vérification des permissions
                 boolean isAdmin = isAdmin(request, response);
-                boolean isOwnProfile = currentUser.getIdParticipant() == userId;
+                boolean isOwnProfile = currentAdmin != null ? currentAdmin.getIdAdmin() == userId : currentUser.getIdParticipant() == userId;
                 
                 if (!isAdmin && !isOwnProfile) {
                     renderError(request, response, "Vous n'êtes pas autorisé à modifier ce profil");
@@ -163,12 +164,13 @@ public class ProfileServlet extends BaseWebServlet {
                 }
             } else {
                 // Par défaut, modifie son propre profil
-                userId = currentUser.getIdParticipant();
+                userId = currentAdmin != null ? currentAdmin.getIdAdmin() : currentUser.getIdParticipant();
             }
             
             // Récupération du participant à modifier
             Participant participant = participantService.getParticipantById(userId);
-            if (participant == null) {
+            Admin admin = adminService.getAdminById(userId);
+            if (participant == null && admin == null) {
                 renderError(request, response, "Utilisateur non trouvé");
                 return;
             }
@@ -176,12 +178,22 @@ public class ProfileServlet extends BaseWebServlet {
             // Mise à jour des champs du participant
             String nom = request.getParameter("nom");
             if (nom != null && !nom.trim().isEmpty()) {
-                participant.setNom(nom);
+                if(admin == null) {
+                    participant.setNom(nom);
+                }
+                else {
+                    admin.setNom(nom);
+                }
             }
             
             String prenom = request.getParameter("prenom");
             if (prenom != null && !prenom.trim().isEmpty()) {
-                participant.setPrenom(prenom);
+                if(admin == null) {
+                    participant.setPrenom(prenom);
+                }
+                else {
+                    admin.setPrenom(prenom);
+                }
             }
             
             // Mise à jour du mot de passe si fourni
@@ -191,7 +203,7 @@ public class ProfileServlet extends BaseWebServlet {
             
             if (newPassword != null && !newPassword.trim().isEmpty()) {
                 // Vérification que le mot de passe actuel est correct
-                if (currentPassword == null || !CryptUtil.checkPassword(currentPassword, participant.getMotDePasse())) {
+                if (currentPassword == null || !CryptUtil.checkPassword(currentPassword, admin != null ? admin.getMotDePasse() : participant.getMotDePasse())) {
                     renderError(request, response, "Le mot de passe actuel est incorrect");
                     return;
                 }
@@ -203,7 +215,12 @@ public class ProfileServlet extends BaseWebServlet {
                 }
                 
                 // Chiffrement et mise à jour du mot de passe
-                participant.setMotDePasse(CryptUtil.hashPassword(newPassword));
+                if(admin == null) {
+                    participant.setMotDePasse(CryptUtil.hashPassword(newPassword));
+                }
+                else {
+                    admin.setMotDePasse(CryptUtil.hashPassword(newPassword));
+                }
             }
             
             // Traitement de la photo de profil
@@ -224,12 +241,22 @@ public class ProfileServlet extends BaseWebServlet {
                     Files.copy(filePart.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
                     
                     // Mise à jour de l'URL de profil
-                    participant.setUrlProfile(UPLOAD_DIRECTORY + File.separator + uniqueFileName);
+                    if(admin == null) {
+                        participant.setUrlProfile(UPLOAD_DIRECTORY + File.separator + uniqueFileName);
+                    }
+                    else {
+                        admin.setUrlProfile(UPLOAD_DIRECTORY + File.separator + uniqueFileName);
+                    }
                 }
             }
             
             // Sauvegarde des modifications
-            participantService.updateParticipant(participant);
+            if(admin == null) {
+                participantService.updateParticipant(participant);
+            }
+            else {
+                adminService.updateAdmin(admin);
+            }
             
             // Redirection vers la page de profil
             response.sendRedirect(request.getContextPath() + "/profile");
