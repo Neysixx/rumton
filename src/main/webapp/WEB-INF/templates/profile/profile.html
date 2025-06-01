@@ -45,7 +45,8 @@
         <div>
             <p th:text="${user.getPrenom() + ' ' + user.getNom()}"></p>
             <p th:text="${user.getEmail()}"></p>
-            <a th:if="${isOwnProfile}" th:href="'/color_run_war_exploded/profile/' + ${user.idParticipant}" class="btn-primary">Modifier le profile</a>
+            <a th:if="${isOwnProfile && !isAdmin}" th:href="'/color_run_war_exploded/profile/' + ${user.idParticipant}" class="btn-primary">Modifier le profile</a>
+            <a th:if="${isOwnProfile && isAdmin}" th:href="'/color_run_war_exploded/profile/' + ${user.idAdmin}" class="btn-primary">Modifier le profile</a>
         </div>
     </section>
 
@@ -94,18 +95,6 @@
                     <a href="#" class="btn-secondary">Chat</a>
                 </div>
             </article>
-            <!-- FIN DONNEES MOCK -->
-        </div>
-        <div class="form-container mt-2">
-            <div class="pagination">
-                <a class="begin" href="#">&laquo;</a>
-                <a class="next" href="#">&lt;</a>
-                <a href="#" class="page active">1</a>
-                <a href="#" class="page">2</a>
-                <a href="#" class="page">3</a>
-                <a class="before" href="#">&gt;</a>
-                <a class="end" href="#">&raquo;</a>
-            </div>
         </div>
     </section>
 </div>

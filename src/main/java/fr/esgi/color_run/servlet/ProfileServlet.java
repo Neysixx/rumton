@@ -1,7 +1,10 @@
 package fr.esgi.color_run.servlet;
 
+import fr.esgi.color_run.business.Admin;
 import fr.esgi.color_run.business.Participant;
+import fr.esgi.color_run.service.AdminService;
 import fr.esgi.color_run.service.ParticipantService;
+import fr.esgi.color_run.service.impl.AdminServiceImpl;
 import fr.esgi.color_run.service.impl.ParticipantServiceImpl;
 import fr.esgi.color_run.util.CryptUtil;
 import jakarta.servlet.ServletException;
@@ -32,12 +35,14 @@ import java.util.UUID;
 public class ProfileServlet extends BaseWebServlet {
 
     private ParticipantService participantService;
+    private AdminService adminService;
     private static final String UPLOAD_DIRECTORY = "uploads";
 
     @Override
     public void init() {
         super.init();
         participantService = new ParticipantServiceImpl();
+        adminService = new AdminServiceImpl();
         
         // Création du répertoire d'upload s'il n'existe pas
         String uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIRECTORY;
@@ -54,7 +59,8 @@ public class ProfileServlet extends BaseWebServlet {
 
         try {
             Participant currentUser = getAuthenticatedParticipant(request);
-            if (currentUser == null) {
+            Admin currentAdmin = getAuthenticatedAdmin(request);
+            if (currentUser == null && currentAdmin == null) {
                 renderError(request, response, "Impossible de récupérer les informations de l'utilisateur");
                 return;
             }
@@ -68,30 +74,37 @@ public class ProfileServlet extends BaseWebServlet {
                 
                 // Vérifier si on est admin ou si on consulte son propre profil
                 boolean isAdmin = isAdmin(request, response);
-                boolean isOwnProfile = currentUser.getIdParticipant() == userId;
+                boolean isOwnProfile = isAdmin ? currentAdmin.getIdAdmin() == userId : currentUser.getIdParticipant() == userId;
                 
                 if (!isAdmin && !isOwnProfile) {
                     // Affichage du profil public (moins d'informations)
                     Participant publicUser = participantService.getParticipantById(userId);
-                    if (publicUser == null) {
+                    Admin publicAdmin = adminService.getAdminById(userId);
+                    if (publicUser == null && publicAdmin == null) {
                         renderError(request, response, "Utilisateur non trouvé");
                         return;
                     }
-                    
-                    // On cache certaines informations sensibles
-                    publicUser.setMotDePasse(null);
-                    
-                    context.setVariable("user", publicUser);
+                    if(publicAdmin != null) {
+                        publicAdmin.setMotDePasse(null);
+                        context.setVariable("user", publicAdmin);
+                    }
+                    else {
+                        // On cache certaines informations sensibles
+                        publicUser.setMotDePasse(null);
+                        context.setVariable("user", publicUser);
+                    }
+
                     context.setVariable("isPublicView", true);
                 } else {
                     // Affichage du profil complet
                     Participant user = participantService.getParticipantById(userId);
-                    if (user == null) {
+                    Admin admin = adminService.getAdminById(userId);
+                    if (user == null && admin == null) {
                         renderError(request, response, "Utilisateur non trouvé");
                         return;
                     }
                     
-                    context.setVariable("user", user);
+                    context.setVariable("user", user == null ? admin : user);
                     context.setVariable("isPublicView", false);
                     context.setVariable("isAdmin", isAdmin);
                     context.setVariable("isOwnProfile", isOwnProfile);
@@ -103,7 +116,7 @@ public class ProfileServlet extends BaseWebServlet {
                 }
             } else {
                 // Affichage de son propre profil par défaut
-                context.setVariable("user", currentUser);
+                context.setVariable("user", currentUser == null ? currentAdmin : currentUser);
                 context.setVariable("isPublicView", false);
                 context.setVariable("isAdmin", request.getAttribute("is_admin"));
                 context.setVariable("isOwnProfile", true);
