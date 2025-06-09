@@ -32,6 +32,7 @@ public class ParticipationServlet extends BaseWebServlet {
 
     @Override
     public void init() {
+        super.init();
         participationService = new ParticipationServiceImpl();
         courseService = new CourseServiceImpl();
     }
@@ -96,6 +97,8 @@ public class ParticipationServlet extends BaseWebServlet {
                                                 "Participation non trouvée avec l'ID " + participationId);
                                     } catch (IOException e) {
                                         e.printStackTrace();
+                                    } catch (ServletException e) {
+                                        throw new RuntimeException(e);
                                     }
                                 });
             } catch (NumberFormatException e) {

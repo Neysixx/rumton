@@ -42,7 +42,6 @@ public abstract class BaseWebServlet extends HttpServlet {
      */
     protected boolean isAdmin(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         if (request.getAttribute("is_admin") == null || !(boolean) request.getAttribute("is_admin")) {
-            renderError(request, response, "Accès réservé aux administrateurs");
             return false;
         }
         return true;
@@ -78,18 +77,24 @@ public abstract class BaseWebServlet extends HttpServlet {
     /**
      * Rendu d'un template Thymeleaf
      */
-    protected void renderTemplate(HttpServletRequest request, HttpServletResponse response, String templateName, Context context) throws IOException {
+    protected void renderTemplate(HttpServletRequest request, HttpServletResponse response, String templateName, Context context) throws IOException, ServletException {
         TemplateEngine templateEngine = (TemplateEngine) getServletContext().getAttribute("templateEngine");
         response.setContentType("text/html;charset=UTF-8");
         boolean isAuthValue = this.isAuthenticated(request, response);
+        boolean isAdminValue = this.isAdmin(request, response);
+        Participant participant = getAuthenticatedParticipant(request);
+        Admin admin = getAuthenticatedAdmin(request);
         context.setVariable("isAuth", isAuthValue);
+        context.setVariable("isAdmin", isAdminValue);
+        context.setVariable("participant", participant);
+        context.setVariable("admin", admin);
         templateEngine.process(templateName, context, response.getWriter());
     }
 
     /**
      * Affiche une page d'erreur
      */
-    protected void renderError(HttpServletRequest request, HttpServletResponse response, String errorMessage) throws IOException {
+    protected void renderError(HttpServletRequest request, HttpServletResponse response, String errorMessage) throws IOException, ServletException {
         Context context = new Context();
         context.setVariable("error", errorMessage);
         renderTemplate(request, response, "error", context);

@@ -21,4 +21,8 @@ public class Participant {
     private boolean estVerifie;
 
     private List<Participation> participations;
+
+    public String getUrlProfile() {
+        return urlProfile != null ? urlProfile : "/color_run_war_exploded/assets/img/defaultProfile.png";
+    }
 }

@@ -82,9 +82,6 @@ body{
     text-align: left;
     cursor: pointer;
     font-size: 14px;
-    &:last-child {
-        color: red;
-    }
 }
 
 .popover button:hover {
@@ -113,15 +110,15 @@ body{
 
 h1{
     font-family: var(--title-font);
-    font-size: 64px !important;
+    font-size: 64px;
 }
 h2{
     font-family: var(--title-font);
-    font-size: 48px !important;
+    font-size: 48px;
 }
 h3{
     font-family: var(--title-font);
-    font-size: 30px !important;
+    font-size: 30px;
 }
 
 ul{
@@ -539,11 +536,6 @@ nav{
                 left: 50%;
                 transform: translateX(-50%) translateY(100%);
             }
-            &:nth-last-child(2) {
-                a{
-                    color: var(--primary-color)
-                }
-            }
         }
     }
 }
@@ -808,15 +800,15 @@ footer{
 @media (max-width: 767px) {
     h1{
         font-family: var(--title-font);
-        font-size: 28px;
+        font-size: 28px !important;
     }
     h2{
         font-family: var(--title-font);
-        font-size: 18px;
+        font-size: 18px !important;
     }
     h3{
         font-family: var(--title-font);
-        font-size: 15px;
+        font-size: 15px !important;
     }
 
     .container{
@@ -1076,15 +1068,15 @@ footer{
 @media (min-width: 768px) and (max-width: 1700px) {
     h1{
         font-family: var(--title-font);
-        font-size: 48px;
+        font-size: 48px !important;
     }
     h2{
         font-family: var(--title-font);
-        font-size: 30px;
+        font-size: 30px !important;
     }
     h3{
         font-family: var(--title-font);
-        font-size: 20px;
+        font-size: 20px !important;
     }
 
     .container{

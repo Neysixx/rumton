@@ -1,9 +1,13 @@
 package fr.esgi.color_run.servlet;
 
+import fr.esgi.color_run.business.DemandeOrganisateur;
 import fr.esgi.color_run.business.Participant;
+import fr.esgi.color_run.business.enums.EDemandeStatus;
+import fr.esgi.color_run.service.DemandeOrganisateurService;
 import fr.esgi.color_run.business.Verification;
 import fr.esgi.color_run.service.EmailService;
 import fr.esgi.color_run.service.ParticipantService;
+import fr.esgi.color_run.service.impl.DemandeOrganisateurServiceImpl;
 import fr.esgi.color_run.service.VerificationService;
 import fr.esgi.color_run.service.impl.EmailServiceImpl;
 import fr.esgi.color_run.service.impl.ParticipantServiceImpl;
@@ -31,11 +35,13 @@ public class RegisterServlet extends BaseWebServlet {
     private ParticipantService participantService;
     private EmailService emailService;
     private VerificationService verificationService;
+    private DemandeOrganisateurService demandeOrganisateurService;
 
     @Override
     public void init() {
         super.init();
         participantService = new ParticipantServiceImpl();
+        demandeOrganisateurService = new DemandeOrganisateurServiceImpl();
         emailService = new EmailServiceImpl();
         verificationService = new VerificationServiceImpl();
     }
@@ -64,6 +70,17 @@ public class RegisterServlet extends BaseWebServlet {
         String email = request.getParameter("email");
         String motDePasse = request.getParameter("motDePasse");
         String confirmMotDePasse = request.getParameter("confirmMotDePasse");
+        String role = request.getParameter("role");
+        String motivations = request.getParameter("motivations");
+        Boolean isOrganisateurRequest = false;
+
+        // Debug des données reçues
+        System.out.println("DEBUG - Données reçues:");
+        System.out.println("Nom: " + nom);
+        System.out.println("Prénom: " + prenom);
+        System.out.println("Email: " + email);
+        System.out.println("Role: " + role);
+        System.out.println("Mot de passe reçu: " + (motDePasse != null ? "Oui (longueur: " + motDePasse.length() + ")" : "Non"));
 
         Context context = new Context();
 
@@ -86,6 +103,22 @@ public class RegisterServlet extends BaseWebServlet {
             context.setVariable("error", "Cette adresse email est déjà utilisée");
             renderTemplate(request, response, "auth/register", context);
             return;
+        }
+
+        // Vérification du role
+        if(role == null || role.isEmpty()) {
+            context.setVariable("error", "Vous devez selectionner un role");
+            renderTemplate(request, response, "auth/register", context);
+        }else{
+            // Traitement du role organisateur
+            if(role.equalsIgnoreCase("organisateur")){
+                if(motivations == null || motivations.isEmpty()){
+                    context.setVariable("error", "Vous devez indiquer vos motivations pour devenir organisateur");
+                    renderTemplate(request, response, "auth/register", context);
+                } else{
+                    isOrganisateurRequest = true;
+                }
+            }
         }
 
         // Création du participant
@@ -115,8 +148,21 @@ public class RegisterServlet extends BaseWebServlet {
             emailService.envoyerEmailVerification(email, code);
             verificationService.creerVerification(verification);
 
+            // si le participant veut devenir organisateur
+            if(isOrganisateurRequest){
+                DemandeOrganisateur demande = DemandeOrganisateur.builder()
+                        .participant(participant)
+                        .motivations(motivations)
+                        .status(EDemandeStatus.EN_ATTENTE.toString())
+                        .dateCreation(new Date())
+                        .build();
+
+                // Enregistrement de la demande
+                demandeOrganisateurService.createDemande(demande);
+            }
+
             // Redirection vers la page de connexion avec un message de succès
-            response.sendRedirect(request.getContextPath() + "login?registered=true");
+            response.sendRedirect(request.getContextPath() + "/login?registered=true");
         } catch (Exception e) {
             context.setVariable("error", "Une erreur est survenue lors de l'inscription: " + e.getMessage());
             renderTemplate(request, response, "auth/register", context);

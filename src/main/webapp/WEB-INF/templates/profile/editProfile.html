@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/color_run_war_exploded/assets/css/normalize.css">
     <link rel="stylesheet" href="/color_run_war_exploded/assets/css/style.css">
-    <title>Rumton - Liste des courses</title>
+    <title>Rumton - Modification du profile</title>
 </head>
 <body>
-<div class="container">
+<div class="container-no-gap">
     <header>
         <nav>
             <a href="#"><img src="/color_run_war_exploded/assets/img/logo.png" alt="logo rumton "></a>
@@ -17,7 +17,7 @@
 
             <ul id="nav-links">
                 <li><a href="/color_run_war_exploded/">Accueil</a></li>
-                <li><a href="#" class="active">Liste des courses</a></li>
+                <li><a href="/color_run_war_exploded/courses">Liste des courses</a></li>
                 <li th:if="${!isAuth}"><a href="/color_run_war_exploded/login">Se connecter</a></li>
                 <li th:if="${!isAuth}"><a class="btn-primary" href="/color_run_war_exploded/register">S'inscrire</a></li>
                 <li th:if="${isAuth && isAdmin}"><a href="/color_run_war_exploded/participants">Liste des participants</a></li>
@@ -36,63 +36,41 @@
         </nav>
     </header>
 
-    <section class="title-section" id="home-title-section">
-        <h1>La liste de toutes les courses colorées</h1>
-        <p>Retrouvez toute les courses colorées près de chez vous</p>
+    <section class="title-section" id="update-profile-title-section">
+        <p>Venez vivre l'expérience unique de la Color Run dans votre ville</p>
+        <h1>Modification du profile</h1>
     </section>
 
-    <section id="list-courses">
-        <form method="GET" id="filter-sort" class="form-container">
-            <div class="extend">
-                <div>
-                    <button type="button" id="filter-button" class="filter-sort-button">Filtre</button>
-                    <button type="button" id="sort-button" class="filter-sort-button">Trie</button>
+    <section id="update-profile-section" class="mt-2">
+        <form method="POST" class="form-container" enctype="multipart/form-data">
+            <div id="form-first-line">
+                <div class="form-group">
+                    <label for="firstname">Prénom:</label>
+                    <input th:value="${user.getPrenom()}" type="text" placeholder="Prénom" id="firstname" name="prenom" class="input-classic" required>
                 </div>
-                <div>
-                    <div id="filter-content" class="hide filter-sort-content">
-                        <select name="city" id="city" class="input-classic" required>
-                            <option value="all" selected>Toutes les villes</option>
-                        </select>
-                        <select name="distance" id="distance" class="input-classic" required>
-                            <option value="all" selected>Toutes distances</option>
-                            <option value="5-10" >5 - 10 km</option>
-                            <option value="10-20" >10 - 20 km</option>
-                            <option value="20-30" >20 - 30 km</option>
-                            <option value="30-40" >30 - 40 km</option>
-                        </select>
-                    </div>
 
-                    <div id="sort-content" class="hide filter-sort-content">
-                        <select name="sort" id="sort" class="input-classic" required>
-                            <option value="date-desc">Date &darr;</option>
-                            <option value="date-asc">Date &uarr;</option>
-                            <option value="distance-des">Distance &darr;</option>
-                            <option value="distance-asc">Distance &uarr;</option>
-                        </select>
-                    </div>
+                <div class="form-group">
+                    <label for="lastname">Nom de famille:</label>
+                    <input th:value="${user.getNom()}" type="text" name="nom" id="lastname" placeholder="Nom de famille" class="input-classic" required>
                 </div>
             </div>
-            <div>
-                <input type="submit" value="Rechercher" class="btn-primary">
+            <div class="form-group">
+                <label for="currentPassword">Mot de passe:</label>
+                <input type="password" name="currentPassword" id="currentPassword" placeholder="Mot de passe actuel" class="input-classic">
             </div>
+            <div class="form-group">
+                <label for="newPassword">Mot de passe:</label>
+                <input type="password" name="newPassword" id="newPassword" placeholder="Nouveau mot de passe" class="input-classic">
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirmation du mot de passe:</label>
+                <input type="password" name="confirmPassword" id="confirmPassword" placeholder="Confirmation du mot de passe" class="input-classic">
+            </div>
+
+            <input type="submit" value="Enregistrer" class="btn-primary">
+
         </form>
-
-        <div class="courses-list">
-
-            <article th:each="course:${courses}">
-                <div class="image"></div>
-                <div class="course-detail">
-                    <p th:text="${course.nom}"></p>
-                    <p th:text="${course.dateDepart}"></p>
-                    <p th:text="${course.distance}"> km</p>
-                </div>
-                <div class="btn-containers">
-                    <a th:href="/${course.idCourse}" class="btn-secondary">Voir le détail</a>
-                    <a th:href="/${course.idCourse}" class="btn-secondary">Participer</a>
-                </div>
-            </article>
-
-        </div>
     </section>
 </div>
 <footer>
@@ -115,7 +93,7 @@
         <p class="self-end">2025 © Color Run par AH & FX. Tous les droits réservés</p>
     </div>
 </footer>
+<script src="/color_run_war_exploded/assets/js/register.js"></script>
 <script src="/color_run_war_exploded/assets/js/main.js"></script>
-<script src="/color_run_war_exploded/assets/js/filterSort.js"></script>
 </body>
 </html>
