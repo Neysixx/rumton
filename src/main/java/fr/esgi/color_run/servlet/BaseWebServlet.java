@@ -82,10 +82,12 @@ public abstract class BaseWebServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         boolean isAuthValue = this.isAuthenticated(request, response);
         boolean isAdminValue = this.isAdmin(request, response);
+        boolean isOrgaValue = this.isOrganisateur(request, response);
         Participant participant = getAuthenticatedParticipant(request);
         Admin admin = getAuthenticatedAdmin(request);
         context.setVariable("isAuth", isAuthValue);
         context.setVariable("isAdmin", isAdminValue);
+        context.setVariable("isOrga", isOrgaValue);
         context.setVariable("participant", participant);
         context.setVariable("admin", admin);
         templateEngine.process(templateName, context, response.getWriter());
