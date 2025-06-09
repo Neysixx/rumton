@@ -12,6 +12,8 @@ import fr.esgi.color_run.service.VerificationService;
 import fr.esgi.color_run.service.impl.EmailServiceImpl;
 import fr.esgi.color_run.service.impl.ParticipantServiceImpl;
 import fr.esgi.color_run.service.impl.VerificationServiceImpl;
+import fr.esgi.color_run.util.CookieUtil;
+import fr.esgi.color_run.util.JwtUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,7 +38,8 @@ public class RegisterServlet extends BaseWebServlet {
     private EmailService emailService;
     private VerificationService verificationService;
     private DemandeOrganisateurService demandeOrganisateurService;
-
+    private JwtUtil jwtUtil;
+    
     @Override
     public void init() {
         super.init();
@@ -44,6 +47,7 @@ public class RegisterServlet extends BaseWebServlet {
         demandeOrganisateurService = new DemandeOrganisateurServiceImpl();
         emailService = new EmailServiceImpl();
         verificationService = new VerificationServiceImpl();
+        jwtUtil = JwtUtil.getInstance();
     }
 
     /**
@@ -139,6 +143,10 @@ public class RegisterServlet extends BaseWebServlet {
             emailService.envoyerEmailVerification(email, code);
             participantService.creerParticipant(participant);
             verificationService.creerVerification(verification);
+
+            // On modifie le token JWT pour le participant
+            String token = jwtUtil.generateToken(participant);
+            CookieUtil.setCookie(response, CookieUtil.JWT_COOKIE_NAME, token, CookieUtil.JWT_COOKIE_MAX_AGE);
 
             // si le participant veut devenir organisateur
             if(isOrganisateurRequest){
