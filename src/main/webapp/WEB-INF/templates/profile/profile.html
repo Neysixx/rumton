@@ -53,46 +53,17 @@
     <section id="profile-list-course">
         <h2>Liste de vos courses</h2>
         <div class="courses-list">
-            <!-- DEBUT DONNEES MOCK -->
-            <article>
+            <article th:if="${isOrga}" th:each="course:${courses}">
                 <div class="image"></div>
                 <div class="course-detail">
-                    <p>Embrun</p>
-                    <p>Dimanche 12 mai 2025</p>
-                    <p>20 km</p>
+                    <p th:text="${course.getVille()}"></p>
+                    <p th:text="${course.getDateDepartFormatted()}"></p>
+                    <p th:text="${course.getDistance()} + ' km'"></p>
                 </div>
                 <div class="btn-containers">
-                    <a href="#" class="btn-primary-outlined">Télécharger le dossard</a>
-                    <a href="#" class="btn-secondary">Voir le détail</a>
-                    <a href="#" class="btn-secondary">Chat</a>
-                </div>
-            </article>
-
-            <article>
-                <div class="image"></div>
-                <div class="course-detail">
-                    <p>Embrun</p>
-                    <p>Dimanche 12 mai 2025</p>
-                    <p>20 km</p>
-                </div>
-                <div class="btn-containers">
-                    <a href="#" class="btn-primary-outlined">Télécharger le dossard</a>
-                    <a href="#" class="btn-secondary">Voir le détail</a>
-                    <a href="#" class="btn-secondary">Chat</a>
-                </div>
-            </article>
-
-            <article>
-                <div class="image"></div>
-                <div class="course-detail">
-                    <p>Embrun</p>
-                    <p>Dimanche 12 mai 2025</p>
-                    <p>20 km</p>
-                </div>
-                <div class="btn-containers">
-                    <a href="#" class="btn-primary-outlined">Télécharger le dossard</a>
-                    <a href="#" class="btn-secondary">Voir le détail</a>
-                    <a href="#" class="btn-secondary">Chat</a>
+                    <a th:href="'/color_run_war_exploded/courses-edit/' + ${course.getIdCourse()}" class="btn-primary">Modifier</a>
+                    <a th:href="'/color_run_war_exploded/courses/' + ${course.getIdCourse()}" class="btn-secondary">Voir le détail</a>
+                    <a th:href="'/color_run_war_exploded/courses/' + ${course.getIdCourse()}" class="btn-secondary">Chat</a>
                 </div>
             </article>
         </div>

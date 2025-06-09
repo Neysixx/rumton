@@ -1,7 +1,9 @@
 package fr.esgi.color_run.servlet;
 
 import java.io.*;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import fr.esgi.color_run.business.Cause;
 import fr.esgi.color_run.business.Course;
@@ -10,6 +12,7 @@ import fr.esgi.color_run.service.CauseService;
 import fr.esgi.color_run.service.CourseService;
 import fr.esgi.color_run.service.impl.CauseServiceImpl;
 import fr.esgi.color_run.service.impl.CourseServiceImpl;
+import fr.esgi.color_run.util.DateUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
@@ -18,7 +21,7 @@ import org.thymeleaf.context.Context;
 /**
  * Servlet pour gérer les courses
  */
-@WebServlet(name = "courseServlet", value = {"/courses", "/courses/*", "/courses-create"})
+@WebServlet(name = "courseServlet", value = {"/courses", "/courses/*", "/courses-create", "/courses-edit/*"})
 public class CourseServlet extends BaseWebServlet {
     private CourseService courseService;
     private CauseService causeService;
@@ -54,10 +57,28 @@ public class CourseServlet extends BaseWebServlet {
                         .ifPresentOrElse(
                                 course -> {
                                     try {
+                                        Boolean isOrga = Boolean.parseBoolean(request.getAttribute("is_organisateur").toString());
                                         context.setVariable("course", course);
                                         context.setVariable("isAdmin", request.getAttribute("is_admin"));
-                                        context.setVariable("isOrganisateur", request.getAttribute("is_organisateur"));
-                                        renderTemplate(request, response, "courses/course_details", context);
+                                        context.setVariable("isOrganisateur", isOrga);
+
+                                        if(Objects.equals(request.getServletPath(), "/courses")){
+                                            renderTemplate(request, response, "courses/course_details", context);
+                                        } else {
+                                            if(!isOrga){
+                                                renderError(request, response, "Vous ne pouvez pas modifier une course si vous n'êtes pas organisateur");
+                                                return;
+                                            }
+                                            int userId = Integer.parseInt(request.getAttribute("user_id").toString());
+                                            if(userId != course.getOrganisateur().getIdParticipant()){
+                                                renderError(request, response, "Vous ne pouvez pas modifier une course qui ne vous appartiens pas");
+                                                return;
+                                            }
+                                            course.setDateDepartFormatted(DateUtil.formatDateForDatetimeLocalInput(course.getDateDepart()));
+                                            context.setVariable("course", course);
+                                            context.setVariable("causes", causeService.getAllCauses());
+                                            renderTemplate(request, response, "courses/course_edit", context);
+                                        }
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     } catch (ServletException e) {
@@ -78,20 +99,29 @@ public class CourseServlet extends BaseWebServlet {
         } else {
             if(Objects.equals(request.getServletPath(), "/courses")){
                 // Ajout des courses à la vue
-                context.setVariable("courses", courseService.getAllCourses());
+                Boolean isOrga = Boolean.parseBoolean(request.getAttribute("is_organisateur").toString());
+                if(isOrga){
+                    int userId = Integer.parseInt(request.getAttribute("user_id").toString());
+                    context.setVariable("courses", courseService.getCoursesByOrgaId(userId));
+                }else{
+                    context.setVariable("courses", courseService.getAllCourses());
+                }
                 context.setVariable("isAdmin", request.getAttribute("is_admin"));
                 context.setVariable("isOrganisateur", request.getAttribute("is_organisateur"));
 
                 // Rendu de la page
                 renderTemplate(request, response, "courses/list", context);
             }
-            else {
+            else if (Objects.equals(request.getServletPath(), "/courses-create")) {
                 // create course
-
+                Boolean isOrga = Boolean.parseBoolean(request.getAttribute("is_organisateur").toString());
+                if(!isOrga){
+                    renderError(request, response, "Vous ne pouvez pas créer de course si vous n'êtes pas organisateur");
+                }
                 // récupération des causes
                 context.setVariable("causes", causeService.getAllCauses());
                 context.setVariable("isAdmin", request.getAttribute("is_admin"));
-                context.setVariable("isOrganisateur", request.getAttribute("is_organisateur"));
+                context.setVariable("isOrganisateur", isOrga);
 
                 renderTemplate(request, response, "courses/createCourse", context);
             }
@@ -276,6 +306,9 @@ public class CourseServlet extends BaseWebServlet {
         }
 
         try {
+            BufferedReader reader = request.getReader();
+            String body = reader.lines().collect(Collectors.joining(System.lineSeparator()));
+            Map<String, String> params = parseUrlEncodedBody(body);
             String pathInfo = request.getPathInfo();
             if (pathInfo == null || pathInfo.length() <= 1) {
                 renderError(request, response, "ID de course manquant");
@@ -294,17 +327,17 @@ public class CourseServlet extends BaseWebServlet {
             }
 
             // Mise à jour des champs
-            String nom = request.getParameter("nom");
+            String nom = params.get("nom");
             if (nom != null && !nom.trim().isEmpty()) {
                 course.setNom(nom);
             }
 
-            String description = request.getParameter("description");
+            String description = params.get("description");
             if (description != null) {
                 course.setDescription(description);
             }
 
-            String dateDepartStr = request.getParameter("dateDepart");
+            String dateDepartStr = params.get("dateDepart");
             if (dateDepartStr != null && !dateDepartStr.trim().isEmpty()) {
                 try {
                     java.text.SimpleDateFormat inputFormat = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
@@ -316,12 +349,12 @@ public class CourseServlet extends BaseWebServlet {
                 }
             }
 
-            String ville = request.getParameter("ville");
+            String ville = params.get("ville");
             if (ville != null && !ville.trim().isEmpty()) {
                 course.setVille(ville);
             }
 
-            String codePostalStr = request.getParameter("codePostal");
+            String codePostalStr = params.get("codePostal");
             if (codePostalStr != null && !codePostalStr.trim().isEmpty()) {
                 try {
                     course.setCodePostal(Integer.parseInt(codePostalStr));
@@ -331,12 +364,12 @@ public class CourseServlet extends BaseWebServlet {
                 }
             }
 
-            String adresse = request.getParameter("adresse");
+            String adresse = params.get("adresse");
             if (adresse != null) {
                 course.setAdresse(adresse);
             }
 
-            String distanceStr = request.getParameter("distance");
+            String distanceStr = params.get("distance");
             if (distanceStr != null && !distanceStr.trim().isEmpty()) {
                 try {
                     course.setDistance(Float.parseFloat(distanceStr));
@@ -346,7 +379,7 @@ public class CourseServlet extends BaseWebServlet {
                 }
             }
 
-            String maxParticipantsStr = request.getParameter("maxParticipants");
+            String maxParticipantsStr = params.get("maxParticipants");
             if (maxParticipantsStr != null && !maxParticipantsStr.trim().isEmpty()) {
                 try {
                     course.setMaxParticipants(Integer.parseInt(maxParticipantsStr));
@@ -356,7 +389,7 @@ public class CourseServlet extends BaseWebServlet {
                 }
             }
 
-            String prixParticipationStr = request.getParameter("prixParticipation");
+            String prixParticipationStr = params.get("prixParticipation");
             if (prixParticipationStr != null && !prixParticipationStr.trim().isEmpty()) {
                 try {
                     course.setPrixParticipation(Float.parseFloat(prixParticipationStr));
@@ -366,29 +399,36 @@ public class CourseServlet extends BaseWebServlet {
                 }
             }
 
-            String obstacles = request.getParameter("obstacles");
+            String obstacles = params.get("obstacles");
             if (obstacles != null) {
                 course.setObstacles(obstacles);
             }
 
-            String idCauseStr = request.getParameter("idCause");
-            if (idCauseStr != null && !idCauseStr.trim().isEmpty()) {
+            String idCauseStr = params.get("idCause");
+            Cause cause = null;
+            if(idCauseStr != null){
+                int idCause;
                 try {
-                    int idCause = Integer.parseInt(idCauseStr);
-                    Cause cause = causeService.getCauseById(idCause)
-                            .orElseThrow(() -> new IllegalArgumentException("Cause non trouvée avec l'ID " + idCause));
-                    course.setCause(cause);
+                    idCause = Integer.parseInt(idCauseStr);
                 } catch (NumberFormatException e) {
                     renderError(request, response, "L'ID de la cause doit être un nombre entier");
                     return;
                 }
+
+                // Recherche de la cause
+                try {
+                    cause = causeService.getCauseById(idCause)
+                            .orElseThrow(() -> new IllegalArgumentException("Cause non trouvée avec l'ID " + idCause));
+                } catch (Exception e) {
+                    renderError(request, response, "Impossible de récupérer la cause associée : " + e.getMessage());
+                    return;
+                }
+
             }
 
             // Sauvegarde des modifications
             courseService.updateCourse(course);
-
-            // Redirection vers la page de détails de la course
-            response.sendRedirect(request.getContextPath() + "/courses/" + courseId);
+            response.setStatus(HttpServletResponse.SC_OK);
 
         } catch (NumberFormatException e) {
             renderError(request, response, "ID de course invalide");

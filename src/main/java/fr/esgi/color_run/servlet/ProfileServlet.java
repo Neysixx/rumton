@@ -1,10 +1,13 @@
 package fr.esgi.color_run.servlet;
 
 import fr.esgi.color_run.business.Admin;
+import fr.esgi.color_run.business.Course;
 import fr.esgi.color_run.business.Participant;
 import fr.esgi.color_run.service.AdminService;
+import fr.esgi.color_run.service.CourseService;
 import fr.esgi.color_run.service.ParticipantService;
 import fr.esgi.color_run.service.impl.AdminServiceImpl;
+import fr.esgi.color_run.service.impl.CourseServiceImpl;
 import fr.esgi.color_run.service.impl.ParticipantServiceImpl;
 import fr.esgi.color_run.util.CryptUtil;
 import jakarta.servlet.ServletException;
@@ -21,6 +24,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -36,6 +41,7 @@ public class ProfileServlet extends BaseWebServlet {
 
     private ParticipantService participantService;
     private AdminService adminService;
+    private CourseService courseService;
     private static final String UPLOAD_DIRECTORY = "uploads";
 
     @Override
@@ -43,6 +49,7 @@ public class ProfileServlet extends BaseWebServlet {
         super.init();
         participantService = new ParticipantServiceImpl();
         adminService = new AdminServiceImpl();
+        courseService = new CourseServiceImpl();
         
         // Création du répertoire d'upload s'il n'existe pas
         String uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIRECTORY;
@@ -74,6 +81,7 @@ public class ProfileServlet extends BaseWebServlet {
                 
                 // Vérifier si on est admin ou si on consulte son propre profil
                 boolean isAdmin = isAdmin(request, response);
+                boolean isOrga = isOrganisateur(request, response);
                 boolean isOwnProfile = currentAdmin != null ? currentAdmin.getIdAdmin() == userId : currentUser.getIdParticipant() == userId;
                 
                 if (!isAdmin && !isOwnProfile) {
@@ -103,7 +111,12 @@ public class ProfileServlet extends BaseWebServlet {
                         renderError(request, response, "Utilisateur non trouvé");
                         return;
                     }
-                    
+
+                    List<Course> courses = new ArrayList<>();
+                    if(isOrga) {
+                        courses = courseService.getCoursesByOrgaId(user.getIdParticipant());
+                    }
+                    context.setVariable("courses", courses);
                     context.setVariable("user", user == null ? admin : user);
                     context.setVariable("isPublicView", false);
                     context.setVariable("isAdmin", isAdmin);
@@ -116,6 +129,11 @@ public class ProfileServlet extends BaseWebServlet {
                 }
             } else {
                 // Affichage de son propre profil par défaut
+                List<Course> courses = new ArrayList<>();
+                if(Boolean.parseBoolean(request.getAttribute("is_organisateur").toString())) {
+                    courses = courseService.getCoursesByOrgaId(currentUser.getIdParticipant());
+                }
+                context.setVariable("courses", courses);
                 context.setVariable("user", currentUser == null ? currentAdmin : currentUser);
                 context.setVariable("isPublicView", false);
                 context.setVariable("isAdmin", request.getAttribute("is_admin"));
