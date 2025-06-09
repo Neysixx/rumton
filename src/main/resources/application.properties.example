@@ -1,4 +1,4 @@
-db.url=jdbc:h2:D:/Projets Info/rumton/db_file/database.mv.db;
+db.url=jdbc:h2:PATH_TO_YOUR_DATABASE;
 db.user=sa
 db.password=
 
