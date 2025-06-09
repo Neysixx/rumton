@@ -22,4 +22,17 @@ public class DateUtil {
 
         return localDateTime.format(formatter);
     }
+
+    public static String formatDateForDatetimeLocalInput(Date date) {
+        if (date == null) return "";
+
+        LocalDateTime localDateTime = Instant.ofEpochMilli(date.getTime())
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+
+        return localDateTime.format(formatter);
+    }
+
 }

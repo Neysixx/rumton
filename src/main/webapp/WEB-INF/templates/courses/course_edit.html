@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/color_run_war_exploded/assets/css/normalize.css">
     <link rel="stylesheet" href="/color_run_war_exploded/assets/css/style.css">
-    <title>Rumton - Liste des courses</title>
+    <title>Rumton - Modifier une course</title>
 </head>
 <body>
 <div class="container">
@@ -37,66 +37,86 @@
     </header>
 
     <section class="title-section" id="home-title-section">
-        <h1 th:if="${isOrga}">La liste de toutes vos courses colorées</h1>
-        <h1 th:if="${!isOrga}">La liste de toutes les courses colorées</h1>
-        <p>Retrouvez toute les courses colorées près de chez vous</p>
+        <h1>Modifier une course colorée</h1>
+        <p>Participez au bonheur des participants et des cause en créer votre propre course</p>
     </section>
 
-    <section id="list-courses">
-        <a th:if="${isOrga}" th:href="'/color_run_war_exploded/courses-create'" class="btn-secondary" style="align-items: flex-start !important;justify-content: left;width: 125px !important;">Créer une course</a>
-        <form method="GET" id="filter-sort" class="form-container">
-            <div class="extend">
-                <div>
-                    <button type="button" id="filter-button" class="filter-sort-button">Filtre</button>
-                    <button type="button" id="sort-button" class="filter-sort-button">Trie</button>
-                </div>
-                <div>
-                    <div id="filter-content" class="hide filter-sort-content">
-                        <select name="city" id="city" class="input-classic" required>
-                            <option value="all" selected>Toutes les villes</option>
-                        </select>
-                        <select name="distance" id="distance" class="input-classic" required>
-                            <option value="all" selected>Toutes distances</option>
-                            <option value="5-10" >5 - 10 km</option>
-                            <option value="10-20" >10 - 20 km</option>
-                            <option value="20-30" >20 - 30 km</option>
-                            <option value="30-40" >30 - 40 km</option>
-                        </select>
-                    </div>
-
-                    <div id="sort-content" class="hide filter-sort-content">
-                        <select name="sort" id="sort" class="input-classic" required>
-                            <option value="date-desc">Date &darr;</option>
-                            <option value="date-asc">Date &uarr;</option>
-                            <option value="distance-des">Distance &darr;</option>
-                            <option value="distance-asc">Distance &uarr;</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div>
-                <input type="submit" value="Rechercher" class="btn-primary">
-            </div>
-        </form>
-
-        <div class="courses-list">
-
-            <article th:each="course:${courses}">
-                <div class="image"></div>
-                <div class="course-detail">
-                    <p th:text="${course.nom}"></p>
-                    <p th:text="${course.getDateDepartFormatted()}"></p>
-                    <p th:text="${course.distance} + ' km'"></p>
-                </div>
-                <div class="btn-containers">
-                    <a th:if="${isOrga}" th:href="'/color_run_war_exploded/courses-edit/' + ${course.getIdCourse()}" class="btn-primary">Modifier</a>
-                    <a th:href="'/color_run_war_exploded/courses/' + ${course.idCourse}" class="btn-secondary">Voir le détail</a>
-                    <a th:href="'/color_run_war_exploded/courses/' + ${course.idCourse}" class="btn-secondary">Participer</a>
-                </div>
-            </article>
-
+    <div class="form-container">
+        <div class="form-group">
+            <label for="nom">Nom de la course *</label>
+            <input type="text" id="nom" name="nom" th:value="${course.getNom()}" class="input-classic" required>
         </div>
-    </section>
+
+        <div class="form-group">
+            <label for="adresse">Adresse de départ *</label>
+            <input type="text" id="adresse" name="adresse" th:value="${course.getAdresse()}" class="input-classic" autocomplete="off" required>
+            <ul id="autocomplete-results" class="autocomplete-list"></ul>
+        </div>
+
+        <div class="form-group">
+            <label for="ville">Ville de départ *</label>
+            <input type="text" id="ville" th:value="${course.getVille()}" name="ville" class="input-classic" required>
+        </div>
+
+        <div class="form-group">
+            <label for="codePostal">Code Postal *</label>
+            <input type="number" id="codePostal" th:value="${course.getCodePostal()}" name="codePostal" class="input-classic" required>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description de votre merveilleuse course*</label>
+            <textarea name="description" th:text="${course.getDescription()}" id="description" class="text-area-classic" placeholder=""></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="distance">Distance de la course (km)*</label>
+            <input type="number" step="0.1" id="distance" th:value="${course.getDistance()}" name="distance" class="input-classic" required>
+        </div>
+
+        <div class="form-group">
+            <label for="cause">Cause soutenue par votre course</label>
+
+            <select name="idCause" id="cause" class="input-classic" required>
+                <option value="null" disabled
+                        th:selected="${course.cause == null}">
+                    -- Choisir une cause --
+                </option>
+                <option th:each="cause : ${causes}"
+                        th:value="${cause.idCause}"
+                        th:text="${cause.intitule}"
+                        th:selected="${course.cause != null and cause.idCause == course.cause.idCause}">
+                </option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="maxParticipants">Nombre de participants maximum *</label>
+            <input type="number" th:value="${course.getMaxParticipants()}" step="1" id="maxParticipants" name="maxParticipants" class="input-classic" required />
+        </div>
+
+        <div class="form-group">
+            <label for="date">Date et heure de la course *</label>
+            <input type="datetime-local" th:value="${course.getDateDepartFormatted()}" name="dateDepart" id="date" class="input-classic" required>
+        </div>
+
+        <div th:text="${course.getDateDepart()}"></div>
+
+        <div class="form-group">
+            <label for="prixParticipation">Prix de la course *</label>
+            <input type="number" step="0.01" th:value="${course.getPrixParticipation()}" id="prixParticipation" name="prixParticipation" class="input-classic" required />
+        </div>
+
+        <div class="form-group">
+            <label for="obstacles">Présence d'obstacle ?</label>
+            <input type="checkbox" id="obstacles" name="obstacles"
+                   th:checked="${course.getObstacles() == 'true'}" />
+        </div>
+
+        <div th:if="${error}" class="error-message" th:text="${error}"></div>
+
+        <button class="btn-primary" th:attr="onclick=|updateCourse(${course.getIdCourse()})|">Modifier</button>
+    </div>
+
 </div>
 <footer>
     <div class="footer-container">
@@ -119,6 +139,6 @@
     </div>
 </footer>
 <script src="/color_run_war_exploded/assets/js/main.js"></script>
-<script src="/color_run_war_exploded/assets/js/filterSort.js"></script>
+<script src="/color_run_war_exploded/assets/js/services/courses.js"></script>
 </body>
 </html>
