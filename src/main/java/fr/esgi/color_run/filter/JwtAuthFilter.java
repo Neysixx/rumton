@@ -2,6 +2,7 @@ package fr.esgi.color_run.filter;
 
 import fr.esgi.color_run.service.AuthService;
 import fr.esgi.color_run.service.impl.AuthServiceImpl;
+import fr.esgi.color_run.util.DebugUtil;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -25,7 +26,7 @@ import java.util.Optional;
 public class JwtAuthFilter implements Filter {
 
     private AuthService authService;
-    private final List<String> PUBLIC_PATHS = Arrays.asList("/login", "/register", "/verify","/assets", "/favicon.ico");
+    private final List<String> PUBLIC_PATHS = Arrays.asList("/login", "/register", "/verify","/assets", "/favicon.ico", "/verify/resend", "/verify");
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -49,15 +50,24 @@ public class JwtAuthFilter implements Filter {
 
             // Si un token est présent et valide, on injecte les attributs utilisateur
             if (token != null && authService.isTokenValid(token)) {
+
+                DebugUtil.log(this.getClass(), "Datas: " + authService.getUserIdFromToken(token) + " " + authService.getEmailFromToken(token) + " " + authService.isAdmin(token) + " " + authService.isOrganisateur(token) + " " + authService.isVerified(token));
                 httpRequest.setAttribute("jwt_token", token);
                 httpRequest.setAttribute("user_id", authService.getUserIdFromToken(token));
+                httpRequest.setAttribute("user_email", authService.getEmailFromToken(token));
                 httpRequest.setAttribute("is_admin", authService.isAdmin(token));
                 httpRequest.setAttribute("is_organisateur", authService.isOrganisateur(token));
+                httpRequest.setAttribute("is_verified", authService.isVerified(token));
             }
 
             // Si la route est publique ou OPTIONS → on continue même sans token
             if (isPublicPath(path) || httpRequest.getMethod().equals("OPTIONS")) {
                 chain.doFilter(httpRequest, httpResponse);
+                return;
+            }
+
+            if (!authService.isVerified(token) && !isPublicPath(path)) {
+                httpResponse.sendRedirect(httpRequest.getContextPath() + "/verify?email=" + authService.getEmailFromToken(token));
                 return;
             }
 

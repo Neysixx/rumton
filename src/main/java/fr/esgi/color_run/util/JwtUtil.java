@@ -60,17 +60,23 @@ public class JwtUtil {
         String subject;
         int userId;
         String role;
+        String email;
+        boolean isVerified;
 
         if (user instanceof Participant) {
             Participant participant = (Participant) user;
             subject = participant.getEmail();
             userId = participant.getIdParticipant();
             role = participant.isEstOrganisateur() ? "ORGANISATEUR" : "PARTICIPANT";
+            isVerified = participant.isEstVerifie();
+            email = participant.getEmail();
         } else if (user instanceof Admin) {
             Admin admin = (Admin) user;
             subject = admin.getEmail();
             userId = admin.getIdAdmin();
             role = "ADMIN";
+            isVerified = true;
+            email = admin.getEmail();
         } else {
             throw new IllegalArgumentException("L'utilisateur doit être un Admin ou un Participant");
         }
@@ -79,6 +85,8 @@ public class JwtUtil {
                 .setSubject(subject)
                 .claim("userId", userId)
                 .claim("role", role)
+                .claim("is_verified", isVerified)
+                .claim("email", email)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + this.expiration))
                 .signWith(this.secretKey)
@@ -150,5 +158,16 @@ public class JwtUtil {
     public String getEmailFromToken(String token) {
         Claims claims = parseToken(token);
         return claims.getSubject();
+    }
+
+    /**
+     * Vérifie si le token appartient à un participant vérifié
+     * 
+     * @param token Le token JWT
+     * @return true si le token appartient à un participant vérifié, false sinon
+     */
+    public boolean isVerified(String token) {
+        Claims claims = parseToken(token);
+        return claims.get("is_verified", Boolean.class);
     }
 }

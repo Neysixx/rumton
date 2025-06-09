@@ -144,8 +144,8 @@ public class RegisterServlet extends BaseWebServlet {
 
         // Enregistrement du participant et envoi de l'email de vérification
         try {
-            participantService.creerParticipant(participant);
             emailService.envoyerEmailVerification(email, code);
+            participantService.creerParticipant(participant);
             verificationService.creerVerification(verification);
 
             // si le participant veut devenir organisateur

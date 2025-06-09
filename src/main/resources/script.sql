@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS PARTICIPANT (
                                            url_profile VARCHAR(255),
                                            est_organisateur BOOLEAN DEFAULT FALSE,
                                            date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                           isVerified BOOLEAN
+                                           est_verifie BOOLEAN DEFAULT FALSE
 );
 
 -- Table CAUSE
@@ -88,6 +88,7 @@ CREATE TABLE IF NOT EXISTS MESSAGE (
 CREATE TABLE IF NOT EXISTS VERIFICATION (
                               id_verification INT PRIMARY KEY AUTO_INCREMENT,
                               id_participant INT NOT NULL,
+                              code VARCHAR(6) NOT NULL,
                               date_time TIMESTAMP NOT NULL,
                               date_time_completed TIMESTAMP,
                               FOREIGN KEY (id_participant) REFERENCES PARTICIPANT(id_participant)

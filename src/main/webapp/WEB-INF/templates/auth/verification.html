@@ -1,85 +1,110 @@
 <!DOCTYPE html>
-<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vérification de votre email - Color Run</title>
-    <link rel="stylesheet" href="/css/styles.css">
-    <style>
-        .verification-container {
-            max-width: 500px;
-            margin: 50px auto;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-
-        .verification-title {
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        .verification-text {
-            color: #666;
-            margin-bottom: 25px;
-        }
-
-        .code-input {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 25px;
-        }
-
-        .code-input input {
-            width: 50px;
-            height: 50px;
-            text-align: center;
-            font-size: 24px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        .submit-button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .submit-button:hover {
-            background-color: #45a049;
-        }
-
-        .error-message {
-            color: #ff0000;
-            margin-bottom: 15px;
-        }
-    </style>
+    <link rel="stylesheet" href="/color_run_war_exploded/assets/css/normalize.css">
+    <link rel="stylesheet" href="/color_run_war_exploded/assets/css/style.css">
+    <title>Rumton - Vérification Email</title>
 </head>
+
 <body>
-<div class="verification-container">
-    <h1 class="verification-title">Vérification de votre adresse email</h1>
+    <div class="container-no-gap">
+        <header>
+            <nav>
+                <a href="#"><img src="/color_run_war_exploded/assets/img/logo.png" alt="logo rumton "></a>
 
-    <p class="verification-text">Nous avons envoyé un code de vérification à <strong th:text="${email}">votre@email.com</strong>. Veuillez saisir ce code pour finaliser votre inscription.</p>
+                <button id="menu-toggle" aria-label="Ouvrir le menu">&#9776;</button>
 
-    <div th:if="${error}" class="error-message" th:text="${error}">Message d'erreur</div>
+                <ul id="nav-links">
+                    <li><a href="/color_run_war_exploded/">Accueil</a></li>
+                    <li><a href="/color_run_war_exploded/courses/list">Liste des courses</a></li>
+                    <li><a href="/color_run_war_exploded/login">Se connecter</a></li>
+                    <li><a class="btn-primary" href="/color_run_war_exploded/register">S'inscrire</a></li>
+                </ul>
+            </nav>
+        </header>
 
-    <form method="post" th:action="@{/verify}">
-        <input type="hidden" name="email" th:value="${email}">
+        <section class="title-section" id="login-title-section">
+            <p>Venez vivre l'expérience unique de la Color Run dans votre ville</p>
+            <h1>Vérification requise</h1>
+            <p>Un email vous a été envoyé sur votre addresse mail, veuillez insérer le code ci-dessous:</p>
+        </section>
 
-        <div class="code-input">
-            <input type="text" name="verification_code" pattern="[0-9]{6}" maxlength="6" required autocomplete="off" inputmode="numeric">
+        <section id="verify-section">
+            <form method="POST" class="form-container" id="verification-form">
+                <input type="hidden" name="email" th:value="${email}" />
+                <input type="hidden" name="verification_code" id="verification_code" />
+
+                <div class="otp-container">
+                    <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-input"
+                        id="otp-1" />
+                    <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-input"
+                        id="otp-2" />
+                    <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-input"
+                        id="otp-3" />
+                    <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-input"
+                        id="otp-4" />
+                    <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-input"
+                        id="otp-5" />
+                    <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-input"
+                        id="otp-6" />
+                </div>
+
+                <div th:if="${error}" class="error-message" style="color: red; margin: 10px 0;">
+                    <p th:text="${error}"></p>
+                </div>
+
+                <input type="submit" value="Vérifier" class="btn-primary">
+
+                <p class="subLine">Vous n'avez pas reçu de mail ?
+                    <a href="#" id="resend-email" th:data-email="${email}">Renvoyer un mail</a>
+                </p>
+
+            </form>
+        </section>
+    </div>
+    <footer>
+        <div class="footer-container">
+            <a href="#"><img src="/color_run_war_exploded/assets/img/logo.png" alt="logo rumton "></a>
+            <div class="text-container">
+                <h3>Liens utiles</h3>
+                <ul class="link-list">
+                    <li><a href="">A propos</a></li>
+                    <li><a href="">FAQ</a></li>
+                    <li><a href="">Nous contacter</a></li>
+                    <li><a href="">Mentions légales</a></li>
+                </ul>
+            </div>
+            <div class="icons-container">
+                <svg xmlns="http://www.w3.org/2000/svg" width="69" height="69" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="icon icon-tabler icons-tabler-outline icon-tabler-brand-instagram">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M4 8a4 4 0 0 1 4 -4h8a4 4 0 0 1 4 4v8a4 4 0 0 1 -4 4h-8a4 4 0 0 1 -4 -4z" />
+                    <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
+                    <path d="M16.5 7.5v.01" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="69" height="69" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="icon icon-tabler icons-tabler-outline icon-tabler-brand-tiktok">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path
+                        d="M21 7.917v4.034a9.948 9.948 0 0 1 -5 -1.951v4.5a6.5 6.5 0 1 1 -8 -6.326v4.326a2.5 2.5 0 1 0 4 2v-11.5h4.083a6.005 6.005 0 0 0 4.917 4.917z" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="69" height="69" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="icon icon-tabler icons-tabler-outline icon-tabler-brand-facebook">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M7 10v4h3v7h4v-7h3l1 -4h-4v-2a1 1 0 0 1 1 -1h3v-4h-3a5 5 0 0 0 -5 5v2h-3" />
+                </svg>
+            </div>
+            <p class="self-end">2025 © Color Run par AH & FX. Tous les droits réservés</p>
         </div>
-
-        <button type="submit" class="submit-button">Vérifier</button>
-    </form>
-
-    <p>Vous n'avez pas reçu de code ? <a href="#">Renvoyer le code</a></p>
-</div>
+    </footer>
+    <script src="/color_run_war_exploded/assets/js/main.js"></script>
+    <script src="/color_run_war_exploded/assets/js/otpInputs.js"></script>
 </body>
+
 </html>

@@ -38,8 +38,8 @@ public class VerificationServiceImpl implements VerificationService {
 
         // Vérifier si le code de vérification correspond à celui du participant
         // Parmi toute les vérifications, on va chercher celle qui correspond à l'email du participant (donc à son id)
-
         Verification verif = verificationRepository.findByParticipantId(participant.getIdParticipant());
+
         if (verif != null) {
             if (!verif.getCode().equals(code)) {
                 return false;

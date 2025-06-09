@@ -49,7 +49,14 @@ public interface AuthService {
      * @return true si le token appartient à un organisateur, false sinon
      */
     boolean isOrganisateur(String token);
-    
+
+    /**
+     * Vérifie si le token appartient à un participant vérifié
+     * @param token Le token JWT
+     * @return true si le token appartient à un participant vérifié, false sinon
+     */
+    boolean isVerified(String token);
+
     /**
      * Extrait le token JWT d'une requête HTTP
      * @param authHeader Le header Authorization
@@ -57,4 +64,11 @@ public interface AuthService {
      * @return Le token JWT ou null si non trouvé
      */
     String extractToken(String authHeader, String cookieToken);
+
+    /**
+     * Récupère l'email de l'utilisateur associé au token JWT
+     * @param token Le token JWT
+     * @return L'email de l'utilisateur
+     */
+    String getEmailFromToken(String token);
 }

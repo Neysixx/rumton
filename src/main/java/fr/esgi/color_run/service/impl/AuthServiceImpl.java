@@ -95,6 +95,22 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public boolean isVerified(String token) {
+        if (!isTokenValid(token)) {
+            return false;
+        }
+        return jwtUtil.isVerified(token);
+    }
+
+    @Override
+    public String getEmailFromToken(String token) {
+        if (!isTokenValid(token)) {
+            return null;
+        }
+        return jwtUtil.getEmailFromToken(token);
+    }
+
+    @Override
     public String extractToken(String authHeader, String cookieToken) {
         // Vérifier d'abord le header Authorization
         if (authHeader != null && authHeader.startsWith("Bearer ")) {

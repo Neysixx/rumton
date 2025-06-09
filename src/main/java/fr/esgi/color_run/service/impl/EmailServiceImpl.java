@@ -10,18 +10,25 @@ import java.util.Properties;
 
 public class EmailServiceImpl implements EmailService {
     private static final Properties properties = new Properties();
-//    private static final String SMTP_HOST =properties.getProperty("SMTP_HOST");
-//    private static final String SMTP_PORT = properties.getProperty("SMTP_PORT");
-//    private static final String USERNAME = properties.getProperty("SMTP_USER");
-//    private static final String PASSWORD = properties.getProperty("SMTP_PASSWORD");
-//    private static final String BASE_URL =  properties.getProperty("base.url");
-
-    private static final String SMTP_HOST = "smtp.gmail.com";
-    private static final String SMTP_PORT = "587";
-    private static final String USERNAME = "";
-    private static final String PASSWORD = "";
-    private static final String BASE_URL = "http://localhost:8080";
-
+    private static final String SMTP_HOST;
+    private static final String SMTP_PORT;
+    private static final String USERNAME;
+    private static final String PASSWORD;
+    private static final String BASE_URL;
+    
+    static {
+        try {
+            // Load properties from application.properties file
+            properties.load(EmailServiceImpl.class.getClassLoader().getResourceAsStream("application.properties"));
+            SMTP_HOST = properties.getProperty("SMTP_HOST");
+            SMTP_PORT = properties.getProperty("SMTP_PORT");
+            USERNAME = properties.getProperty("SMTP_USERNAME");
+            PASSWORD = properties.getProperty("SMTP_PASSWORD");
+            BASE_URL = properties.getProperty("BASE_URL");
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors du chargement des propriétés", e);
+        }
+    }
 
     @Override
     public String envoyerEmailVerification(String email, String code) throws MessagingException {
@@ -66,6 +73,8 @@ public class EmailServiceImpl implements EmailService {
         if (contenu == null || contenu.trim().isEmpty()) {
             throw new IllegalArgumentException("Le contenu ne peut pas être null ou vide");
         }
+
+        System.out.println("Debug des vars d'env : SMTP_HOST=" + SMTP_HOST + ", SMTP_PORT=" + SMTP_PORT + ", USERNAME=" + USERNAME + ", PASSWORD=" + PASSWORD + ", BASE_URL=" + BASE_URL);
 
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
