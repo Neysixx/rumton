@@ -8,6 +8,8 @@ import fr.esgi.color_run.service.impl.VerificationServiceImpl;
 import fr.esgi.color_run.service.impl.EmailServiceImpl;
 import fr.esgi.color_run.business.Verification;
 import fr.esgi.color_run.util.DebugUtil;
+import fr.esgi.color_run.util.CookieUtil;
+import fr.esgi.color_run.util.JwtUtil;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,13 +23,15 @@ public class VerificationServlet extends BaseWebServlet {
     private ParticipantService participantService;
     private VerificationService verificationService;
     private EmailService emailService;
-
+    private JwtUtil jwtUtil;
+    
     @Override
     public void init() {
         super.init();
         participantService = new ParticipantServiceImpl();
         verificationService = new VerificationServiceImpl();
         emailService = new EmailServiceImpl();
+        jwtUtil = JwtUtil.getInstance();
     }
 
     @Override
@@ -117,6 +121,14 @@ public class VerificationServlet extends BaseWebServlet {
             if (verificationService.verifierCode(verificationCode, participant)) {
                 DebugUtil.log(this.getClass(), "Code de vérification validé pour : " + participant.getEmail());
                 participantService.verifierParticipant(participant);
+
+                // On modifie le token JWT pour le participant
+                String token = CookieUtil.getCookie(request, CookieUtil.JWT_COOKIE_NAME);
+                if (token != null) {
+                    token = jwtUtil.modifyToken(token);
+                    CookieUtil.setCookie(response, CookieUtil.JWT_COOKIE_NAME, token, CookieUtil.JWT_COOKIE_MAX_AGE);
+                }
+
                 // Redirect to the login page with success message
                 response.sendRedirect(request.getContextPath() + "/login?verified=true");
             } else {

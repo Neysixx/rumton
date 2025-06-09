@@ -94,6 +94,20 @@ public class JwtUtil {
     }
 
     /**
+     * Modifie la propriété is_verified du token JWT pour un participant en la mettant à true
+     * @param token Le token JWT
+     * @return Le token JWT modifié
+     */
+    public String modifyToken(String token) {
+        Claims claims = parseToken(token);
+        claims.put("is_verified", true);
+        return Jwts.builder()
+                .setClaims(claims)
+                .signWith(this.secretKey)
+                .compact();
+    }
+
+    /**
      * Parse et vérifie un token JWT
      * 
      * @param token Le token JWT à vérifier

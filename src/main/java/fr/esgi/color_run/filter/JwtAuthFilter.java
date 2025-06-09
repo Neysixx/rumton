@@ -60,10 +60,16 @@ public class JwtAuthFilter implements Filter {
 
             // Si la route est publique ou OPTIONS → on continue même sans token
             if (isPublicPath(path) || httpRequest.getMethod().equals("OPTIONS")) {
+                // Si /login et que le token est valide et que le participant est vérifié, on redirige vers la page d'accueil
+                if ((path.equals("/login") || path.equals("/register")) && token != null && authService.isTokenValid(token) && authService.isVerified(token)) {
+                    httpResponse.sendRedirect(httpRequest.getContextPath() + "/courses");
+                    return;
+                }
                 chain.doFilter(httpRequest, httpResponse);
                 return;
             }
 
+            // Si le token est valide et que le participant n'est pas vérifié, on redirige vers la page de vérification
             if (!authService.isVerified(token) && !isPublicPath(path)) {
                 DebugUtil.log(this.getClass(), "Redirection vers la page de vérification : " + authService.getEmailFromToken(token));
                 httpResponse.sendRedirect(httpRequest.getContextPath() + "/verify?email=" + authService.getEmailFromToken(token));
