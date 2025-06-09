@@ -13,7 +13,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.ServletException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import org.thymeleaf.context.Context;
 import fr.esgi.color_run.business.Participant;
 
@@ -33,14 +32,6 @@ public class VerificationServlet extends BaseWebServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String pathInfo = request.getPathInfo();
-        
-        // Gestion du renvoi d'email
-        if ("/resend".equals(pathInfo)) {
-            handleResendEmail(request, response);
-            return;
-        }
-        
         String email = request.getParameter("email");
         if (email == null || email.trim().isEmpty()) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -56,8 +47,10 @@ public class VerificationServlet extends BaseWebServlet {
 
         try {
             Participant participant = participantService.getParticipantByEmail(email);
+            // Si le participant n'existe pas, on le redirige vers la page d'inscription
             if (participant == null) {
-                renderError(request, response, "Participant introuvable");
+                DebugUtil.log(this.getClass(), "Participant introuvable : " + email);
+                response.sendRedirect(request.getContextPath() + "/register");
                 return;
             }
 

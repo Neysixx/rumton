@@ -27,6 +27,18 @@ public class VerificationServiceImpl implements VerificationService {
             throw new IllegalArgumentException("La vérification ne peut pas être null");
         }
 
+        // Vérifier si le participant n'à pas déjà une vérification en cours
+        Participant participant = verification.getParticipant();
+        if (participant == null || participant.getIdParticipant() <= 0) {
+            throw new IllegalArgumentException("Le participant doit être valide");
+        }
+
+        Verification existingVerification = verificationRepository.findByParticipantId(participant.getIdParticipant());
+        if (existingVerification != null) {
+            // Si une vérification existe déjà, on la supprime
+            verificationRepository.deleteByParticipantId(participant.getIdParticipant());
+        }
+
         return verificationRepository.save(verification);
     }
 

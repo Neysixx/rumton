@@ -154,7 +154,7 @@ public class RegisterServlet extends BaseWebServlet {
             }
 
             // Redirection vers la page de connexion avec un message de succès
-            response.sendRedirect(request.getContextPath() + "/login?registered=true");
+            response.sendRedirect(request.getContextPath() + "/verify?email=" + email);
         } catch (Exception e) {
             context.setVariable("error", "Une erreur est survenue lors de l'inscription: " + e.getMessage());
             renderTemplate(request, response, "auth/register", context);

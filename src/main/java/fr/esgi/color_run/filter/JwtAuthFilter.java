@@ -2,6 +2,7 @@ package fr.esgi.color_run.filter;
 
 import fr.esgi.color_run.service.AuthService;
 import fr.esgi.color_run.service.impl.AuthServiceImpl;
+import fr.esgi.color_run.util.DebugUtil;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -64,6 +65,7 @@ public class JwtAuthFilter implements Filter {
             }
 
             if (!authService.isVerified(token) && !isPublicPath(path)) {
+                DebugUtil.log(this.getClass(), "Redirection vers la page de vérification : " + authService.getEmailFromToken(token));
                 httpResponse.sendRedirect(httpRequest.getContextPath() + "/verify?email=" + authService.getEmailFromToken(token));
                 return;
             }
