@@ -15,4 +15,6 @@ public class Cause {
     private int idCause;
     private String intitule;
     private List<Course> courses = new ArrayList<>();
+
+
 }

@@ -57,7 +57,7 @@ public class CourseServlet extends BaseWebServlet {
                                         context.setVariable("course", course);
                                         context.setVariable("isAdmin", request.getAttribute("is_admin"));
                                         context.setVariable("isOrganisateur", request.getAttribute("is_organisateur"));
-                                        renderTemplate(request, response, "course_details", context);
+                                        renderTemplate(request, response, "courses/course_details", context);
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     } catch (ServletException e) {
