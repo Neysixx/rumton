@@ -7,10 +7,13 @@ public interface EmailService {
     /**
      * Envoie un email de vérification à l'adresse spécifiée
      * @param email L'adresse email du destinataire
+     * @param  code Le code de vérification à inclure dans l'email
      * @return Le token de vérification généré
      * @throws MessagingException Si une erreur survient lors de l'envoi de l'email
      */
-    String envoyerEmailVerification(String email) throws MessagingException;
+    String envoyerEmailVerification(String email, String code) throws MessagingException;
+
+    String genererCodeVerification();
 
     /**
      * Envoie un email avec un contenu et un sujet personnalisés

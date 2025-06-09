@@ -4,9 +4,16 @@ import fr.esgi.color_run.business.DemandeOrganisateur;
 import fr.esgi.color_run.business.Participant;
 import fr.esgi.color_run.business.enums.EDemandeStatus;
 import fr.esgi.color_run.service.DemandeOrganisateurService;
+import fr.esgi.color_run.business.Verification;
+import fr.esgi.color_run.service.EmailService;
 import fr.esgi.color_run.service.ParticipantService;
 import fr.esgi.color_run.service.impl.DemandeOrganisateurServiceImpl;
+import fr.esgi.color_run.service.VerificationService;
+import fr.esgi.color_run.service.impl.EmailServiceImpl;
 import fr.esgi.color_run.service.impl.ParticipantServiceImpl;
+import fr.esgi.color_run.service.impl.VerificationServiceImpl;
+import fr.esgi.color_run.util.CookieUtil;
+import fr.esgi.color_run.util.JwtUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,6 +21,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.thymeleaf.context.Context;
 
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 import static fr.esgi.color_run.util.CryptUtil.hashPassword;
@@ -25,13 +35,19 @@ import static fr.esgi.color_run.util.CryptUtil.hashPassword;
 public class RegisterServlet extends BaseWebServlet {
 
     private ParticipantService participantService;
+    private EmailService emailService;
+    private VerificationService verificationService;
     private DemandeOrganisateurService demandeOrganisateurService;
-
+    private JwtUtil jwtUtil;
+    
     @Override
     public void init() {
         super.init();
         participantService = new ParticipantServiceImpl();
         demandeOrganisateurService = new DemandeOrganisateurServiceImpl();
+        emailService = new EmailServiceImpl();
+        verificationService = new VerificationServiceImpl();
+        jwtUtil = JwtUtil.getInstance();
     }
 
     /**
@@ -62,20 +78,10 @@ public class RegisterServlet extends BaseWebServlet {
         String motivations = request.getParameter("motivations");
         Boolean isOrganisateurRequest = false;
 
-        // Debug des données reçues
-        System.out.println("DEBUG - Données reçues:");
-        System.out.println("Nom: " + nom);
-        System.out.println("Prénom: " + prenom);
-        System.out.println("Email: " + email);
-        System.out.println("Role: " + role);
-        System.out.println("Mot de passe reçu: " + (motDePasse != null ? "Oui (longueur: " + motDePasse.length() + ")" : "Non"));
-
         Context context = new Context();
 
         // Validation des données
-        if (nom == null || prenom == null || email == null || motDePasse == null ||
-                nom.isEmpty() || prenom.isEmpty() || email.isEmpty() || motDePasse.isEmpty()) {
-
+        if (nom == null || prenom == null || email == null || motDePasse == null || nom.isEmpty() || prenom.isEmpty() || email.isEmpty() || motDePasse.isEmpty()) {
             context.setVariable("error", "Tous les champs sont obligatoires");
             renderTemplate(request, response, "auth/register", context);
             return;
@@ -119,13 +125,28 @@ public class RegisterServlet extends BaseWebServlet {
                 .motDePasse(hashPassword(motDePasse))
                 .estOrganisateur(false)
                 .dateCreation(new Date())
+                .estVerifie(false)
                 .build();
 
-        System.out.println("DEBUG - Participant créé: " + participant);
+        String code = emailService.genererCodeVerification();
 
-        // Enregistrement du participant
+        // Création de l'objet Verification expirant dans 1 heure
+        Verification verification = Verification.builder()
+                .participant(participant)
+                .code(code)
+                .dateTime(Timestamp.from(Instant.now()))
+                .dateTimeCompleted(Timestamp.from(Instant.now().plus(1, ChronoUnit.HOURS)))
+                .build();
+
+        // Enregistrement du participant et envoi de l'email de vérification
         try {
+            emailService.envoyerEmailVerification(email, code);
             participantService.creerParticipant(participant);
+            verificationService.creerVerification(verification);
+
+            // On modifie le token JWT pour le participant
+            String token = jwtUtil.generateToken(participant);
+            CookieUtil.setCookie(response, CookieUtil.JWT_COOKIE_NAME, token, CookieUtil.JWT_COOKIE_MAX_AGE);
 
             // si le participant veut devenir organisateur
             if(isOrganisateurRequest){
@@ -141,7 +162,7 @@ public class RegisterServlet extends BaseWebServlet {
             }
 
             // Redirection vers la page de connexion avec un message de succès
-            response.sendRedirect(request.getContextPath() + "/login?registered=true");
+            response.sendRedirect(request.getContextPath() + "/verify?email=" + email);
         } catch (Exception e) {
             context.setVariable("error", "Une erreur est survenue lors de l'inscription: " + e.getMessage());
             renderTemplate(request, response, "auth/register", context);

@@ -104,4 +104,10 @@ public class ParticipantServiceImpl implements ParticipantService {
         }
         return null;
     }
+
+    @Override
+    public void verifierParticipant(Participant participant) {
+        participant.setEstVerifie(true);
+        participantRepository.update(participant);
+    }
 }
