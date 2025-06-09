@@ -167,10 +167,6 @@ public class CourseServlet extends BaseWebServlet {
             Boolean isObstacles = Objects.equals(obstacles, "on");
             
             String idCauseStr = request.getParameter("idCause");
-            if (idCauseStr == null || idCauseStr.trim().isEmpty()) {
-                renderError(request, response, "L'ID de la cause est obligatoire");
-                return;
-            }
 
             // Conversions avec gestion des erreurs
             java.sql.Timestamp dateDepart = new java.sql.Timestamp(System.currentTimeMillis());
@@ -216,23 +212,27 @@ public class CourseServlet extends BaseWebServlet {
                 renderError(request, response, "Le prix de participation doit être un nombre");
                 return;
             }
-            
-            int idCause;
-            try {
-                idCause = Integer.parseInt(idCauseStr);
-            } catch (NumberFormatException e) {
-                renderError(request, response, "L'ID de la cause doit être un nombre entier");
-                return;
-            }
 
-            // Recherche de la cause
-            Cause cause;
-            try {
-                cause = causeService.getCauseById(idCause)
-                        .orElseThrow(() -> new IllegalArgumentException("Cause non trouvée avec l'ID " + idCause));
-            } catch (Exception e) {
-                renderError(request, response, "Impossible de récupérer la cause associée : " + e.getMessage());
-                return;
+
+            Cause cause = null;
+            if(idCauseStr != null){
+                int idCause;
+                try {
+                    idCause = Integer.parseInt(idCauseStr);
+                } catch (NumberFormatException e) {
+                    renderError(request, response, "L'ID de la cause doit être un nombre entier");
+                    return;
+                }
+
+                // Recherche de la cause
+                try {
+                    cause = causeService.getCauseById(idCause)
+                            .orElseThrow(() -> new IllegalArgumentException("Cause non trouvée avec l'ID " + idCause));
+                } catch (Exception e) {
+                    renderError(request, response, "Impossible de récupérer la cause associée : " + e.getMessage());
+                    return;
+                }
+
             }
 
             // Création de l'objet Course avec l'organisateur authentifié

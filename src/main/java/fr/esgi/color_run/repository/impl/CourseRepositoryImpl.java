@@ -31,7 +31,11 @@ public class CourseRepositoryImpl implements CourseRepository {
             stmt.setFloat(9, course.getPrixParticipation());
             stmt.setString(10, course.getObstacles());
             stmt.setInt(11, course.getOrganisateur().getIdParticipant());
-            stmt.setInt(12, course.getCause().getIdCause());
+            if(course.getCause() != null){
+                stmt.setInt(12, course.getCause().getIdCause());
+            } else {
+                stmt.setNull(12, java.sql.Types.INTEGER);
+            }
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
