@@ -49,7 +49,8 @@
 
     <div class="form-group">
       <label for="adresse">Adresse de départ *</label>
-      <input type="text" id="adresse" name="adresse" class="input-classic" required>
+      <input type="text" id="adresse" name="adresse" class="input-classic" autocomplete="off" required>
+      <ul id="autocomplete-results" class="autocomplete-list"></ul>
     </div>
 
     <div class="form-group">
@@ -128,5 +129,6 @@
   </div>
 </footer>
 <script src="/color_run_war_exploded/assets/js/main.js"></script>
+<script src="/color_run_war_exploded/assets/js/services/gouvApi.js"></script>
 </body>
 </html>
