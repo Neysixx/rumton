@@ -7,7 +7,6 @@ function updateVerificationCode() {
     if (verificationCode) {
         const code = Array.from(inputs).map(input => input.value).join('');
         verificationCode.value = code;
-        console.log('Code mis à jour:', code);
     }
 }
 
@@ -58,7 +57,6 @@ if (verificationForm) {
         updateVerificationCode();
         
         const code = verificationCode.value;
-        console.log('Code soumis:', code);
         
         if (code.length !== 6) {
             e.preventDefault();
@@ -82,9 +80,6 @@ if (resendEmailLink) {
             this.style.pointerEvents = 'none';
             this.style.color = '#ccc';
             this.textContent = 'Envoi en cours...';
-
-            console.log('Email:', email);
-            console.log('Window location pathname:', window.location.pathname + '/resend');
             
             // Envoyer la requête pour renvoyer l'email
             fetch(window.location.pathname + '/resend', {
@@ -95,7 +90,6 @@ if (resendEmailLink) {
                 body: 'email=' + encodeURIComponent(email)
             })
             .then(response => {
-                console.log('Response:', response);
                 if (response.ok) {
                     this.textContent = 'Email renvoyé !';
                     // Réactiver le lien après 30 secondes

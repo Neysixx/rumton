@@ -74,14 +74,6 @@ public class RegisterServlet extends BaseWebServlet {
         String motivations = request.getParameter("motivations");
         Boolean isOrganisateurRequest = false;
 
-        // Debug des données reçues
-        System.out.println("DEBUG - Données reçues:");
-        System.out.println("Nom: " + nom);
-        System.out.println("Prénom: " + prenom);
-        System.out.println("Email: " + email);
-        System.out.println("Role: " + role);
-        System.out.println("Mot de passe reçu: " + (motDePasse != null ? "Oui (longueur: " + motDePasse.length() + ")" : "Non"));
-
         Context context = new Context();
 
         // Validation des données

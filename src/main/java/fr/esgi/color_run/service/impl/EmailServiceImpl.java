@@ -74,8 +74,6 @@ public class EmailServiceImpl implements EmailService {
             throw new IllegalArgumentException("Le contenu ne peut pas être null ou vide");
         }
 
-        System.out.println("Debug des vars d'env : SMTP_HOST=" + SMTP_HOST + ", SMTP_PORT=" + SMTP_PORT + ", USERNAME=" + USERNAME + ", PASSWORD=" + PASSWORD + ", BASE_URL=" + BASE_URL);
-
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");

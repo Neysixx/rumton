@@ -82,10 +82,6 @@ public class VerificationServlet extends BaseWebServlet {
         String servletPath = request.getServletPath();
         String pathInfo = request.getPathInfo();
         
-        // Gestion du renvoi d'email via POST
-        DebugUtil.log(this.getClass(), "POST ServletPath: " + servletPath);
-        DebugUtil.log(this.getClass(), "POST PathInfo: " + pathInfo);
-        
         if ("/verify/resend".equals(servletPath) || "/resend".equals(pathInfo)) {
             handleResendEmail(request, response);
             return;
@@ -93,9 +89,6 @@ public class VerificationServlet extends BaseWebServlet {
         
         String email = request.getParameter("email");
         String verificationCode = request.getParameter("verification_code");
-
-        DebugUtil.log(this.getClass(), "Email: " + email);
-        DebugUtil.log(this.getClass(), "Verification Code: " + verificationCode);
 
         if (email == null || email.trim().isEmpty() || verificationCode == null || verificationCode.trim().isEmpty()) {
             Context context = new Context();

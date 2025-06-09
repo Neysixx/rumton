@@ -2,7 +2,6 @@ package fr.esgi.color_run.filter;
 
 import fr.esgi.color_run.service.AuthService;
 import fr.esgi.color_run.service.impl.AuthServiceImpl;
-import fr.esgi.color_run.util.DebugUtil;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -50,8 +49,6 @@ public class JwtAuthFilter implements Filter {
 
             // Si un token est présent et valide, on injecte les attributs utilisateur
             if (token != null && authService.isTokenValid(token)) {
-
-                DebugUtil.log(this.getClass(), "Datas: " + authService.getUserIdFromToken(token) + " " + authService.getEmailFromToken(token) + " " + authService.isAdmin(token) + " " + authService.isOrganisateur(token) + " " + authService.isVerified(token));
                 httpRequest.setAttribute("jwt_token", token);
                 httpRequest.setAttribute("user_id", authService.getUserIdFromToken(token));
                 httpRequest.setAttribute("user_email", authService.getEmailFromToken(token));

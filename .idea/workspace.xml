@@ -9,26 +9,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1b4e73a1-147b-4c72-ad2d-26c1741a7213" name="Changes" comment="feat(user): Add user management features including profile editing and user list">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/filter/JwtAuthFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/filter/JwtAuthFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/repository/impl/ParticipantRepositoryImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/repository/impl/ParticipantRepositoryImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/repository/impl/VerificationRepositoryImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/repository/impl/VerificationRepositoryImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/AuthService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/ParticipantService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/ParticipantService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/impl/AuthServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/impl/AuthServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/impl/EmailServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/impl/EmailServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/impl/ParticipantServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/impl/ParticipantServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/impl/VerificationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/impl/VerificationServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/RegisterServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/RegisterServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/VerificationServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/VerificationServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/util/JwtUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/util/JwtUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties.example" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties.example" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/script.sql" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/script.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/webapp/WEB-INF/templates/auth/verification.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/templates/auth/verification.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/webapp/assets/js/otpInputs.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/assets/js/otpInputs.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/color_run-1.0-SNAPSHOT/META-INF/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/target/color_run-1.0-SNAPSHOT/META-INF/MANIFEST.MF" afterDir="false" />
-    </list>
+    <list default="true" id="1b4e73a1-147b-4c72-ad2d-26c1741a7213" name="Changes" comment="feat(user): Add user management features including profile editing and user list" />
     <list id="23a118b8-4017-49f0-9088-572d087b5d4a" name="Changes by romai" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
