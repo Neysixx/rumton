@@ -12,9 +12,10 @@
     <list default="true" id="1b4e73a1-147b-4c72-ad2d-26c1741a7213" name="Changes" comment="feat(user): Add user management features including profile editing and user list">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/filter/JwtAuthFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/filter/JwtAuthFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/impl/VerificationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/impl/VerificationServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/LoginServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/LoginServlet.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/RegisterServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/RegisterServlet.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/VerificationServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/VerificationServlet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/util/JwtUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/util/JwtUtil.java" afterDir="false" />
     </list>
     <list id="23a118b8-4017-49f0-9088-572d087b5d4a" name="Changes by romai" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -166,7 +167,7 @@
       <recent name="fr.esgi.color_run.servlet" />
     </key>
   </component>
-  <component name="RunManager" selected="Database Script.script.sql (1)">
+  <component name="RunManager" selected="Tomcat Server.Tomcat 10.1.40">
     <configuration name="script.sql (1)" type="DatabaseScript" editBeforeRun="true" temporary="true" nameIsGenerated="true">
       <script-file value="$PROJECT_DIR$/src/main/resources/script.sql" />
       <script-mode>FILE</script-mode>
