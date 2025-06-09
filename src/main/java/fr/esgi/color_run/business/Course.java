@@ -19,6 +19,7 @@ public class Course {
     private String nom;
     private String description;
     private Date dateDepart;
+    private String dateDepartFormatted;
     private String ville;
     private int codePostal;
     private String adresse;

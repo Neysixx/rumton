@@ -1,6 +1,7 @@
 package fr.esgi.color_run.servlet;
 
 import java.io.*;
+import java.util.Objects;
 
 import fr.esgi.color_run.business.Cause;
 import fr.esgi.color_run.business.Course;
@@ -17,7 +18,7 @@ import org.thymeleaf.context.Context;
 /**
  * Servlet pour gérer les courses
  */
-@WebServlet(name = "courseServlet", value = {"/courses", "/courses/*"})
+@WebServlet(name = "courseServlet", value = {"/courses", "/courses/*", "/courses-create"})
 public class CourseServlet extends BaseWebServlet {
     private CourseService courseService;
     private CauseService causeService;
@@ -56,7 +57,7 @@ public class CourseServlet extends BaseWebServlet {
                                         context.setVariable("course", course);
                                         context.setVariable("isAdmin", request.getAttribute("is_admin"));
                                         context.setVariable("isOrganisateur", request.getAttribute("is_organisateur"));
-                                        renderTemplate(request, response, "course_details", context);
+                                        renderTemplate(request, response, "courses/course_details", context);
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     } catch (ServletException e) {
@@ -75,13 +76,25 @@ public class CourseServlet extends BaseWebServlet {
                 renderError(request, response, "ID de course invalide");
             }
         } else {
-            // Ajout des courses à la vue
-            context.setVariable("courses", courseService.getAllCourses());
-            context.setVariable("isAdmin", request.getAttribute("is_admin"));
-            context.setVariable("isOrganisateur", request.getAttribute("is_organisateur"));
+            if(Objects.equals(request.getServletPath(), "/courses")){
+                // Ajout des courses à la vue
+                context.setVariable("courses", courseService.getAllCourses());
+                context.setVariable("isAdmin", request.getAttribute("is_admin"));
+                context.setVariable("isOrganisateur", request.getAttribute("is_organisateur"));
 
-            // Rendu de la page
-            renderTemplate(request, response, "courses/list", context);
+                // Rendu de la page
+                renderTemplate(request, response, "courses/list", context);
+            }
+            else {
+                // create course
+
+                // récupération des causes
+                context.setVariable("causes", causeService.getAllCauses());
+                context.setVariable("isAdmin", request.getAttribute("is_admin"));
+                context.setVariable("isOrganisateur", request.getAttribute("is_organisateur"));
+
+                renderTemplate(request, response, "courses/createCourse", context);
+            }
         }
     }
 
@@ -150,13 +163,10 @@ public class CourseServlet extends BaseWebServlet {
             }
             
             String obstacles = request.getParameter("obstacles");
-            // Obstacles peut être null ou vide
+            // Obstacles true ou false
+            Boolean isObstacles = Objects.equals(obstacles, "on");
             
             String idCauseStr = request.getParameter("idCause");
-            if (idCauseStr == null || idCauseStr.trim().isEmpty()) {
-                renderError(request, response, "L'ID de la cause est obligatoire");
-                return;
-            }
 
             // Conversions avec gestion des erreurs
             java.sql.Timestamp dateDepart = new java.sql.Timestamp(System.currentTimeMillis());
@@ -202,23 +212,27 @@ public class CourseServlet extends BaseWebServlet {
                 renderError(request, response, "Le prix de participation doit être un nombre");
                 return;
             }
-            
-            int idCause;
-            try {
-                idCause = Integer.parseInt(idCauseStr);
-            } catch (NumberFormatException e) {
-                renderError(request, response, "L'ID de la cause doit être un nombre entier");
-                return;
-            }
 
-            // Recherche de la cause
-            Cause cause;
-            try {
-                cause = causeService.getCauseById(idCause)
-                        .orElseThrow(() -> new IllegalArgumentException("Cause non trouvée avec l'ID " + idCause));
-            } catch (Exception e) {
-                renderError(request, response, "Impossible de récupérer la cause associée : " + e.getMessage());
-                return;
+
+            Cause cause = null;
+            if(idCauseStr != null){
+                int idCause;
+                try {
+                    idCause = Integer.parseInt(idCauseStr);
+                } catch (NumberFormatException e) {
+                    renderError(request, response, "L'ID de la cause doit être un nombre entier");
+                    return;
+                }
+
+                // Recherche de la cause
+                try {
+                    cause = causeService.getCauseById(idCause)
+                            .orElseThrow(() -> new IllegalArgumentException("Cause non trouvée avec l'ID " + idCause));
+                } catch (Exception e) {
+                    renderError(request, response, "Impossible de récupérer la cause associée : " + e.getMessage());
+                    return;
+                }
+
             }
 
             // Création de l'objet Course avec l'organisateur authentifié
@@ -232,7 +246,7 @@ public class CourseServlet extends BaseWebServlet {
                     .distance(distance)
                     .maxParticipants(maxParticipants)
                     .prixParticipation(prixParticipation)
-                    .obstacles(obstacles)
+                    .obstacles(isObstacles.toString())
                     .cause(cause)
                     .organisateur(organisateur)
                     .build();

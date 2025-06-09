@@ -9,6 +9,7 @@ import fr.esgi.color_run.service.CauseService;
 import fr.esgi.color_run.service.ParticipantService;
 import fr.esgi.color_run.service.impl.CauseServiceImpl;
 import fr.esgi.color_run.service.impl.ParticipantServiceImpl;
+import fr.esgi.color_run.util.DateUtil;
 
 import java.sql.*;
 import java.util.*;
@@ -31,7 +32,11 @@ public class CourseRepositoryImpl implements CourseRepository {
             stmt.setFloat(9, course.getPrixParticipation());
             stmt.setString(10, course.getObstacles());
             stmt.setInt(11, course.getOrganisateur().getIdParticipant());
-            stmt.setInt(12, course.getCause().getIdCause());
+            if(course.getCause() != null){
+                stmt.setInt(12, course.getCause().getIdCause());
+            } else {
+                stmt.setNull(12, java.sql.Types.INTEGER);
+            }
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -118,11 +123,16 @@ public class CourseRepositoryImpl implements CourseRepository {
             cause = causeService.getCauseById(idCause);
         }
 
+        Date dateDepart = rs.getTimestamp("date_depart") != null
+                ? new Date(rs.getTimestamp("date_depart").getTime())
+                : null;
+
         return Course.builder()
                 .idCourse(rs.getInt("id_course"))
                 .nom(rs.getString("nom"))
                 .description(rs.getString("description"))
-                .dateDepart(rs.getTimestamp("date_depart") != null ? new Date(rs.getTimestamp("date_depart").getTime()) : null)
+                .dateDepart(dateDepart)
+                .dateDepartFormatted(DateUtil.formatDateFr(dateDepart))
                 .ville(rs.getString("ville"))
                 .codePostal(rs.getInt("code_postal"))
                 .adresse(rs.getString("adresse"))
