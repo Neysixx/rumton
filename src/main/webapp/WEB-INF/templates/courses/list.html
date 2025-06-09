@@ -83,7 +83,7 @@
                 <div class="image"></div>
                 <div class="course-detail">
                     <p th:text="${course.nom}"></p>
-                    <p th:text="${course.dateDepart}"></p>
+                    <p th:text="${course.getDateDepartFormatted()}"></p>
                     <p th:text="${course.distance} + ' km'"></p>
                 </div>
                 <div class="btn-containers">

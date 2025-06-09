@@ -9,6 +9,7 @@ import fr.esgi.color_run.service.CauseService;
 import fr.esgi.color_run.service.ParticipantService;
 import fr.esgi.color_run.service.impl.CauseServiceImpl;
 import fr.esgi.color_run.service.impl.ParticipantServiceImpl;
+import fr.esgi.color_run.util.DateUtil;
 
 import java.sql.*;
 import java.util.*;
@@ -122,11 +123,16 @@ public class CourseRepositoryImpl implements CourseRepository {
             cause = causeService.getCauseById(idCause);
         }
 
+        Date dateDepart = rs.getTimestamp("date_depart") != null
+                ? new Date(rs.getTimestamp("date_depart").getTime())
+                : null;
+
         return Course.builder()
                 .idCourse(rs.getInt("id_course"))
                 .nom(rs.getString("nom"))
                 .description(rs.getString("description"))
-                .dateDepart(rs.getTimestamp("date_depart") != null ? new Date(rs.getTimestamp("date_depart").getTime()) : null)
+                .dateDepart(dateDepart)
+                .dateDepartFormatted(DateUtil.formatDateFr(dateDepart))
                 .ville(rs.getString("ville"))
                 .codePostal(rs.getInt("code_postal"))
                 .adresse(rs.getString("adresse"))
