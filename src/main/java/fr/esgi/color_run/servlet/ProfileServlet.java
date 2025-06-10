@@ -3,12 +3,15 @@ package fr.esgi.color_run.servlet;
 import fr.esgi.color_run.business.Admin;
 import fr.esgi.color_run.business.Course;
 import fr.esgi.color_run.business.Participant;
+import fr.esgi.color_run.business.Participation;
 import fr.esgi.color_run.service.AdminService;
 import fr.esgi.color_run.service.CourseService;
 import fr.esgi.color_run.service.ParticipantService;
+import fr.esgi.color_run.service.ParticipationService;
 import fr.esgi.color_run.service.impl.AdminServiceImpl;
 import fr.esgi.color_run.service.impl.CourseServiceImpl;
 import fr.esgi.color_run.service.impl.ParticipantServiceImpl;
+import fr.esgi.color_run.service.impl.ParticipationServiceImpl;
 import fr.esgi.color_run.util.CryptUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -27,6 +30,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Servlet pour gérer les profils utilisateurs
@@ -42,6 +46,7 @@ public class ProfileServlet extends BaseWebServlet {
     private ParticipantService participantService;
     private AdminService adminService;
     private CourseService courseService;
+    private ParticipationService  participationService;
     private static final String UPLOAD_DIRECTORY = "uploads";
 
     @Override
@@ -50,6 +55,7 @@ public class ProfileServlet extends BaseWebServlet {
         participantService = new ParticipantServiceImpl();
         adminService = new AdminServiceImpl();
         courseService = new CourseServiceImpl();
+        participationService = new ParticipationServiceImpl();
         
         // Création du répertoire d'upload s'il n'existe pas
         String uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIRECTORY;
@@ -129,9 +135,17 @@ public class ProfileServlet extends BaseWebServlet {
                 }
             } else {
                 // Affichage de son propre profil par défaut
+                boolean isAdmin = isAdmin(request, response);
                 List<Course> courses = new ArrayList<>();
                 if(Boolean.parseBoolean(request.getAttribute("is_organisateur").toString())) {
                     courses = courseService.getCoursesByOrgaId(currentUser.getIdParticipant());
+                }
+                else if(!Boolean.parseBoolean(request.getAttribute("is_organisateur").toString()) && !isAdmin){
+                    List<Participation> participations = participationService.getParticipationsByParticipant(currentUser.getIdParticipant());
+                    courses = participations.stream()
+                            .map(Participation::getCourse)
+                            .distinct()
+                            .collect(Collectors.toList());
                 }
                 context.setVariable("courses", courses);
                 context.setVariable("user", currentUser == null ? currentAdmin : currentUser);
