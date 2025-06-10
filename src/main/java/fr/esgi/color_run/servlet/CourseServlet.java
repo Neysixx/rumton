@@ -1,6 +1,7 @@
 package fr.esgi.color_run.servlet;
 
 import java.io.*;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -8,10 +9,15 @@ import java.util.stream.Collectors;
 import fr.esgi.color_run.business.Cause;
 import fr.esgi.color_run.business.Course;
 import fr.esgi.color_run.business.Participant;
+import fr.esgi.color_run.business.Participation;
 import fr.esgi.color_run.service.CauseService;
 import fr.esgi.color_run.service.CourseService;
+import fr.esgi.color_run.service.ParticipantService;
+import fr.esgi.color_run.service.ParticipationService;
 import fr.esgi.color_run.service.impl.CauseServiceImpl;
 import fr.esgi.color_run.service.impl.CourseServiceImpl;
+import fr.esgi.color_run.service.impl.ParticipantServiceImpl;
+import fr.esgi.color_run.service.impl.ParticipationServiceImpl;
 import fr.esgi.color_run.util.DateUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
@@ -25,12 +31,14 @@ import org.thymeleaf.context.Context;
 public class CourseServlet extends BaseWebServlet {
     private CourseService courseService;
     private CauseService causeService;
+    private ParticipationService participationService;
 
     @Override
     public void init() {
         super.init();
         courseService = new CourseServiceImpl();
         causeService = new CauseServiceImpl();
+        participationService = new ParticipationServiceImpl();
     }
 
     /**
@@ -58,9 +66,20 @@ public class CourseServlet extends BaseWebServlet {
                                 course -> {
                                     try {
                                         Boolean isOrga = Boolean.parseBoolean(request.getAttribute("is_organisateur").toString());
+                                        Boolean isAdmin = Boolean.parseBoolean(request.getAttribute("is_admin").toString());
                                         context.setVariable("course", course);
-                                        context.setVariable("isAdmin", request.getAttribute("is_admin"));
+                                        context.setVariable("isAdmin", isAdmin);
                                         context.setVariable("isOrganisateur", isOrga);
+                                        if (isOrga || isAdmin){
+                                            // on met isInsrit à true, comme ça le bouton pour participer ne sera pas visible pour eux
+                                            context.setVariable("isInscrit", true);
+                                        }
+                                        else {
+                                            context.setVariable("isInscrit", participationService.isParticipantRegistered(getAuthenticatedParticipant(request).getIdParticipant(), courseId));
+
+                                        }
+                                        context.setVariable("participations", participationService.getParticipationsByCourse(courseId));
+
 
                                         if(Objects.equals(request.getServletPath(), "/courses")){
                                             renderTemplate(request, response, "courses/course_details", context);
