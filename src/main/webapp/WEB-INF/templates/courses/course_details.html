@@ -91,20 +91,16 @@
         </table>
     </section>
 
-    <section id="chat-section">
+    <section id="chat-section" th:if="${isInscrit}">
         <div class="form-container">
             <div class="messages" id="messageContainer">
                 <article class="me">
                     <em>Tom PELUD</em>
                     <p>Trop hâte de participer à la course</p>
                 </article>
-                <article>
-                    <em>Jacques CHIRAC</em>
-                    <p>Oui moi aussi ça va être trop bien</p>
-                </article>
-                <article>
-                    <em>Jacques CHIRAC</em>
-                    <p>Vous venez pour quelle heure ?</p>
+                <article th:each="message:${messages}" th:class="${message.getEmetteur().getIdParticipant() == participant.getIdParticipant() ? 'me' : ''}">
+                    <em th:text="${message.getEmetteur().getPrenom()} + ' ' + ${message.getEmetteur().getNom()}"></em>
+                    <p th:text="${message.getContenu()}"></p>
                 </article>
             </div>
             <input type="text" placeholder="Entrez votre message" name="message" id="messageContent" class="input-classic" required>

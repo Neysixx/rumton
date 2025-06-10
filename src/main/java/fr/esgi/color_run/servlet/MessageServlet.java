@@ -6,8 +6,10 @@ import fr.esgi.color_run.business.Message;
 import fr.esgi.color_run.business.Participant;
 import fr.esgi.color_run.service.CourseService;
 import fr.esgi.color_run.service.MessageService;
+import fr.esgi.color_run.service.ParticipationService;
 import fr.esgi.color_run.service.impl.CourseServiceImpl;
 import fr.esgi.color_run.service.impl.MessageServiceImpl;
+import fr.esgi.color_run.service.impl.ParticipationServiceImpl;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,12 +35,14 @@ public class MessageServlet extends BaseWebServlet {
 
     private MessageService messageService;
     private CourseService courseService;
+    private ParticipationService participationService;
 
     @Override
     public void init() {
         super.init();
         messageService = new MessageServiceImpl();
         courseService = new CourseServiceImpl();
+        participationService = new ParticipationServiceImpl();
     }
 
     /**
@@ -180,6 +184,11 @@ public class MessageServlet extends BaseWebServlet {
             Optional<Course> optCourse = courseService.getCourseById(courseId);
             if (optCourse.isEmpty()) {
                 renderError(request, response, "Course non trouvée avec l'ID " + courseId);
+                return;
+            }
+
+            if(!participationService.isParticipantRegistered(participant.getIdParticipant(), courseId)){
+                renderError(request, response, "Vous devez être inscrit à cette course pour pouvoir parler");
                 return;
             }
 
