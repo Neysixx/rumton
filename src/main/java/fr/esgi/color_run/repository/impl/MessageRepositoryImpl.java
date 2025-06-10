@@ -124,7 +124,7 @@ public class MessageRepositoryImpl implements MessageRepository {
     public List<Message> findByCourseId(int courseId) {
         System.out.println("DEBUG - Recherche messages par courseId: " + courseId);
         List<Message> messages = new ArrayList<>();
-        String sql = "SELECT * FROM MESSAGE WHERE id_course = ? AND id_message_parent IS NULL ORDER BY date_publication DESC";
+        String sql = "SELECT * FROM MESSAGE WHERE id_course = ? AND id_message_parent IS NULL ORDER BY date_publication ASC";
         try (Connection connection = DatabaseConnection.getProdConnection();
                 PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, courseId);

@@ -10,14 +10,8 @@ import fr.esgi.color_run.business.Cause;
 import fr.esgi.color_run.business.Course;
 import fr.esgi.color_run.business.Participant;
 import fr.esgi.color_run.business.Participation;
-import fr.esgi.color_run.service.CauseService;
-import fr.esgi.color_run.service.CourseService;
-import fr.esgi.color_run.service.ParticipantService;
-import fr.esgi.color_run.service.ParticipationService;
-import fr.esgi.color_run.service.impl.CauseServiceImpl;
-import fr.esgi.color_run.service.impl.CourseServiceImpl;
-import fr.esgi.color_run.service.impl.ParticipantServiceImpl;
-import fr.esgi.color_run.service.impl.ParticipationServiceImpl;
+import fr.esgi.color_run.service.*;
+import fr.esgi.color_run.service.impl.*;
 import fr.esgi.color_run.util.DateUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
@@ -32,6 +26,7 @@ public class CourseServlet extends BaseWebServlet {
     private CourseService courseService;
     private CauseService causeService;
     private ParticipationService participationService;
+    private MessageService messageService;
 
     @Override
     public void init() {
@@ -39,6 +34,7 @@ public class CourseServlet extends BaseWebServlet {
         courseService = new CourseServiceImpl();
         causeService = new CauseServiceImpl();
         participationService = new ParticipationServiceImpl();
+        messageService = new MessageServiceImpl();
     }
 
     /**
@@ -82,6 +78,7 @@ public class CourseServlet extends BaseWebServlet {
 
 
                                         if(Objects.equals(request.getServletPath(), "/courses")){
+                                            context.setVariable("messages", messageService.getMessagesByCourse(courseId));
                                             renderTemplate(request, response, "courses/course_details", context);
                                         } else {
                                             if(!isOrga){
