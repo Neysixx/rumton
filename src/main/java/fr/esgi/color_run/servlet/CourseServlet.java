@@ -1,7 +1,10 @@
 package fr.esgi.color_run.servlet;
 
 import java.io.*;
-import java.util.Objects;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import fr.esgi.color_run.business.Cause;
 import fr.esgi.color_run.business.Course;
@@ -30,26 +33,53 @@ public class CourseServlet extends BaseWebServlet {
         causeService = new CauseServiceImpl();
     }
 
+    private boolean isSameDay(Date d1, Date d2) {
+        Calendar c1 = Calendar.getInstance();
+        c1.setTime(d1);
+        Calendar c2 = Calendar.getInstance();
+        c2.setTime(d2);
+
+        return c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR) &&
+                c1.get(Calendar.MONTH) == c2.get(Calendar.MONTH) &&
+                c1.get(Calendar.DAY_OF_MONTH) == c2.get(Calendar.DAY_OF_MONTH);
+    }
+
+    private Comparator<Course> getComparator(String sort) {
+        if (sort == null || sort.isEmpty()) {
+            return Comparator.comparing(Course::getIdCourse);
+        }
+
+        if ("date-asc".equalsIgnoreCase(sort)) {
+            return Comparator.comparing(Course::getDateDepart);
+        } else if ("date-desc".equalsIgnoreCase(sort)) {
+            return Comparator.comparing(Course::getDateDepart).reversed();
+        } else if ("distance-asc".equalsIgnoreCase(sort)) {
+            return Comparator.comparing(Course::getDistance);
+        } else if ("distance-desc".equalsIgnoreCase(sort)) {
+            return Comparator.comparing(Course::getDistance).reversed();
+        } else if ("ville".equalsIgnoreCase(sort)) {
+            return Comparator.comparing(Course::getVille, String.CASE_INSENSITIVE_ORDER);
+        }
+
+        return Comparator.comparing(Course::getIdCourse);
+    }
+
     /**
      * Cette méthode est appelée lorsqu'une requête GET est envoyée vers le servlet
      */
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        // Vérification de l'authentification
         if (!isAuthenticated(request, response)) {
-            // faire redirection
+            return;
         }
 
         Context context = new Context();
-
-        // Vérification si nous avons un ID de course dans l'URL
         String pathInfo = request.getPathInfo();
+        String servletPath = request.getServletPath();
+
         if (pathInfo != null && pathInfo.length() > 1) {
             try {
-                // Extraction de l'ID de la course à partir de l'URL (/courses/{id})
                 int courseId = Integer.parseInt(pathInfo.substring(1));
-
-                // Récupérer une course spécifique
                 courseService.getCourseById(courseId)
                         .ifPresentOrElse(
                                 course -> {
@@ -58,9 +88,7 @@ public class CourseServlet extends BaseWebServlet {
                                         context.setVariable("isAdmin", request.getAttribute("is_admin"));
                                         context.setVariable("isOrganisateur", request.getAttribute("is_organisateur"));
                                         renderTemplate(request, response, "courses/course_details", context);
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    } catch (ServletException e) {
+                                    } catch (IOException | ServletException e) {
                                         e.printStackTrace();
                                     }
                                 },
@@ -75,26 +103,72 @@ public class CourseServlet extends BaseWebServlet {
             } catch (NumberFormatException e) {
                 renderError(request, response, "ID de course invalide");
             }
-        } else {
-            if(Objects.equals(request.getServletPath(), "/courses")){
-                // Ajout des courses à la vue
-                context.setVariable("courses", courseService.getAllCourses());
-                context.setVariable("isAdmin", request.getAttribute("is_admin"));
-                context.setVariable("isOrganisateur", request.getAttribute("is_organisateur"));
+            return;
+        }
 
-                // Rendu de la page
-                renderTemplate(request, response, "courses/list", context);
+        if (Objects.equals(servletPath, "/courses-create")) {
+            context.setVariable("causes", causeService.getAllCauses());
+            context.setVariable("isAdmin", request.getAttribute("is_admin"));
+            context.setVariable("isOrganisateur", request.getAttribute("is_organisateur"));
+            renderTemplate(request, response, "courses/createCourse", context);
+            return;
+        }
+
+        if (Objects.equals(servletPath, "/courses")) {
+            String dateStr = request.getParameter("date");
+            String ville = request.getParameter("city");
+            String distanceStr = request.getParameter("distance");
+            String sort = request.getParameter("sort");
+
+            if (ville != null && (ville.equals("all") || ville.equalsIgnoreCase("Toutes les villes"))) {
+                ville = "";
             }
-            else {
-                // create course
 
-                // récupération des causes
-                context.setVariable("causes", causeService.getAllCauses());
-                context.setVariable("isAdmin", request.getAttribute("is_admin"));
-                context.setVariable("isOrganisateur", request.getAttribute("is_organisateur"));
+            Date date = null;
+            Float minDistance = null;
+            Float maxDistance = null;
 
-                renderTemplate(request, response, "courses/createCourse", context);
+            try {
+                if (dateStr != null && !dateStr.isEmpty()) {
+                    date = new SimpleDateFormat("yyyy-MM-dd").parse(dateStr);
+                }
+                if (distanceStr != null && !distanceStr.isEmpty() && distanceStr.contains("-")) {
+                    String[] parts = distanceStr.split("-");
+                    minDistance = Float.parseFloat(parts[0]);
+                    maxDistance = Float.parseFloat(parts[1]);
+                }
+            } catch (ParseException | NumberFormatException e) {
+                renderError(request, response, "Paramètres de filtre invalides");
+                return;
             }
+
+            final Date finalDate = date;
+            final Float finalMinDistance = minDistance;
+            final Float finalMaxDistance = maxDistance;
+            final String finalVille = ville;
+
+            List<Course> filteredCourses = courseService.getAllCourses().stream()
+                    .filter(c -> finalDate == null || isSameDay(c.getDateDepart(), finalDate))
+                    .filter(c -> finalVille == null || finalVille.isEmpty() || c.getVille().equalsIgnoreCase(finalVille))
+                    .filter(c -> finalMinDistance == null || (c.getDistance() >= finalMinDistance && c.getDistance() <= finalMaxDistance))
+                    .sorted(getComparator(sort))
+                    .collect(Collectors.toList());
+
+            System.out.println("Courses trouvées : " + filteredCourses.size());
+
+            context.setVariable("courses", filteredCourses);
+            context.setVariable("isAdmin", request.getAttribute("is_admin"));
+            context.setVariable("isOrganisateur", request.getAttribute("is_organisateur"));
+
+            List<String> villes = courseService.getAllCourses().stream()
+                    .map(Course::getVille)
+                    .filter(Objects::nonNull)
+                    .distinct()
+                    .sorted()
+                    .collect(Collectors.toList());
+
+            context.setVariable("villes", villes);
+            renderTemplate(request, response, "courses/list", context);
         }
     }
 

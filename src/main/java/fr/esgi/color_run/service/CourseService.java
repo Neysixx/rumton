@@ -2,6 +2,7 @@ package fr.esgi.color_run.service;
 
 import fr.esgi.color_run.business.Course;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,4 +38,15 @@ public interface CourseService {
      * @param id L'identifiant du cours à supprimer
      */
     boolean deleteCourse(int id);
+
+    /**
+     * Renvoie une liste de courses filtrée et triée selon les critères fournis.
+     *
+     * @param date     La date exacte de départ souhaitée (peut être null pour ignorer ce critère)
+     * @param ville    Le nom de la ville où se déroule la course (peut être null pour ignorer ce critère)
+     * @param distance La distance exacte de la course en kilomètres (peut être null pour ignorer ce critère)
+     * @param sortBy   Le champ de tri souhaité : "date", "ville" ou "distance" (null ou valeur invalide = tri par ID)
+     * @return Une liste de courses filtrée et triée selon les critères fournis
+     */
+    List<Course> searchCourses(Date date, String ville, Float distance, String sortBy);
 }
