@@ -156,7 +156,8 @@ public class ParticipationServlet extends BaseWebServlet {
             // Récupérer la course
             Optional<Course> optCourse = courseService.getCourseById(courseId);
             if (optCourse.isEmpty()) {
-                throw new IllegalArgumentException("Course non trouvée avec l'ID " + courseId);
+                renderError(request, response, "Aucune course trouvée");
+                return;
             }
 
             Course course = optCourse.get();
@@ -164,12 +165,14 @@ public class ParticipationServlet extends BaseWebServlet {
             // Vérifier si la course n'est pas déjà complète
             int currentParticipations = participationService.getCountForCourse(courseId);
             if (currentParticipations >= course.getMaxParticipants()) {
-                throw new IllegalArgumentException("Cette course est complète, plus d'inscriptions possibles");
+                renderError(request, response, "Cette course est complète");
+                return;
             }
 
             // Vérifier si le participant n'est pas déjà inscrit
             if (participationService.isParticipantRegistered(participant.getIdParticipant(), courseId)) {
-                throw new IllegalArgumentException("Vous êtes déjà inscrit à cette course");
+                renderError(request, response, "Vous êtes deja inscrit à cette course");
+                return;
             }
 
             // Génération d'un numéro de dossard unique pour cette course
@@ -188,10 +191,8 @@ public class ParticipationServlet extends BaseWebServlet {
             // Enregistrement de la participation
             participationService.createParticipation(participation);
 
-            // Réponse
-            response.setStatus(HttpServletResponse.SC_CREATED);
-            response.getWriter()
-                    .write("{\"message\": \"Inscription réussie\", \"numeroDossard\": " + numeroDossard + "}");
+            // Redirection vers la liste des courses
+            response.sendRedirect(request.getContextPath() + "/courses/" + courseId);
 
         } catch (NumberFormatException e) {
             renderError(request, response, "Format de données invalide: " + e.getMessage());

@@ -116,7 +116,10 @@
 
     <section th:if="${!isInscrit}">
         <h3 th:text="'Total à payer : ' + ${course.getPrixParticipation()} + ' €'"></h3>
-        <button class="btn-primary">S'inscrire à la course</button>
+        <form action="/color_run_war_exploded/participations" method="post">
+            <input style="display: none" type="number" name="idCourse" th:value="${course.getIdCourse()}">
+            <button type="submit" class="btn-primary">S'inscrire à la course</button>
+        </form>
     </section>
 </div>
 <footer>
