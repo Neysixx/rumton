@@ -93,7 +93,7 @@
 
     <section id="chat-section">
         <div class="form-container">
-            <div class="messages">
+            <div class="messages" id="messageContainer">
                 <article class="me">
                     <em>Tom PELUD</em>
                     <p>Trop hâte de participer à la course</p>
@@ -107,10 +107,8 @@
                     <p>Vous venez pour quelle heure ?</p>
                 </article>
             </div>
-            <form action="" method="GET">
-                <input type="text" placeholder="Entrez votre message" name="message" class="input-classic" required>
-                <input type="submit" value="Envoyer" class="btn-primary">
-            </form>
+            <input type="text" placeholder="Entrez votre message" name="message" id="messageContent" class="input-classic" required>
+            <input th:attr="onclick=|postMessage(${course.getIdCourse()})|" type="submit" value="Envoyer" class="btn-primary" id="btnSendMessage">
         </div>
     </section>
 
@@ -143,5 +141,6 @@
     </div>
 </footer>
 <script src="/color_run_war_exploded/assets/js/main.js"></script>
+<script src="/color_run_war_exploded/assets/js/services/messages.js"></script>
 </body>
 </html>
