@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/color_run_war_exploded/assets/css/normalize.css">
+    <link rel="stylesheet" href="/color_run_war_exploded/assets/css/style.css">
+    <title>Rumton - Mot de passe oublié</title>
+</head>
+<body>
+    <div class="container-no-gap">
+        <header>
+            <nav>
+                <a href="#"><img src="/color_run_war_exploded/assets/img/logo.png" alt="logo rumton "></a>
+
+                <button id="menu-toggle" aria-label="Ouvrir le menu">&#9776;</button>
+
+                <ul id="nav-links">
+                    <li><a href="/color_run_war_exploded/">Accueil</a></li>
+                    <li><a href="/color_run_war_exploded/courses">Liste des courses</a></li>
+                    <li><a href="/color_run_war_exploded/login">Se connecter</a></li>
+                    <li><a class="btn-primary" href="/color_run_war_exploded/register">S'inscrire</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <section class="title-section" id="login-title-section">
+            <p>Venez vivre l'expérience unique de la Color Run dans votre ville</p>
+            <h1 th:text="${titre}">Mot de passe oublié</h1>
+        </section>
+
+        <section id="login-section">
+            
+            <!-- Étape 1 : Saisie de l'email -->
+            <div th:if="${step != null and step == 1}">
+                <form method="POST" class="form-container">
+                    <input type="hidden" name="step" value="1">
+                    
+                    <p th:text="${description}">Saisissez votre adresse email pour recevoir un code de réinitialisation</p>
+                    
+                    <div class="form-group">
+                        <label for="email">Adresse email :</label>
+                        <input type="email" placeholder="exemple@mail.fr" id="email" name="email" class="input-classic" required>
+                    </div>
+
+                    <div th:if="${error}" class="error-message" th:text="${error}"></div>
+
+                    <input type="submit" value="Envoyer le code" class="btn-primary">
+
+                    <p class="subLine">Vous vous souvenez de votre mot de passe ? <a href="/color_run_war_exploded/login">Se connecter</a></p>
+                </form>
+            </div>
+
+            <!-- Étape 2 : Saisie du code et nouveau mot de passe -->
+            <div th:if="${step != null and step == 2}">
+                <form method="POST" class="form-container">
+                    <input type="hidden" name="step" value="2">
+                    <input type="hidden" name="email" th:value="${email}">
+                    
+                    <p th:text="${description}">Saisissez le code reçu par email et votre nouveau mot de passe</p>
+                    
+                    <div class="form-group">
+                        <label for="email-display">Email :</label>
+                        <input type="email" id="email-display" th:value="${email}" class="input-classic" readonly style="background-color: #f5f5f5;">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="code">Code de vérification :</label>
+                        <input type="text" placeholder="Entrez le code reçu par email" id="code" name="code" class="input-classic" required maxlength="6" minlength="6">
+                        <small style="color: #666;">Le code à 6 chiffres envoyé à votre adresse email</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nouveauMotDePasse">Nouveau mot de passe :</label>
+                        <input type="password" placeholder="Nouveau mot de passe" id="nouveauMotDePasse" name="nouveauMotDePasse" class="input-classic" required minlength="6">
+                        <small style="color: #666;">Au moins 6 caractères</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmationMotDePasse">Confirmer le mot de passe :</label>
+                        <input type="password" placeholder="Confirmez le nouveau mot de passe" id="confirmationMotDePasse" name="confirmationMotDePasse" class="input-classic" required minlength="6">
+                    </div>
+
+                    <div th:if="${error}" class="error-message" th:text="${error}"></div>
+
+                    <input type="submit" value="Réinitialiser le mot de passe" class="btn-primary">
+
+                    <p class="subLine">Vous n'avez pas reçu le code ? <a href="#" onclick="window.location.reload()">Renvoyer</a></p>
+                    <p class="subLine">Retour à la <a href="/color_run_war_exploded/login">connexion</a></p>
+                </form>
+            </div>
+        </section>
+    </div>
+    
+    <footer>
+        <div class="footer-container">
+            <a href="#"><img src="/color_run_war_exploded/assets/img/logo.png" alt="logo rumton "></a>
+            <div class="text-container">
+                <h3>Liens utiles</h3>
+                <ul class="link-list">
+                    <li><a href="">A propos</a></li>
+                    <li><a href="">FAQ</a></li>
+                    <li><a href="">Nous contacter</a></li>
+                    <li><a href="">Mentions légales</a></li>
+                </ul>
+            </div>
+            <div class="icons-container">
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="69"  height="69"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-instagram"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 8a4 4 0 0 1 4 -4h8a4 4 0 0 1 4 4v8a4 4 0 0 1 -4 4h-8a4 4 0 0 1 -4 -4z" /><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M16.5 7.5v.01" /></svg>
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="69"  height="69"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-tiktok"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M21 7.917v4.034a9.948 9.948 0 0 1 -5 -1.951v4.5a6.5 6.5 0 1 1 -8 -6.326v4.326a2.5 2.5 0 1 0 4 2v-11.5h4.083a6.005 6.005 0 0 0 4.917 4.917z" /></svg>
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="69"  height="69"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-facebook"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 10v4h3v7h4v-7h3l1 -4h-4v-2a1 1 0 0 1 1 -1h3v-4h-3a5 5 0 0 0 -5 5v2h-3" /></svg>
+            </div>
+            <p class="self-end">2025 © Color Run par AH & FX. Tous les droits réservés</p>
+        </div>
+    </footer>
+    
+    <script src="/color_run_war_exploded/assets/js/main.js"></script>
+    <script>
+        // Validation côté client pour l'étape 2
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const nouveauMotDePasse = document.getElementById('nouveauMotDePasse');
+            const confirmationMotDePasse = document.getElementById('confirmationMotDePasse');
+            
+            if (nouveauMotDePasse && confirmationMotDePasse) {
+                function validatePasswords() {
+                    if (nouveauMotDePasse.value !== confirmationMotDePasse.value) {
+                        confirmationMotDePasse.setCustomValidity('Les mots de passe ne correspondent pas');
+                    } else {
+                        confirmationMotDePasse.setCustomValidity('');
+                    }
+                }
+                
+                nouveauMotDePasse.addEventListener('input', validatePasswords);
+                confirmationMotDePasse.addEventListener('input', validatePasswords);
+            }
+        });
+    </script>
+</body>
+</html> 

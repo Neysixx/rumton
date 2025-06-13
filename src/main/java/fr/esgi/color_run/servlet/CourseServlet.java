@@ -1,7 +1,6 @@
 package fr.esgi.color_run.servlet;
 
 import java.io.*;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -9,7 +8,6 @@ import java.util.stream.Collectors;
 import fr.esgi.color_run.business.Cause;
 import fr.esgi.color_run.business.Course;
 import fr.esgi.color_run.business.Participant;
-import fr.esgi.color_run.business.Participation;
 import fr.esgi.color_run.service.*;
 import fr.esgi.color_run.service.impl.*;
 import fr.esgi.color_run.util.DateUtil;
