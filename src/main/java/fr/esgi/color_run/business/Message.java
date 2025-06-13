@@ -15,6 +15,7 @@ public class Message {
     private Message messageParent; // Référence à un autre message (optionnel)
     private String contenu;
     private Date datePublication;
+    private String datePublicationStr;
     
     /**
      * Méthode toString personnalisée pour éviter les références circulaires

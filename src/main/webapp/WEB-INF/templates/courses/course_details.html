@@ -95,7 +95,7 @@
         <div class="form-container">
             <div class="messages" id="messageContainer">
                 <article th:each="message:${messages}" th:class="${message.getEmetteur().getIdParticipant() == participant.getIdParticipant() ? 'me' : ''}">
-                    <em th:text="${message.getEmetteur().getPrenom()} + ' ' + ${message.getEmetteur().getNom()} + ' ' + ${message.getDatePublication()}"></em>
+                    <em th:text="${message.getEmetteur().getPrenom()} + ' ' + ${message.getEmetteur().getNom()} + ' ' + ${message.getDatePublicationStr()}"></em>
                     <p th:text="${message.getContenu()}"></p>
                 </article>
             </div>
