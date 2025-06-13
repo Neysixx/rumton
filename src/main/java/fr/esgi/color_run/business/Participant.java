@@ -18,6 +18,7 @@ public class Participant {
     private String urlProfile;
     private boolean estOrganisateur;
     private Date dateCreation;
+    private boolean estVerifie;
 
     private List<Participation> participations;
 

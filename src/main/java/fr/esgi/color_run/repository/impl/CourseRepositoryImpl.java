@@ -75,6 +75,23 @@ public class CourseRepositoryImpl implements CourseRepository {
     }
 
     @Override
+    public List<Course> findByOrgaId(int orgaId) {
+        List<Course> courses = new ArrayList<>();
+        String sql = "SELECT * FROM COURSE WHERE id_organisateur = ?";
+        try (Connection connection = DatabaseConnection.getProdConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, orgaId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                courses.add(mapResultSetToCourse(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return courses;
+    }
+
+    @Override
     public void update(Course course) {
         String sql = "UPDATE COURSE SET nom = ?, description = ?, date_depart = ?, ville = ?, code_postal = ?, adresse = ?, distance = ?, max_participants = ?, prix_participation = ?, obstacles = ?, id_cause = ? WHERE id_course = ?";
         try (Connection connection = DatabaseConnection.getProdConnection();
@@ -89,7 +106,12 @@ public class CourseRepositoryImpl implements CourseRepository {
             stmt.setInt(8, course.getMaxParticipants());
             stmt.setFloat(9, course.getPrixParticipation());
             stmt.setString(10, course.getObstacles());
-            stmt.setInt(11, course.getCause().getIdCause());
+            if(course.getCause() != null){
+                stmt.setInt(11, course.getCause().getIdCause());
+            } else {
+                stmt.setNull(11, java.sql.Types.INTEGER);
+            }
+            stmt.setInt(12, course.getIdCourse());
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

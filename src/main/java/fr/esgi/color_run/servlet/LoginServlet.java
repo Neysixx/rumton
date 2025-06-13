@@ -6,14 +6,12 @@ import fr.esgi.color_run.repository.impl.AdminRepositoryImpl;
 import fr.esgi.color_run.repository.impl.ParticipantRepositoryImpl;
 import fr.esgi.color_run.service.LoginService;
 import fr.esgi.color_run.service.impl.LoginServiceImpl;
+import fr.esgi.color_run.util.CookieUtil;
 import fr.esgi.color_run.util.JwtUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.io.IOException;
@@ -74,12 +72,7 @@ public class LoginServlet extends BaseWebServlet  {
 
         if (token != null) {
             // Stockage du token dans un cookie sécurisé
-            Cookie jwtCookie = new Cookie("jwt_token", token);
-            jwtCookie.setHttpOnly(true);
-            jwtCookie.setMaxAge(24 * 60 * 60); // 24 heures en secondes
-            jwtCookie.setPath("/");
-            // jwtCookie.setSecure(true); // À décommenter en production pour HTTPS
-            response.addCookie(jwtCookie);
+            CookieUtil.setCookie(response, CookieUtil.JWT_COOKIE_NAME, token, CookieUtil.JWT_COOKIE_MAX_AGE);
 
             // Redirection vers la page liste des courses
             response.sendRedirect(request.getContextPath() + "/courses");

@@ -12,6 +12,10 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Servlet de base pour les servlets web utilisant Thymeleaf
@@ -52,7 +56,6 @@ public abstract class BaseWebServlet extends HttpServlet {
      */
     protected boolean isOrganisateur(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         if (request.getAttribute("is_organisateur") == null || !(boolean) request.getAttribute("is_organisateur")) {
-            renderError(request, response, "Accès réservé aux organisateurs");
             return false;
         }
         return true;
@@ -82,10 +85,12 @@ public abstract class BaseWebServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         boolean isAuthValue = this.isAuthenticated(request, response);
         boolean isAdminValue = this.isAdmin(request, response);
+        boolean isOrgaValue = this.isOrganisateur(request, response);
         Participant participant = getAuthenticatedParticipant(request);
         Admin admin = getAuthenticatedAdmin(request);
         context.setVariable("isAuth", isAuthValue);
         context.setVariable("isAdmin", isAdminValue);
+        context.setVariable("isOrga", isOrgaValue);
         context.setVariable("participant", participant);
         context.setVariable("admin", admin);
         templateEngine.process(templateName, context, response.getWriter());
@@ -98,5 +103,19 @@ public abstract class BaseWebServlet extends HttpServlet {
         Context context = new Context();
         context.setVariable("error", errorMessage);
         renderTemplate(request, response, "error", context);
+    }
+
+    protected Map<String, String> parseUrlEncodedBody(String body) throws UnsupportedEncodingException {
+        Map<String, String> params = new HashMap<>();
+        String[] pairs = body.split("&");
+        for (String pair : pairs) {
+            int idx = pair.indexOf("=");
+            if (idx > 0 && idx < pair.length() - 1) {
+                String key = URLDecoder.decode(pair.substring(0, idx), "UTF-8");
+                String value = URLDecoder.decode(pair.substring(idx + 1), "UTF-8");
+                params.put(key, value);
+            }
+        }
+        return params;
     }
 }

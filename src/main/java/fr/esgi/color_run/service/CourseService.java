@@ -28,6 +28,12 @@ public interface CourseService {
     List<Course> getAllCourses();
 
     /**
+     * Récupère la liste de tous les course d'un organisateur.
+     * @return Une liste de cours
+     */
+    List<Course> getCoursesByOrgaId(int idOrga);
+
+    /**
      * Met à jour les informations d'un cours existant.
      * @param course Le cours avec les informations mises à jour
      */

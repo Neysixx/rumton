@@ -49,11 +49,6 @@ public class RegisterAdminServlet extends HttpServlet {
         String motDePasse = request.getParameter("motDePasse");
         String confirmMotDePasse = request.getParameter("confirmMotDePasse");
 
-        System.out.println("DEBUG - Données Admin:");
-        System.out.println("Nom: " + nom);
-        System.out.println("Prénom: " + prenom);
-        System.out.println("Email: " + email);
-
         TemplateEngine templateEngine = (TemplateEngine) getServletContext().getAttribute("templateEngine");
         Context context = new Context();
 

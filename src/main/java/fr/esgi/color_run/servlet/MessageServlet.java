@@ -1,22 +1,25 @@
 package fr.esgi.color_run.servlet;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.esgi.color_run.business.Course;
 import fr.esgi.color_run.business.Message;
 import fr.esgi.color_run.business.Participant;
 import fr.esgi.color_run.service.CourseService;
 import fr.esgi.color_run.service.MessageService;
+import fr.esgi.color_run.service.ParticipationService;
 import fr.esgi.color_run.service.impl.CourseServiceImpl;
 import fr.esgi.color_run.service.impl.MessageServiceImpl;
+import fr.esgi.color_run.service.impl.ParticipationServiceImpl;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.thymeleaf.context.Context;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Servlet pour gérer les messages liés aux courses
@@ -32,12 +35,14 @@ public class MessageServlet extends BaseWebServlet {
 
     private MessageService messageService;
     private CourseService courseService;
+    private ParticipationService participationService;
 
     @Override
     public void init() {
         super.init();
         messageService = new MessageServiceImpl();
         courseService = new CourseServiceImpl();
+        participationService = new ParticipationServiceImpl();
     }
 
     /**
@@ -147,19 +152,22 @@ public class MessageServlet extends BaseWebServlet {
         }
 
         try {
+            BufferedReader reader = request.getReader();
+            String body = reader.lines().collect(Collectors.joining(System.lineSeparator()));
+            Map<String, String> params = parseUrlEncodedBody(body);
             Participant participant = getAuthenticatedParticipant(request);
             if (participant == null) {
                 renderError(request, response, "Impossible de récupérer les informations du participant");
                 return;
             }
 
-            String contenu = request.getParameter("contenu");
+            String contenu = params.get("contenu");
             if (contenu == null || contenu.trim().isEmpty()) {
                 renderError(request, response, "Le contenu du message est obligatoire");
                 return;
             }
 
-            String courseIdStr = request.getParameter("courseId");
+            String courseIdStr = params.get("courseId");
             if (courseIdStr == null || courseIdStr.trim().isEmpty()) {
                 renderError(request, response, "L'ID de course est obligatoire");
                 return;
@@ -176,6 +184,11 @@ public class MessageServlet extends BaseWebServlet {
             Optional<Course> optCourse = courseService.getCourseById(courseId);
             if (optCourse.isEmpty()) {
                 renderError(request, response, "Course non trouvée avec l'ID " + courseId);
+                return;
+            }
+
+            if(!participationService.isParticipantRegistered(participant.getIdParticipant(), courseId)){
+                renderError(request, response, "Vous devez être inscrit à cette course pour pouvoir parler");
                 return;
             }
 
@@ -208,8 +221,19 @@ public class MessageServlet extends BaseWebServlet {
 
             messageService.createMessage(message);
 
-            // Redirection vers la liste des messages de la course
-            response.sendRedirect(request.getContextPath() + "/messages?courseId=" + courseId);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.setStatus(HttpServletResponse.SC_OK);
+
+            // Créer une réponse simple
+            Map<String, Object> responseData = new HashMap<>();
+            responseData.put("message", message.getContenu());
+            responseData.put("sender", message.getEmetteur());
+            responseData.put("createdAt", message.getDatePublication());
+
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonResponse = mapper.writeValueAsString(responseData);
+            response.getWriter().write(jsonResponse);
 
         } catch (Exception e) {
             e.printStackTrace();

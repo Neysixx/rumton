@@ -60,4 +60,6 @@ public interface ParticipantService {
      * @return Le participant authentifié ou null
      */
     Participant authentifier(String email, String motDePasse);
+
+    void verifierParticipant(Participant participant);
 }
