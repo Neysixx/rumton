@@ -281,7 +281,7 @@ public class CourseServlet extends BaseWebServlet {
                 try{
                     latitude = Float.parseFloat(latitudeStr);
                 } catch (NumberFormatException e){
-                    return;
+                    latitude = null;
                 }
             } else {
                 latitude = null;
@@ -292,7 +292,7 @@ public class CourseServlet extends BaseWebServlet {
                 try{
                     longitude = Float.parseFloat(longitudeStr);
                 } catch (NumberFormatException e){
-                    return;
+                    longitude = null;
                 }
             } else {
                 longitude = null;

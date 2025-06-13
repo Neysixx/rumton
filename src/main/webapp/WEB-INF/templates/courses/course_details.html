@@ -76,7 +76,7 @@
         </div>
     </section>
 
-    <section th:if="${course.getLat() != null}">
+    <section th:if="${course.getLat() != 0.0 && course.getLon() != 0.0}">
         <h2>Départ de la course</h2>
         <iframe
                 id="mapIframe"

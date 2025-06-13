@@ -37,8 +37,16 @@ public class CourseRepositoryImpl implements CourseRepository {
             } else {
                 stmt.setNull(12, java.sql.Types.INTEGER);
             }
-            stmt.setFloat(13, course.getLat());
-            stmt.setFloat(14, course.getLon());
+            if(course.getLat() != null){
+                stmt.setFloat(13, course.getLat());
+            } else {
+                stmt.setNull(13, java.sql.Types.FLOAT);
+            }
+            if(course.getLon() != null){
+                stmt.setFloat(14, course.getLon());
+            } else {
+                stmt.setNull(14, java.sql.Types.FLOAT);
+            }
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
