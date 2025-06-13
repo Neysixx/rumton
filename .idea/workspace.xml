@@ -9,13 +9,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1b4e73a1-147b-4c72-ad2d-26c1741a7213" name="Changes" comment="feat(user): Add user management features including profile editing and user list">
+    <list default="true" id="1b4e73a1-147b-4c72-ad2d-26c1741a7213" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/filter/JwtAuthFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/filter/JwtAuthFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/LoginServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/LoginServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/RegisterServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/RegisterServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/VerificationServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/VerificationServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/util/JwtUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/util/JwtUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/CourseServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/CourseServlet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/WEB-INF/templates/auth/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/templates/auth/login.html" afterDir="false" />
     </list>
     <list id="23a118b8-4017-49f0-9088-572d087b5d4a" name="Changes by romai" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -98,10 +96,6 @@
       </MavenGeneralSettings>
     </option>
   </component>
-  <component name="MigrationScriptOptions">
-    <option name="ignoreImplicitObjects" value="true" />
-    <option name="ignoreSourceCode" value="false" />
-  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 7
 }</component>
@@ -127,7 +121,7 @@
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Tomcat Server.Tomcat 10.1.39.executor": "Run",
     "Tomcat Server.Tomcat 10.1.40.executor": "Run",
-    "git-widget-placeholder": "#12 on feat/email-verification",
+    "git-widget-placeholder": "develop",
     "go.import.settings.migrated": "true",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
@@ -149,8 +143,7 @@
     ],
     "RunConfigurationTargetLRU": [
       "885ace08-6efe-45f5-9dc8-c0bd83c883db",
-      "1a33dd68-b455-4bcc-a4c3-845bb5c24163",
-      "c17a6b2e-b45c-4d73-ad9f-25e81941725a"
+      "7b8d554b-61dc-4830-b154-2eeff51adccc"
     ]
   }
 }]]></component>
@@ -171,13 +164,95 @@
     <configuration name="script.sql (1)" type="DatabaseScript" editBeforeRun="true" temporary="true" nameIsGenerated="true">
       <script-file value="$PROJECT_DIR$/src/main/resources/script.sql" />
       <script-mode>FILE</script-mode>
-      <data-source id="c17a6b2e-b45c-4d73-ad9f-25e81941725a" />
+      <data-source id="7b8d554b-61dc-4830-b154-2eeff51adccc" />
       <method v="2" />
     </configuration>
     <configuration name="script.sql" type="DatabaseScript" editBeforeRun="true" temporary="true" nameIsGenerated="true">
       <script-file value="$PROJECT_DIR$/src/test/resources/script.sql" />
       <script-mode>FILE</script-mode>
       <data-source id="885ace08-6efe-45f5-9dc8-c0bd83c883db" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="color_run" />
+      <working_directory value="$PROJECT_DIR$" />
+      <go_parameters value="-i" />
+      <kind />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="GoTestRunConfiguration" factoryName="Go Test">
+      <module name="color_run" />
+      <working_directory value="$PROJECT_DIR$" />
+      <go_parameters value="-i" />
+      <kind />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="color_run" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="color_run" />
+      <option name="filePath" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <module name="color_run" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="Python.FlaskServer">
+      <module name="color_run" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="launchJavascriptDebuger" value="false" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="Tox" factoryName="Tox">
+      <module name="color_run" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <method v="2" />
     </configuration>
     <configuration name="Tomcat 10.1.40" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" APPLICATION_SERVER_NAME="Tomcat 10.1.40" ALTERNATIVE_JRE_ENABLED="false">
@@ -313,15 +388,7 @@
       <option name="project" value="LOCAL" />
       <updated>1742375105447</updated>
     </task>
-    <task id="LOCAL-00002" summary="feat(user): Add user management features including profile editing and user list">
-      <option name="closed" value="true" />
-      <created>1749456922240</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1749456922240</updated>
-    </task>
-    <option name="localTasksCounter" value="3" />
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -341,8 +408,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Init du projet" />
     <MESSAGE value="Feat : Ajout des services ( méthodes CRUD )" />
-    <MESSAGE value="feat(user): Add user management features including profile editing and user list" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(user): Add user management features including profile editing and user list" />
+    <option name="LAST_COMMIT_MESSAGE" value="Feat : Ajout des services ( méthodes CRUD )" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

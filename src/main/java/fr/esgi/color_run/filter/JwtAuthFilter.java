@@ -26,7 +26,7 @@ import java.util.Optional;
 public class JwtAuthFilter implements Filter {
 
     private AuthService authService;
-    private final List<String> PUBLIC_PATHS = Arrays.asList("/login", "/register", "/verify","/assets", "/favicon.ico", "/verify/resend", "/verify");
+    private final List<String> PUBLIC_PATHS = Arrays.asList("/login", "/register", "/verify","/assets", "/favicon.ico", "/verify/resend", "/verify", "/mot-de-passe-oublie");
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
