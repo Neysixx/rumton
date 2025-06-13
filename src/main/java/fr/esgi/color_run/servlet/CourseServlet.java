@@ -79,6 +79,7 @@ public class CourseServlet extends BaseWebServlet {
 
                                         if(Objects.equals(request.getServletPath(), "/courses")){
                                             context.setVariable("messages", messageService.getMessagesByCourse(courseId));
+                                            context.setVariable("numberParticipations", participationService.getParticipationsByCourse(courseId));
                                             renderTemplate(request, response, "courses/course_details", context);
                                         } else {
                                             if(!isOrga){
