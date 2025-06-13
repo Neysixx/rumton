@@ -221,6 +221,9 @@ public class CourseServlet extends BaseWebServlet {
                 renderError(request, response, "Le prix de participation est obligatoire");
                 return;
             }
+
+            String latitudeStr = request.getParameter("lat");
+            String longitudeStr = request.getParameter("long");
             
             String obstacles = request.getParameter("obstacles");
             // Obstacles true ou false
@@ -273,6 +276,28 @@ public class CourseServlet extends BaseWebServlet {
                 return;
             }
 
+            Float latitude;
+            if(latitudeStr != null){
+                try{
+                    latitude = Float.parseFloat(latitudeStr);
+                } catch (NumberFormatException e){
+                    return;
+                }
+            } else {
+                latitude = null;
+            }
+
+            Float longitude;
+            if(latitudeStr != null){
+                try{
+                    longitude = Float.parseFloat(longitudeStr);
+                } catch (NumberFormatException e){
+                    return;
+                }
+            } else {
+                longitude = null;
+            }
+
 
             Cause cause = null;
             if(idCauseStr != null){
@@ -306,6 +331,8 @@ public class CourseServlet extends BaseWebServlet {
                     .distance(distance)
                     .maxParticipants(maxParticipants)
                     .prixParticipation(prixParticipation)
+                    .lat(latitude)
+                    .lon(longitude)
                     .obstacles(isObstacles.toString())
                     .cause(cause)
                     .organisateur(organisateur)
