@@ -22,7 +22,6 @@ async function fetchWithParams(query) {
             throw new Error(`Erreur HTTP : ${response.status}`);
         }
         const data = await response.json();
-        console.log(data)
         return data.features; // on retourne juste le nom d'affichage
     } catch (error) {
         console.error("Erreur lors de la requête :", error);

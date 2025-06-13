@@ -76,6 +76,20 @@
         </div>
     </section>
 
+    <section th:if="${course.getLat() != null}">
+        <h2>Départ de la course</h2>
+        <iframe
+                id="mapIframe"
+                width="600"
+                height="450"
+                style="border:0"
+                loading="lazy"
+                allowfullscreen
+                referrerpolicy="no-referrer-when-downgrade"
+                th:src="'https://www.google.com/maps?q=' + ${course.lat} + ',' + ${course.lon} + '&hl=fr&z=15&output=embed'" >
+        </iframe>
+    </section>
+
     <section id="runner-list">
         <h2>Liste des participants</h2>
         <table>
