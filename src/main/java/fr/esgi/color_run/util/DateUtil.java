@@ -35,4 +35,11 @@ public class DateUtil {
         return localDateTime.format(formatter);
     }
 
+    public static String formatToMinute(Date date) {
+        LocalDateTime localDateTime = Instant.ofEpochMilli(date.getTime())
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+        return localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+    }
+
 }

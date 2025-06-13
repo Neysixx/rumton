@@ -9,6 +9,7 @@ import fr.esgi.color_run.service.CourseService;
 import fr.esgi.color_run.service.ParticipantService;
 import fr.esgi.color_run.service.impl.CourseServiceImpl;
 import fr.esgi.color_run.service.impl.ParticipantServiceImpl;
+import fr.esgi.color_run.util.DateUtil;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -261,6 +262,7 @@ public class MessageRepositoryImpl implements MessageRepository {
                 .contenu(rs.getString("contenu"))
                 .datePublication(rs.getTimestamp("date_publication"))
                 .build();
+        message.setDatePublicationStr(DateUtil.formatToMinute(message.getDatePublication()));
                 
         System.out.println("DEBUG - Message mappé: " + message.getIdMessage());
         return message;
