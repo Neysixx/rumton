@@ -95,7 +95,7 @@
         </table>
     </section>
 
-    <section id="chat-section" th:if="${isInscrit}">
+    <section id="chat-section" th:if="${isInscrit && !isOrganisateur && !isAdmin}">
         <div class="form-container">
             <div class="messages" id="messageContainer">
                 <article th:each="message:${messages}" th:class="${message.getEmetteur().getIdParticipant() == participant.getIdParticipant() ? 'me' : ''}">
@@ -108,12 +108,20 @@
         </div>
     </section>
 
-    <section th:if="${!isInscrit}">
+    <section th:if="${!isInscrit && !isOrganisateur && !isAdmin && isAuth}">
         <h3 th:text="'Total à payer : ' + ${course.getPrixParticipation()} + ' €'"></h3>
         <form action="/color_run_war_exploded/participations" method="post">
             <input style="display: none" type="number" name="idCourse" th:value="${course.getIdCourse()}">
             <button type="submit" class="btn-primary">S'inscrire à la course</button>
         </form>
+    </section>
+
+    <section th:if="${!isAuth}">
+        <div class="alert-info" style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; padding: 15px; margin: 20px 0; color: #856404;">
+            <p><strong>Information :</strong> Vous devez être connecté pour participer à une course.</p>
+            <a href="/color_run_war_exploded/login" class="btn-primary">Se connecter</a>
+            <a href="/color_run_war_exploded/register" class="btn-secondary">S'inscrire</a>
+        </div>
     </section>
 </div>
 <footer>
