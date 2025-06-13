@@ -94,12 +94,8 @@
     <section id="chat-section" th:if="${isInscrit}">
         <div class="form-container">
             <div class="messages" id="messageContainer">
-                <article class="me">
-                    <em>Tom PELUD</em>
-                    <p>Trop hâte de participer à la course</p>
-                </article>
                 <article th:each="message:${messages}" th:class="${message.getEmetteur().getIdParticipant() == participant.getIdParticipant() ? 'me' : ''}">
-                    <em th:text="${message.getEmetteur().getPrenom()} + ' ' + ${message.getEmetteur().getNom()}"></em>
+                    <em th:text="${message.getEmetteur().getPrenom()} + ' ' + ${message.getEmetteur().getNom()} + ' ' + ${message.getDatePublication()}"></em>
                     <p th:text="${message.getContenu()}"></p>
                 </article>
             </div>

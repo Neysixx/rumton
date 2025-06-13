@@ -14,6 +14,7 @@ async function postMessage (courseId) {
         },
         body: formData.toString()
     }).then(response => {
+        console.log(response)
         if (response.ok) {
             return response.json();
         }
@@ -22,7 +23,16 @@ async function postMessage (courseId) {
         let article = document.createElement("article");
         article.classList.add("me")
         let em = document.createElement("em");
-        em.textContent = data.sender.prenom + " " + data.sender.nom;
+        const date = new Date(data.createdAt);
+
+        const formatted = date.getFullYear() + '-' +
+            String(date.getMonth() + 1).padStart(2, '0') + '-' +
+            String(date.getDate()).padStart(2, '0') + ' ' +
+            String(date.getHours()).padStart(2, '0') + ':' +
+            String(date.getMinutes()).padStart(2, '0') + ':' +
+            String(date.getSeconds()).padStart(2, '0') + '.' +
+            String(date.getMilliseconds()).padStart(3, '0');
+        em.textContent = data.sender.prenom + " " + data.sender.nom + " " + formatted;
         let p = document.createElement("p");
         p.textContent = data.message;
         article.appendChild(em);
