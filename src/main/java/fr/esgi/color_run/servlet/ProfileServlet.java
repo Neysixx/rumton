@@ -4,14 +4,8 @@ import fr.esgi.color_run.business.Admin;
 import fr.esgi.color_run.business.Course;
 import fr.esgi.color_run.business.Participant;
 import fr.esgi.color_run.business.Participation;
-import fr.esgi.color_run.service.AdminService;
-import fr.esgi.color_run.service.CourseService;
-import fr.esgi.color_run.service.ParticipantService;
-import fr.esgi.color_run.service.ParticipationService;
-import fr.esgi.color_run.service.impl.AdminServiceImpl;
-import fr.esgi.color_run.service.impl.CourseServiceImpl;
-import fr.esgi.color_run.service.impl.ParticipantServiceImpl;
-import fr.esgi.color_run.service.impl.ParticipationServiceImpl;
+import fr.esgi.color_run.service.*;
+import fr.esgi.color_run.service.impl.*;
 import fr.esgi.color_run.util.CryptUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -47,6 +41,7 @@ public class ProfileServlet extends BaseWebServlet {
     private AdminService adminService;
     private CourseService courseService;
     private ParticipationService  participationService;
+    private DemandeOrganisateurService demandeOrganisateurService;
     private static final String UPLOAD_DIRECTORY = "uploads";
 
     @Override
@@ -56,6 +51,7 @@ public class ProfileServlet extends BaseWebServlet {
         adminService = new AdminServiceImpl();
         courseService = new CourseServiceImpl();
         participationService = new ParticipationServiceImpl();
+        demandeOrganisateurService = new DemandeOrganisateurServiceImpl();
         
         // Création du répertoire d'upload s'il n'existe pas
         String uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIRECTORY;
@@ -152,6 +148,7 @@ public class ProfileServlet extends BaseWebServlet {
                 context.setVariable("isPublicView", false);
                 context.setVariable("isAdmin", request.getAttribute("is_admin"));
                 context.setVariable("isOwnProfile", true);
+                context.setVariable("isDemandeExist", currentUser != null && demandeOrganisateurService.hasDemandeEnCours(currentUser.getIdParticipant()));
             }
             
             // Rendu de la page

@@ -26,7 +26,7 @@ import java.util.Optional;
 /**
  * Servlet pour gérer les demandes pour devenir organisateur
  */
-@WebServlet(name = "demandeOrganisateurServlet", value = {"/demandes", "/demandes/*"})
+@WebServlet(name = "demandeOrganisateurServlet", value = {"/demandes", "/demandes/*", "/demandes-create"})
 public class DemandeOrganisateurServlet extends BaseWebServlet {
 
     private DemandeOrganisateurService demandeService;
@@ -83,7 +83,7 @@ public class DemandeOrganisateurServlet extends BaseWebServlet {
                 renderTemplate(request, response, "demande-organisateur", context);
             }
             // URL pattern: /demandes
-            else {
+            else if(request.getServletPath().equals("/demandes")) {
                 boolean isAdmin = isAdmin(request, response);
                 Participant currentUser = getAuthenticatedParticipant(request);
                 
@@ -111,6 +111,8 @@ public class DemandeOrganisateurServlet extends BaseWebServlet {
                 context.setVariable("demandes", demandes);
                 
                 renderTemplate(request, response, "admin/demandesOrganisateurs", context);
+            } else if (request.getServletPath().equals("/demandes-create")) {
+                renderTemplate(request, response, "profile/demandeOrganisateur", context);
             }
             
         } catch (NumberFormatException e) {
@@ -166,10 +168,9 @@ public class DemandeOrganisateurServlet extends BaseWebServlet {
             
             // Enregistrement de la demande
             demandeService.createDemande(demande);
-            
-            // Réponse
-            response.setStatus(HttpServletResponse.SC_CREATED);
-            response.getWriter().write("{\"message\": \"Demande enregistrée avec succès\"}");
+
+            // Redirection vers la page liste des courses
+            response.sendRedirect(request.getContextPath() + "/profile");
             
         } catch (IllegalArgumentException e) {
             renderError(request, response, e.getMessage());
