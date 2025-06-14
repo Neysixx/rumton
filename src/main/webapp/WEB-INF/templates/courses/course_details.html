@@ -109,16 +109,49 @@
         </table>
     </section>
 
+    <!-- Section chat pour les participants inscrits -->
     <section id="chat-section" th:if="${isInscrit && !isOrganisateur && !isAdmin}">
+        <h2>Chat de la course</h2>
         <div class="form-container">
             <div class="messages" id="messageContainer">
                 <article th:each="message:${messages}" th:class="${message.getEmetteur().getIdParticipant() == participant.getIdParticipant() ? 'me' : ''}">
-                    <em th:text="${message.getEmetteur().getPrenom()} + ' ' + ${message.getEmetteur().getNom()} + ' ' + ${message.getDatePublicationStr()}"></em>
+                    <div class="message-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <em th:text="${message.getEmetteur().getPrenom()} + ' ' + ${message.getEmetteur().getNom()} + ' ' + ${message.getDatePublicationStr()}"></em>
+                    </div>
                     <p th:text="${message.getContenu()}"></p>
                 </article>
+                <div th:if="${messages.size() == 0}" style="text-align: center; color: #666; padding: 20px;">
+                    Aucun message pour le moment
+                </div>
             </div>
             <input type="text" placeholder="Entrez votre message" name="message" id="messageContent" class="input-classic" required>
             <input th:attr="onclick=|postMessage(${course.getIdCourse()})|" type="submit" value="Envoyer" class="btn-primary" id="btnSendMessage">
+        </div>
+    </section>
+
+    <section id="chat-section-organizer" th:if="${isOrganisateur}">
+        <h2>Messages des participants</h2>
+        <div class="form-container">
+            <div class="messages" id="messageContainerOrganizer">
+                <article th:each="message:${messages}">
+                    <div class="message-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <em th:text="${message.getEmetteur().getPrenom()} + ' ' + ${message.getEmetteur().getNom()} + ' ' + ${message.getDatePublicationStr()}"></em>
+                        <button class="delete-message-btn" 
+                                th:attr="data-message-id=${message.getIdMessage()}"
+                                style="background: #dc3545; color: white; border: none; border-radius: 3px; padding: 4px 8px; font-size: 12px; cursor: pointer;"
+                                title="Supprimer ce message">
+                            🗑️ Supprimer
+                        </button>
+                    </div>
+                    <p th:text="${message.getContenu()}"></p>
+                </article>
+                <div th:if="${messages.size() == 0}" style="text-align: center; color: #666; padding: 20px;">
+                    Aucun message pour le moment
+                </div>
+            </div>
+            <div class="organizer-info" style="background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px; padding: 15px; margin: 20px 0; color: #0d47a1;">
+                <p><strong>Information :</strong> En tant qu'organisateur, vous pouvez lire et supprimer les messages des participants, mais vous ne pouvez pas envoyer de messages.</p>
+            </div>
         </div>
     </section>
 
@@ -130,6 +163,14 @@
         </form>
     </section>
 
+    <!-- Message d'information pour les admins non organisateurs -->
+    <section th:if="${isAdmin && !isOrganisateur}">
+        <div class="alert-info" style="background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px; padding: 15px; margin: 20px 0; color: #0d47a1;">
+            <p><strong>Information :</strong> En tant qu'administrateur, vous ne pouvez pas participer aux courses.</p>
+        </div>
+    </section>
+    
+    <!-- Section pour les utilisateurs non connectés -->
     <section th:if="${!isAuth}">
         <div class="alert-info" style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; padding: 15px; margin: 20px 0; color: #856404;">
             <p><strong>Information :</strong> Vous devez être connecté pour participer à une course.</p>

@@ -150,7 +150,7 @@ public class CourseServlet extends BaseWebServlet {
                     }
                     
                     context.setVariable("causes", causeService.getAllCauses());
-                    renderTemplate(request, response, "courses/createCourse", context);
+                    renderTemplate(request, response, "courses/create_course", context);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
