@@ -41,6 +41,8 @@ CREATE TABLE IF NOT EXISTS COURSE (
                                       distance FLOAT,
                                       max_participants INT,
                                       prix_participation FLOAT,
+                                      lat FLOAT DEFAULT NULL,
+                                      lon FLOAT DEFAULT NULL,
                                       obstacles VARCHAR(10000),
                                       FOREIGN KEY (id_cause) REFERENCES CAUSE(id_cause) ON DELETE SET NULL,
                                       FOREIGN KEY (id_organisateur) REFERENCES PARTICIPANT(id_participant) ON DELETE SET NULL

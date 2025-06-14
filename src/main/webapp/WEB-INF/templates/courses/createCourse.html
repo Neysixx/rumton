@@ -63,6 +63,21 @@
       <input type="number" id="codePostal" name="codePostal" class="input-classic" required>
     </div>
 
+    <div class="form-group hide" id="map">
+      <iframe
+              id="mapIframe"
+              width="600"
+              height="450"
+              style="border:0"
+              loading="lazy"
+              allowfullscreen
+              referrerpolicy="no-referrer-when-downgrade"
+              src="https://www.google.com/maps?q=48.8584,2.2945&hl=fr&z=15&output=embed">
+      </iframe>
+      <input type="hidden" id="lat" name="lat">
+      <input type="hidden" id="long" name="long">
+    </div>
+
     <div class="form-group">
       <label for="description">Description de votre merveilleuse course*</label>
       <textarea name="description" id="description" class="text-area-classic" placeholder=""></textarea>
