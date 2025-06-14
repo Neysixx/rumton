@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * Servlet de gestion des causes
  */
-@WebServlet(name = "causeServlet", value = {"/causes", "/causes/*"})
+@WebServlet(name = "causeServlet", value = {"/causes", "/causes/*", "/causes-create"})
 public class CauseServlet extends BaseWebServlet {
 
     private CauseService causeService;
@@ -74,6 +74,11 @@ public class CauseServlet extends BaseWebServlet {
             } catch (NumberFormatException e) {
                 renderError(request, response, "ID de cause invalide");
             }
+        } else if (request.getServletPath().equals("/causes-create")) {
+            if(!isAdmin(request, response)) {
+                response.sendRedirect(request.getContextPath() + "/causes");
+            }
+            renderTemplate(request, response, "causes/create", context);
         } else {
             // Récupération des causes
             List<Cause> causes = causeService.getAllCauses();
