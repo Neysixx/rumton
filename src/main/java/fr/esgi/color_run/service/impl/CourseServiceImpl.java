@@ -71,7 +71,12 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public List<Course> getRecentCourses(int limit) {
-        return courseRepository.GetRecentCourses(limit);
+        return courseRepository.findRecentCourses(limit);
+    }
+
+    @Override
+    public List<Course> getCoursesByCauseId(int causeId) {
+        return courseRepository.findCoursesByCauseId(causeId);
     }
 
     @Override

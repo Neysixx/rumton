@@ -102,12 +102,29 @@ public class CourseRepositoryImpl implements CourseRepository {
     }
 
     @Override
-    public List<Course> GetRecentCourses(int limit) {
+    public List<Course> findRecentCourses(int limit) {
         List<Course> courses = new ArrayList<>();
         String sql = "SELECT * FROM COURSE ORDER BY date_depart DESC limit ?";
         try (Connection connection = DatabaseConnection.getProdConnection();
             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, limit);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                courses.add(mapResultSetToCourse(rs));
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return courses;
+    }
+
+    @Override
+    public List<Course> findCoursesByCauseId(int causeId) {
+        List<Course> courses = new ArrayList<>();
+        String sql = "SELECT * FROM COURSE WHERE id_cause = ?";
+        try (Connection connection = DatabaseConnection.getProdConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, causeId);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 courses.add(mapResultSetToCourse(rs));
