@@ -218,7 +218,7 @@ public class CauseServlet extends BaseWebServlet {
             causeService.deleteCause(causeId);
 
             // Redirection vers la liste des causes
-            response.sendRedirect(request.getContextPath() + "/causes");
+            response.setStatus(HttpServletResponse.SC_OK);
 
         } catch (NumberFormatException e) {
             renderError(request, response, "ID de cause invalide");

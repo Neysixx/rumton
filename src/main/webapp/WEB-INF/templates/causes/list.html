@@ -50,6 +50,7 @@
                 </div>
                 <div class="btn-containers">
                     <a th:if="${isAdmin}" th:href="'/color_run_war_exploded/causes-edit/' + ${cause.getIdCause()}" class="btn-primary">Modifier</a>
+                    <a th:if="${isAdmin}"  th:attr="onclick=|deleteCause(${cause.getIdCause()})|" class="btn-primary">Supprimer</a>
                     <a th:href="'/color_run_war_exploded/causes/' + ${cause.getIdCause()}" class="btn-secondary">Voir le détail</a>
                 </div>
             </article>
@@ -76,5 +77,6 @@
     </div>
 </footer>
 <script src="/color_run_war_exploded/assets/js/main.js"></script>
+<script src="/color_run_war_exploded/assets/js/services/causes.js"></script>
 </body>
 </html>

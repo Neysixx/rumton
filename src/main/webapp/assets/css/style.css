@@ -834,6 +834,12 @@ footer{
         gap: 2em;
         border-radius: 12px;
         border: solid 1px var(--primary-color);
+        .btn-containers{
+            display: flex;
+            justify-content: space-around;
+            gap: 1em;
+            flex-wrap: wrap !important;
+        }
     }
 }
 
