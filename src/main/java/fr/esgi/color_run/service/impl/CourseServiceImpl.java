@@ -70,6 +70,11 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    public List<Course> getRecentCourses(int limit) {
+        return courseRepository.GetRecentCourses(limit);
+    }
+
+    @Override
     public Course updateCourse(Course course) {
         if (course == null) {
             throw new IllegalArgumentException("La course ne peut pas être null");

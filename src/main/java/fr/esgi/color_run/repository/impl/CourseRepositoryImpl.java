@@ -102,6 +102,23 @@ public class CourseRepositoryImpl implements CourseRepository {
     }
 
     @Override
+    public List<Course> GetRecentCourses(int limit) {
+        List<Course> courses = new ArrayList<>();
+        String sql = "SELECT * FROM COURSE ORDER BY date_depart DESC limit ?";
+        try (Connection connection = DatabaseConnection.getProdConnection();
+            PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, limit);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                courses.add(mapResultSetToCourse(rs));
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return courses;
+    }
+
+    @Override
     public void update(Course course) {
         String sql = "UPDATE COURSE SET nom = ?, description = ?, date_depart = ?, ville = ?, code_postal = ?, adresse = ?, distance = ?, max_participants = ?, prix_participation = ?, obstacles = ?, id_cause = ?, lat = ?, lon = ? WHERE id_course = ?";
         try (Connection connection = DatabaseConnection.getProdConnection();
