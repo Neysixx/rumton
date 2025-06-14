@@ -15,10 +15,11 @@ function toggleNavBar() {
     }
 }
 
-btn.addEventListener("click", () => {
-    popover.style.display = popover.style.display === "block" ? "none" : "block";
-});
-
+if(btn){
+    btn.addEventListener("click", () => {
+        popover.style.display = popover.style.display === "block" ? "none" : "block";
+    });
+}
 document.addEventListener("click", (event) => {
     if (!btn.contains(event.target) && !popover.contains(event.target)) {
         popover.style.display = "none";
