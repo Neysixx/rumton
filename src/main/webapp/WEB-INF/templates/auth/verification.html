@@ -16,6 +16,7 @@
                 <ul id="nav-links">
                     <li><a href="/color_run_war_exploded/">Accueil</a></li>
                     <li><a href="/color_run_war_exploded/courses">Liste des courses</a></li>
+                    <li th:if="${isAuth}"><a href="/color_run_war_exploded/causes">Causes</a></li>
                     <li th:if="${!isAuth}"><a class="active" href="#">Se connecter</a></li>
                     <li th:if="${!isAuth}"><a class="btn-primary" href="/color_run_war_exploded/register">S'inscrire</a>
                     </li>

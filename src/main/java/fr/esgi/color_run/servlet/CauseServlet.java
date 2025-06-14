@@ -84,7 +84,7 @@ public class CauseServlet extends BaseWebServlet {
             context.setVariable("isOrganisateur", request.getAttribute("is_organisateur"));
 
             // Rendu de la page
-            renderTemplate(request, response, "causes", context);
+            renderTemplate(request, response, "causes/list", context);
         }
     }
 
@@ -103,31 +103,15 @@ public class CauseServlet extends BaseWebServlet {
         try {
             // Récupération du champ du formulaire
             String intitule = request.getParameter("intitule");
-            String[] coursesIds = request.getParameterValues("coursesIds"); // tableau d'IDs de courses
 
             // Validation
             if (intitule == null || intitule.trim().isEmpty()) {
                 renderError(request, response, "L'intitulé de la cause est obligatoire");
                 return;
             }
-
-            List<Course> selectedCourses = new ArrayList<>();
-
-            if (coursesIds != null) {
-                for (String idStr : coursesIds) {
-                    try {
-                        int id = Integer.parseInt(idStr);
-                        courseService.getCourseById(id).ifPresent(selectedCourses::add);
-                    } catch (NumberFormatException e) {
-                        System.err.println("ID de course invalide : " + idStr);
-                    }
-                }
-            }
-
             // Création de l'objet Cause
             Cause cause = Cause.builder()
                     .intitule(intitule.trim())
-                    .courses(selectedCourses)
                     .build();
 
             // Enregistrement

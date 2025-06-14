@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/color_run_war_exploded/assets/css/normalize.css">
     <link rel="stylesheet" href="/color_run_war_exploded/assets/css/style.css">
-    <title>Rumton - Liste des courses</title>
+    <title>Rumton - Liste des causes</title>
 </head>
 <body>
 <div class="container">
@@ -17,8 +17,8 @@
 
             <ul id="nav-links">
                 <li><a href="/color_run_war_exploded/">Accueil</a></li>
-                <li><a href="#" class="active">Liste des courses</a></li>
-                <li th:if="${isAuth}"><a href="/color_run_war_exploded/causes">Causes</a></li>
+                <li><a href="#">Liste des courses</a></li>
+                <li th:if="${isAuth}"><a class="active" href="/color_run_war_exploded/causes">Causes</a></li>
                 <li th:if="${!isAuth}"><a href="/color_run_war_exploded/login">Se connecter</a></li>
                 <li th:if="${!isAuth}"><a class="btn-primary" href="/color_run_war_exploded/register">S'inscrire</a></li>
                 <li th:if="${isAuth && isAdmin}"><a href="/color_run_war_exploded/participants">Liste des participants</a></li>
@@ -38,66 +38,23 @@
     </header>
 
     <section class="title-section" id="home-title-section">
-        <h1 th:if="${isOrganisateur}">La liste de toutes vos courses colorées</h1>
-        <h1 th:if="${isAdmin}">La liste de toutes les courses colorées (Admin)</h1>
-        <h1 th:if="${!isOrganisateur && !isAdmin}">La liste de toutes les courses colorées</h1>
-        <p th:if="${isOrganisateur}">Retrouvez et gérez vos courses colorées</p>
-        <p th:if="${!isOrganisateur}">Retrouvez toutes les courses colorées près de chez vous</p>
+        <h1>La liste de toutes les causes</h1>
+        <p>Retrouvez toutes les causes disponibles pour nos merveilleuses courses</p>
     </section>
 
-    <section id="list-courses">
-        <a th:if="${isOrganisateur}" th:href="'/color_run_war_exploded/courses-create'" class="btn-secondary" style="align-items: flex-start !important;justify-content: left;width: 125px !important;">Créer une course</a>
-        <form method="GET" id="filter-sort" class="form-container">
-            <div class="extend">
-                <div>
-                    <button type="button" id="filter-button" class="filter-sort-button">Filtre</button>
-                    <button type="button" id="sort-button" class="filter-sort-button">Trie</button>
-                </div>
-                <div>
-                    <div id="filter-content" class="hide filter-sort-content">
-                        <select name="city" id="city" class="input-classic" required>
-                            <option value="all" selected>Toutes les villes</option>
-                        </select>
-                        <select name="distance" id="distance" class="input-classic" required>
-                            <option value="all" selected>Toutes distances</option>
-                            <option value="5-10" >5 - 10 km</option>
-                            <option value="10-20" >10 - 20 km</option>
-                            <option value="20-30" >20 - 30 km</option>
-                            <option value="30-40" >30 - 40 km</option>
-                        </select>
-                    </div>
+    <section id="list-causes">
+        <a th:if="${isAdmin}" th:href="'/color_run_war_exploded/causes-create'" class="btn-secondary" style="align-items: flex-start !important;justify-content: left;width: 125px !important;">Créer une course</a>
 
-                    <div id="sort-content" class="hide filter-sort-content">
-                        <select name="sort" id="sort" class="input-classic" required>
-                            <option value="date-desc">Date &darr;</option>
-                            <option value="date-asc">Date &uarr;</option>
-                            <option value="distance-des">Distance &darr;</option>
-                            <option value="distance-asc">Distance &uarr;</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div>
-                <input type="submit" value="Rechercher" class="btn-primary">
-            </div>
-        </form>
-
-        <div class="courses-list">
-
-            <article th:each="course:${courses}">
-                <div class="image"></div>
+        <div class="causes-list">
+            <article th:each="cause:${causes}">
                 <div class="course-detail">
-                    <p th:text="${course.nom}"></p>
-                    <p th:text="${course.getDateDepartFormatted()}"></p>
-                    <p th:text="${course.distance} + ' km'"></p>
+                    <p th:text="${cause.getIntitule()}"></p>
                 </div>
                 <div class="btn-containers">
-                    <a th:if="${isOrganisateur}" th:href="'/color_run_war_exploded/courses-edit/' + ${course.getIdCourse()}" class="btn-primary">Modifier</a>
-                    <a th:href="'/color_run_war_exploded/courses/' + ${course.idCourse}" class="btn-secondary">Voir le détail</a>
-                    <a th:if="${!isOrganisateur && !isAdmin}" th:href="'/color_run_war_exploded/courses/' + ${course.idCourse}" class="btn-secondary">Participer</a>
+                    <a th:if="${isAdmin}" th:href="'/color_run_war_exploded/courses-edit/' + ${course.getIdCourse()}" class="btn-primary">Modifier</a>
+                    <a th:href="'/color_run_war_exploded/causes/' + ${cause.getIdCause()}" class="btn-secondary">Voir le détail</a>
                 </div>
             </article>
-
         </div>
     </section>
 </div>
@@ -122,6 +79,5 @@
     </div>
 </footer>
 <script src="/color_run_war_exploded/assets/js/main.js"></script>
-<script src="/color_run_war_exploded/assets/js/filterSort.js"></script>
 </body>
 </html>
