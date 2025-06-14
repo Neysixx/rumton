@@ -62,6 +62,7 @@ public class CauseServlet extends BaseWebServlet {
                                         if(request.getServletPath().equals("/causes-edit")) {
                                             renderTemplate(request, response, "causes/edit", context);
                                         }else{
+                                            context.setVariable("courses", courseService.getCoursesByCauseId(causeId));
                                             renderTemplate(request, response, "causes/cause_details", context);
                                         }
                                     } catch (IOException e) {

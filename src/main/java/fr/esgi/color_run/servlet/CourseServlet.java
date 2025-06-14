@@ -482,7 +482,9 @@ public class CourseServlet extends BaseWebServlet {
                 }
 
             }
-
+            if(cause != null){
+                course.setCause(cause);
+            }
             // Sauvegarde des modifications
             courseService.updateCourse(course);
             response.setStatus(HttpServletResponse.SC_OK);
