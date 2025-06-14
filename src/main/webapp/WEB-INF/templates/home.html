@@ -41,8 +41,8 @@
         <h1>Rejoignez une explosion de couleurs, de fun et d'énergie !</h1>
         <p>La Color Run, c'est bien  plus qu'une course : c'est une fête où chaque kilomètre devient un arc-en-ciel de bonheur. Que vous soyez coureur aguerri ou amateur de bonne humeur, vous êtes au bon endroit</p>
         <ul>
-            <li><a class="btn-primary" href="#">Découvir les courses</a></li>
-            <li><a class="btn-primary" href="#">Inscrivez-vous maintenant</a></li>
+            <li><a class="btn-primary" href="/color_run_war_exploded/courses">Découvir les courses</a></li>
+            <li><a class="btn-primary" href="/color_run_war_exploded/register">Inscrivez-vous maintenant</a></li>
         </ul>
     </section>
 
@@ -72,60 +72,24 @@
     <section id="home-next-step">
         <h2>Nos prochaines étapes colorées</h2>
         <div class="card-container">
-            <!-- DEBUT DONNEES MOCK -->
-            <article>
+            <article th:each="course:${courses}">
                 <div class="image"></div>
                 <div>
                     <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-map-pin"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z" /></svg>
-                    <p>Embrun</p>
+                    <p th:text="${course.getVille()}"></p>
                 </div>
                 <div>
                     <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-calendar"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" /><path d="M16 3v4" /><path d="M8 3v4" /><path d="M4 11h16" /><path d="M11 15h1" /><path d="M12 15v3" /></svg>
-                    <p>Dimanche 12 mai 2025</p>
+                    <p  th:text="${course.getDateDepartFormatted()}"></p>
                 </div>
                 <div class="btn-container">
-                    <button class="btn-secondary">
+                    <a th:href="'/color_run_war_exploded/courses/' + ${course.getIdCourse()}" class="btn-secondary">
                         Participer
-                    </button>
+                    </a>
                 </div>
             </article>
-
-            <article>
-                <div class="image"></div>
-                <div>
-                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-map-pin"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z" /></svg>
-                    <p>Embrun</p>
-                </div>
-                <div>
-                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-calendar"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" /><path d="M16 3v4" /><path d="M8 3v4" /><path d="M4 11h16" /><path d="M11 15h1" /><path d="M12 15v3" /></svg>
-                    <p>Dimanche 12 mai 2025</p>
-                </div>
-                <div class="btn-container">
-                    <button class="btn-secondary">
-                        Participer
-                    </button>
-                </div>
-            </article>
-
-            <article>
-                <div class="image"></div>
-                <div>
-                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-map-pin"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z" /></svg>
-                    <p>Embrun</p>
-                </div>
-                <div>
-                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-calendar"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" /><path d="M16 3v4" /><path d="M8 3v4" /><path d="M4 11h16" /><path d="M11 15h1" /><path d="M12 15v3" /></svg>
-                    <p>Dimanche 12 mai 2025</p>
-                </div>
-                <div class="btn-container">
-                    <button class="btn-secondary">
-                        Participer
-                    </button>
-                </div>
-            </article>
-            <!-- FIN DONNEES MOCK -->
         </div>
-        <a href="" class="discover-more">Découvrir plus d'évênements <span>&rightarrow;</span></a>
+        <a href="/color_run_war_exploded/courses" class="discover-more">Découvrir plus d'évênements <span>&rightarrow;</span></a>
     </section>
 
     <section id="home-join-adventure" class="section-base-style">
@@ -140,8 +104,8 @@
             </ul>
             <p>Alors, qu'attendez-vous ? Faites partie des milliers de coureurs qui partagent cette aventure incroyable !</p>
             <ul class="list-btn">
-                <li><a class="btn-primary" href="#">Découvir les courses</a></li>
-                <li><a class="btn-primary" href="#">Inscrivez-vous maintenant</a></li>
+                <li><a class="btn-primary" href="/color_run_war_exploded/courses">Découvir les courses</a></li>
+                <li><a class="btn-primary" href="/color_run_war_exploded/register">Inscrivez-vous maintenant</a></li>
             </ul>
         </div>
     </section>
@@ -158,10 +122,6 @@
                 <li>Partager des moments uniques avec l'équipe et les coureurs.</li>
             </ul>
             <p>En échange, vous vivrez une expérience enrichissante et recevrez un kit souvenir pour votre engagement. Merci de votre aide précieuse !</p>
-            <ul class="list-btn">
-                <li><a class="btn-primary" href="#">Rejoindre l'équipe de bénévole</a></li>
-                <li><a class="btn-primary" href="#">En savoir plus sur le bénévolat</a></li>
-            </ul>
         </div>
     </section>
 </div>

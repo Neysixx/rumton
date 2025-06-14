@@ -9,6 +9,7 @@ public interface CourseRepository {
     Optional<Course> findById(int id);
     List<Course> findAll();
     List<Course> findByOrgaId(int orgaId);
+    List<Course> GetRecentCourses(int limit);
     void update(Course course);
     void delete(int id);
 }
