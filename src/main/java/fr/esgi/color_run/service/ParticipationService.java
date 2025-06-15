@@ -58,6 +58,14 @@ public interface ParticipationService {
      * @return true si le participant est inscrit, false sinon
      */
     boolean isParticipantRegistered(int participantId, int courseId);
+
+    /**
+     * Récupère l'id de la participation a partir le la course Id et du participant
+     * @param participantId L'ID du participant
+     * @param courseId L'ID de la course
+     * @return l'id de la participation
+     */
+    int getParticipationIdByCourseAndParticipant(int courseId, int participantId);
     
     /**
      * Récupère le dernier numéro de dossard utilisé pour une course

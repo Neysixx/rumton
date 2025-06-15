@@ -81,6 +81,11 @@ public class CourseServlet extends BaseWebServlet {
                                         } else if (isAuthenticated) {
                                             // Participants peuvent participer
                                             boolean isInscrit = participationService.isParticipantRegistered(getAuthenticatedParticipant(request).getIdParticipant(), courseId);
+                                            if(isInscrit) {
+                                                // id de la participation pour télécharger le dossard
+                                                int participationId = participationService.getParticipationIdByCourseAndParticipant(courseId, getAuthenticatedParticipant(request).getIdParticipant());
+                                                context.setVariable("participationId", participationId);
+                                            }
                                             context.setVariable("isInscrit", isInscrit);
                                             context.setVariable("canParticipate", !isInscrit);
                                         } else {
