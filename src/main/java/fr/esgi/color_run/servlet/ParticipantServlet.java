@@ -20,10 +20,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static fr.esgi.color_run.util.CryptUtil.hashPassword;
+
 /**
  * Servlet pour gérer les participants
  */
-@WebServlet(name = "participantServlet", value = {"/participants", "/participants/*"})
+@WebServlet(name = "participantServlet", value = {"/participants", "/participants/*", "/participant-create"})
 public class ParticipantServlet extends BaseWebServlet {
 
     private AuthService authService;
@@ -79,6 +81,10 @@ public class ParticipantServlet extends BaseWebServlet {
 
                 renderTemplate(request, response, "admin/editUser", context);
             }
+            // URL pattern: /participant-create
+            else if (request.getServletPath().equals("/participant-create")) {
+                renderTemplate(request, response, "admin/createUser", context);
+            }
             // URL pattern: /participants
             else {
                 // Récupération de tous les participants
@@ -98,6 +104,69 @@ public class ParticipantServlet extends BaseWebServlet {
         } catch (Exception e) {
             e.printStackTrace();
             renderError(request, response, "Une erreur est survenue: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Traite les requêtes POST pour créer un participant
+     * le mot de passe sera rempli par default en "Password123!"
+     * Si l'utilisateur créer veux se connecter il devra soit connaitre ce mot de passe
+     * ou utiliser mot de passe oublié
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Vérification de l'authentification
+        if (!isAuthenticated(request, response)) {
+            renderError(request, response, "Utilisateur non authentifié");
+            return;
+        }
+
+        if(!isAdmin(request,response)) {
+            renderError(request, response, "Accès non autorisé");
+            return;
+        }
+
+        // Récupération des paramètres du formulaire
+        String nom = request.getParameter("nom");
+        String prenom = request.getParameter("prenom");
+        String email = request.getParameter("email");
+        String role = request.getParameter("role");
+        String defaultPassword = "Password123!";
+
+        Context context = new Context();
+
+        // Validation des données
+        if (nom == null || prenom == null || email == null || nom.isEmpty() || prenom.isEmpty() || email.isEmpty() || role.isEmpty()) {
+            context.setVariable("error", "Tous les champs sont obligatoires");
+            renderTemplate(request, response, "admin/createUser", context);
+            return;
+        }
+
+        // Vérification si l'email est déjà utilisé
+        if (participantService.existsByEmail(email)) {
+            context.setVariable("error", "Cette adresse email est déjà utilisée");
+            renderTemplate(request, response, "admin/createUser", context);
+            return;
+        }
+
+        // Création du participant
+        Participant participant = Participant.builder()
+                .nom(nom)
+                .prenom(prenom)
+                .email(email)
+                .motDePasse(hashPassword(defaultPassword))
+                .estOrganisateur(role.equals("organisateur"))
+                .dateCreation(new Date())
+                .estVerifie(true)
+                .build();
+
+        try {
+            participantService.creerParticipant(participant);
+            // Redirection vers la liste des utilisateur
+            response.sendRedirect(request.getContextPath() + "/participants");
+        } catch (Exception e) {
+            context.setVariable("error", "Une erreur est survenue lors de l'inscription: " + e.getMessage());
+            renderTemplate(request, response, "admin/createUser", context);
         }
     }
 
