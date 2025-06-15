@@ -13,9 +13,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Servlet pour gérer les participants
@@ -99,10 +102,10 @@ public class ParticipantServlet extends BaseWebServlet {
     }
 
     /**
-     * Traite les requêtes POST pour mettre à jour un participant
+     * Traite les requêtes PUT pour mettre à jour un participant
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Vérification de l'authentification
         if (!isAuthenticated(request, response)) {
             renderError(request, response, "Utilisateur non authentifié");
@@ -110,6 +113,9 @@ public class ParticipantServlet extends BaseWebServlet {
         }
         
         try {
+            BufferedReader reader = request.getReader();
+            String body = reader.lines().collect(Collectors.joining(System.lineSeparator()));
+            Map<String, String> params = parseUrlEncodedBody(body);
             // Vérification du chemin
             String pathInfo = request.getPathInfo();
             if (pathInfo == null || !pathInfo.matches("/\\d+")) {
@@ -136,17 +142,17 @@ public class ParticipantServlet extends BaseWebServlet {
             }
             
             // Mise à jour des champs
-            String nom = request.getParameter("nom");
+            String nom = params.get("nom");
             if (nom != null && !nom.trim().isEmpty()) {
                 participant.setNom(nom);
             }
             
-            String prenom = request.getParameter("prenom");
+            String prenom = params.get("prenom");
             if (prenom != null && !prenom.trim().isEmpty()) {
                 participant.setPrenom(prenom);
             }
             
-            String email = request.getParameter("email");
+            String email = params.get("email");
             if (email != null && !email.trim().isEmpty() && !email.equals(participant.getEmail())) {
                 // Vérifier que l'email n'est pas déjà utilisé
                 if (participantService.existsByEmail(email)) {
@@ -158,7 +164,7 @@ public class ParticipantServlet extends BaseWebServlet {
             
             // Seul l'admin peut modifier ces champs
             if (isAdmin) {
-                String role = request.getParameter("role");
+                String role = params.get("role");
                 if (role != null) {
                     boolean estOrganisateur = role.equals("organisateur");
                     participant.setEstOrganisateur(estOrganisateur);
@@ -169,7 +175,7 @@ public class ParticipantServlet extends BaseWebServlet {
             participantService.updateParticipant(participant);
             
             // Réponse
-            response.sendRedirect(request.getContextPath() + "/participants");
+            response.setStatus(HttpServletResponse.SC_OK);
             
         } catch (NumberFormatException e) {
             renderError(request, response, "Format d'ID invalide");
