@@ -4,14 +4,8 @@ import fr.esgi.color_run.business.Admin;
 import fr.esgi.color_run.business.Course;
 import fr.esgi.color_run.business.Participant;
 import fr.esgi.color_run.business.Participation;
-import fr.esgi.color_run.service.AdminService;
-import fr.esgi.color_run.service.CourseService;
-import fr.esgi.color_run.service.ParticipantService;
-import fr.esgi.color_run.service.ParticipationService;
-import fr.esgi.color_run.service.impl.AdminServiceImpl;
-import fr.esgi.color_run.service.impl.CourseServiceImpl;
-import fr.esgi.color_run.service.impl.ParticipantServiceImpl;
-import fr.esgi.color_run.service.impl.ParticipationServiceImpl;
+import fr.esgi.color_run.service.*;
+import fr.esgi.color_run.service.impl.*;
 import fr.esgi.color_run.util.CryptUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -47,7 +41,10 @@ public class ProfileServlet extends BaseWebServlet {
     private AdminService adminService;
     private CourseService courseService;
     private ParticipationService  participationService;
+    private DemandeOrganisateurService demandeOrganisateurService;
     private static final String UPLOAD_DIRECTORY = "uploads";
+    private static final String[] ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif"};
+    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
     @Override
     public void init() {
@@ -56,6 +53,7 @@ public class ProfileServlet extends BaseWebServlet {
         adminService = new AdminServiceImpl();
         courseService = new CourseServiceImpl();
         participationService = new ParticipationServiceImpl();
+        demandeOrganisateurService = new DemandeOrganisateurServiceImpl();
         
         // Création du répertoire d'upload s'il n'existe pas
         String uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIRECTORY;
@@ -152,6 +150,7 @@ public class ProfileServlet extends BaseWebServlet {
                 context.setVariable("isPublicView", false);
                 context.setVariable("isAdmin", request.getAttribute("is_admin"));
                 context.setVariable("isOwnProfile", true);
+                context.setVariable("isDemandeExist", currentUser != null && demandeOrganisateurService.hasDemandeEnCours(currentUser.getIdParticipant()));
             }
             
             // Rendu de la page
@@ -258,27 +257,41 @@ public class ProfileServlet extends BaseWebServlet {
             // Traitement de la photo de profil
             Part filePart = request.getPart("profilePicture");
             if (filePart != null && filePart.getSize() > 0) {
-                String fileName = getFileName(filePart);
-                
-                if (fileName != null && !fileName.trim().isEmpty()) {
-                    // Génération d'un nom de fichier unique
-                    String extension = fileName.substring(fileName.lastIndexOf('.'));
-                    String uniqueFileName = UUID.randomUUID().toString() + extension;
+                try {
+                    validateImageFile(filePart);
                     
-                    // Chemin du fichier upload
-                    String uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIRECTORY;
-                    Path filePath = Paths.get(uploadPath, uniqueFileName);
+                    String fileName = getFileName(filePart);
                     
-                    // Sauvegarde du fichier
-                    Files.copy(filePart.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-                    
-                    // Mise à jour de l'URL de profil
-                    if(admin == null) {
-                        participant.setUrlProfile(UPLOAD_DIRECTORY + File.separator + uniqueFileName);
+                    if (fileName != null && !fileName.trim().isEmpty()) {
+                        // Supprimer l'ancienne photo de profil
+                        String oldUrlProfile = admin != null ? admin.getUrlProfile() : participant.getUrlProfile();
+                        deleteOldProfilePicture(oldUrlProfile);
+                        
+                        // Génération d'un nom de fichier unique
+                        String extension = fileName.substring(fileName.lastIndexOf('.'));
+                        String uniqueFileName = UUID.randomUUID().toString() + extension;
+                        
+                        // Chemin du fichier upload
+                        String uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIRECTORY;
+                        Path filePath = Paths.get(uploadPath, uniqueFileName);
+                        
+                        // Sauvegarde du fichier
+                        Files.copy(filePart.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+                        
+                        // URL relative pour la base de données
+                        String relativeUrl = "/color_run_war_exploded/" + UPLOAD_DIRECTORY + "/" + uniqueFileName;
+                        
+                        // Mise à jour de l'URL de profil
+                        if(admin == null) {
+                            participant.setUrlProfile(relativeUrl);
+                        }
+                        else {
+                            admin.setUrlProfile(relativeUrl);
+                        }
                     }
-                    else {
-                        admin.setUrlProfile(UPLOAD_DIRECTORY + File.separator + uniqueFileName);
-                    }
+                } catch (IllegalArgumentException e) {
+                    renderError(request, response, e.getMessage());
+                    return;
                 }
             }
             
@@ -310,5 +323,50 @@ public class ProfileServlet extends BaseWebServlet {
             }
         }
         return "";
+    }
+
+    /**
+     * Valide le fichier image uploadé
+     */
+    private void validateImageFile(Part filePart) throws IllegalArgumentException {
+        if (filePart.getSize() > MAX_FILE_SIZE) {
+            throw new IllegalArgumentException("Le fichier est trop volumineux. Taille maximale : 5MB");
+        }
+        
+        String fileName = getFileName(filePart);
+        if (fileName == null || fileName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Nom de fichier invalide");
+        }
+        
+        String extension = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
+        boolean isValidExtension = false;
+        for (String allowedExt : ALLOWED_EXTENSIONS) {
+            if (extension.equals(allowedExt)) {
+                isValidExtension = true;
+                break;
+            }
+        }
+        
+        if (!isValidExtension) {
+            throw new IllegalArgumentException("Type de fichier non autorisé. Extensions autorisées : jpg, jpeg, png, gif");
+        }
+    }
+    
+    /**
+     * Supprime l'ancienne photo de profil si elle existe
+     */
+    private void deleteOldProfilePicture(String oldUrlProfile) {
+        if (oldUrlProfile != null && !oldUrlProfile.contains("defaultProfile.png")) {
+            try {
+                String realPath = getServletContext().getRealPath("") + File.separator + oldUrlProfile.replace("/", File.separator);
+                File oldFile = new File(realPath);
+                if (oldFile.exists()) {
+                    oldFile.delete();
+                }
+            } catch (Exception e) {
+                // Log l'erreur mais ne pas interrompre le processus
+                System.err.println("Erreur lors de la suppression de l'ancienne photo : " + e.getMessage());
+            }
+        }
     }
 }

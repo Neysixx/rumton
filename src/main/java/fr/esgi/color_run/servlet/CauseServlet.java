@@ -12,14 +12,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.thymeleaf.context.Context;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Servlet de gestion des causes
  */
-@WebServlet(name = "causeServlet", value = {"/causes", "/causes/*"})
+@WebServlet(name = "causeServlet", value = {"/causes", "/causes/*", "/causes-create", "/causes-edit/*"})
 public class CauseServlet extends BaseWebServlet {
 
     private CauseService causeService;
@@ -56,7 +59,12 @@ public class CauseServlet extends BaseWebServlet {
                                         context.setVariable("cause", cause);
                                         context.setVariable("isAdmin", request.getAttribute("is_admin"));
                                         context.setVariable("isOrganisateur", request.getAttribute("is_organisateur"));
-                                        renderTemplate(request, response, "cause_details", context);
+                                        if(request.getServletPath().equals("/causes-edit")) {
+                                            renderTemplate(request, response, "causes/edit", context);
+                                        }else{
+                                            context.setVariable("courses", courseService.getCoursesByCauseId(causeId));
+                                            renderTemplate(request, response, "causes/cause_details", context);
+                                        }
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     } catch (ServletException e) {
@@ -74,6 +82,11 @@ public class CauseServlet extends BaseWebServlet {
             } catch (NumberFormatException e) {
                 renderError(request, response, "ID de cause invalide");
             }
+        } else if (request.getServletPath().equals("/causes-create")) {
+            if(!isAdmin(request, response)) {
+                response.sendRedirect(request.getContextPath() + "/causes");
+            }
+            renderTemplate(request, response, "causes/create", context);
         } else {
             // Récupération des causes
             List<Cause> causes = causeService.getAllCauses();
@@ -84,7 +97,7 @@ public class CauseServlet extends BaseWebServlet {
             context.setVariable("isOrganisateur", request.getAttribute("is_organisateur"));
 
             // Rendu de la page
-            renderTemplate(request, response, "causes", context);
+            renderTemplate(request, response, "causes/list", context);
         }
     }
 
@@ -103,31 +116,15 @@ public class CauseServlet extends BaseWebServlet {
         try {
             // Récupération du champ du formulaire
             String intitule = request.getParameter("intitule");
-            String[] coursesIds = request.getParameterValues("coursesIds"); // tableau d'IDs de courses
 
             // Validation
             if (intitule == null || intitule.trim().isEmpty()) {
                 renderError(request, response, "L'intitulé de la cause est obligatoire");
                 return;
             }
-
-            List<Course> selectedCourses = new ArrayList<>();
-
-            if (coursesIds != null) {
-                for (String idStr : coursesIds) {
-                    try {
-                        int id = Integer.parseInt(idStr);
-                        courseService.getCourseById(id).ifPresent(selectedCourses::add);
-                    } catch (NumberFormatException e) {
-                        System.err.println("ID de course invalide : " + idStr);
-                    }
-                }
-            }
-
             // Création de l'objet Cause
             Cause cause = Cause.builder()
                     .intitule(intitule.trim())
-                    .courses(selectedCourses)
                     .build();
 
             // Enregistrement
@@ -154,6 +151,9 @@ public class CauseServlet extends BaseWebServlet {
         }
 
         try {
+            BufferedReader reader = request.getReader();
+            String body = reader.lines().collect(Collectors.joining(System.lineSeparator()));
+            Map<String, String> params = parseUrlEncodedBody(body);
             // Extraction de l'ID de la cause à partir de l'URL
             String pathInfo = request.getPathInfo();
             if (pathInfo == null || pathInfo.length() <= 1) {
@@ -168,33 +168,15 @@ public class CauseServlet extends BaseWebServlet {
                     .orElseThrow(() -> new IllegalArgumentException("Cause non trouvée avec l'ID " + causeId));
 
             // Mise à jour de l'intitulé
-            String intitule = request.getParameter("intitule");
+            String intitule = params.get("intitule");
             if (intitule != null && !intitule.trim().isEmpty()) {
                 cause.setIntitule(intitule.trim());
-            }
-
-            // Mise à jour des courses associées
-            String[] coursesIds = request.getParameterValues("coursesIds");
-            if (coursesIds != null) {
-                List<Course> selectedCourses = new ArrayList<>();
-
-                for (String idStr : coursesIds) {
-                    try {
-                        int id = Integer.parseInt(idStr);
-                        courseService.getCourseById(id).ifPresent(selectedCourses::add);
-                    } catch (NumberFormatException e) {
-                        System.err.println("ID de course invalide : " + idStr);
-                    }
-                }
-
-                cause.setCourses(selectedCourses);
             }
 
             // Enregistrement des modifications
             causeService.updateCause(cause);
 
-            // Redirection vers la page de détails de la cause
-            response.sendRedirect(request.getContextPath() + "/causes/" + causeId);
+            response.setStatus(HttpServletResponse.SC_OK);
 
         } catch (NumberFormatException e) {
             renderError(request, response, "ID de cause invalide");
@@ -236,7 +218,7 @@ public class CauseServlet extends BaseWebServlet {
             causeService.deleteCause(causeId);
 
             // Redirection vers la liste des causes
-            response.sendRedirect(request.getContextPath() + "/causes");
+            response.setStatus(HttpServletResponse.SC_OK);
 
         } catch (NumberFormatException e) {
             renderError(request, response, "ID de cause invalide");

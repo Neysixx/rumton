@@ -13,10 +13,10 @@ import java.util.stream.Collectors;
 import fr.esgi.color_run.business.Cause;
 import fr.esgi.color_run.business.Course;
 import fr.esgi.color_run.business.Participant;
-import fr.esgi.color_run.business.Participation;
 import fr.esgi.color_run.service.*;
 import fr.esgi.color_run.service.impl.*;
 import fr.esgi.color_run.util.DateUtil;
+import fr.esgi.color_run.util.DebugUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
@@ -83,6 +83,23 @@ public class CourseServlet extends BaseWebServlet {
         }
 
         Context context = new Context();
+
+        final Boolean isAuthenticated = isAuthenticated(request, response);
+        final Boolean isOrganisateur;
+        final Boolean isAdmin;
+
+        if (isAuthenticated) {
+            isOrganisateur = Boolean.parseBoolean(request.getAttribute("is_organisateur").toString());
+            isAdmin = Boolean.parseBoolean(request.getAttribute("is_admin").toString());
+        } else {
+            isOrganisateur = false;
+            isAdmin = false;
+        }
+
+        context.setVariable("isAdmin", isAdmin);
+        context.setVariable("isOrganisateur", isOrganisateur);
+
+        // Vérification si nous avons un ID de course dans l'URL
         String pathInfo = request.getPathInfo();
         String servletPath = request.getServletPath();
 
@@ -96,33 +113,39 @@ public class CourseServlet extends BaseWebServlet {
                         .ifPresentOrElse(
                                 course -> {
                                     try {
-                                        Boolean isOrga = Boolean.parseBoolean(request.getAttribute("is_organisateur").toString());
-                                        Boolean isAdmin = Boolean.parseBoolean(request.getAttribute("is_admin").toString());
                                         context.setVariable("course", course);
-                                        context.setVariable("isAdmin", isAdmin);
-                                        context.setVariable("isOrganisateur", isOrga);
-                                        if (isOrga || isAdmin){
-                                            // on met isInsrit à true, comme ça le bouton pour participer ne sera pas visible pour eux
+                                        
+                                        // Gestion selon les rôles pour l'affichage des détails
+                                        if (isOrganisateur || isAdmin) {
+                                            // Organisateurs et admins ne peuvent pas participer
                                             context.setVariable("isInscrit", true);
+                                            context.setVariable("canParticipate", false);
+                                        } else if (isAuthenticated) {
+                                            // Participants peuvent participer
+                                            boolean isInscrit = participationService.isParticipantRegistered(getAuthenticatedParticipant(request).getIdParticipant(), courseId);
+                                            context.setVariable("isInscrit", isInscrit);
+                                            context.setVariable("canParticipate", !isInscrit);
+                                        } else {
+                                            // Utilisateurs non authentifiés
+                                            context.setVariable("isInscrit", false);
+                                            context.setVariable("canParticipate", false);
                                         }
-                                        else {
-                                            context.setVariable("isInscrit", participationService.isParticipantRegistered(getAuthenticatedParticipant(request).getIdParticipant(), courseId));
-
-                                        }
+                                        
                                         context.setVariable("participations", participationService.getParticipationsByCourse(courseId));
-
 
                                         if(Objects.equals(request.getServletPath(), "/courses")){
                                             context.setVariable("messages", messageService.getMessagesByCourse(courseId));
+                                            context.setVariable("numberParticipations", participationService.getParticipationsByCourse(courseId));
                                             renderTemplate(request, response, "courses/course_details", context);
                                         } else {
-                                            if(!isOrga){
+                                            // Page d'édition - vérifications pour organisateurs uniquement
+                                            if(!isOrganisateur){
                                                 renderError(request, response, "Vous ne pouvez pas modifier une course si vous n'êtes pas organisateur");
                                                 return;
                                             }
                                             int userId = Integer.parseInt(request.getAttribute("user_id").toString());
                                             if(userId != course.getOrganisateur().getIdParticipant()){
-                                                renderError(request, response, "Vous ne pouvez pas modifier une course qui ne vous appartiens pas");
+                                                renderError(request, response, "Vous ne pouvez pas modifier une course qui ne vous appartient pas");
                                                 return;
                                             }
                                             course.setDateDepartFormatted(DateUtil.formatDateForDatetimeLocalInput(course.getDateDepart()));
@@ -215,17 +238,17 @@ public class CourseServlet extends BaseWebServlet {
                 renderTemplate(request, response, "courses/list", context);
             }
             else if (Objects.equals(request.getServletPath(), "/courses-create")) {
-                // create course
-                Boolean isOrga = Boolean.parseBoolean(request.getAttribute("is_organisateur").toString());
-                if(!isOrga){
-                    renderError(request, response, "Vous ne pouvez pas créer de course si vous n'êtes pas organisateur");
+                    // Création de course - uniquement pour organisateurs
+                    if(!isOrganisateur){
+                        renderError(request, response, "Vous ne pouvez pas créer de course si vous n'êtes pas organisateur");
+                        return;
+                    }
+                    
+                    context.setVariable("causes", causeService.getAllCauses());
+                    renderTemplate(request, response, "courses/createCourse", context);
                 }
-                // récupération des causes
-                context.setVariable("causes", causeService.getAllCauses());
-                context.setVariable("isAdmin", request.getAttribute("is_admin"));
-                context.setVariable("isOrganisateur", isOrga);
-
-                renderTemplate(request, response, "courses/createCourse", context);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
@@ -293,6 +316,9 @@ public class CourseServlet extends BaseWebServlet {
                 renderError(request, response, "Le prix de participation est obligatoire");
                 return;
             }
+
+            String latitudeStr = request.getParameter("lat");
+            String longitudeStr = request.getParameter("long");
             
             String obstacles = request.getParameter("obstacles");
             // Obstacles true ou false
@@ -345,6 +371,28 @@ public class CourseServlet extends BaseWebServlet {
                 return;
             }
 
+            Float latitude;
+            if(latitudeStr != null){
+                try{
+                    latitude = Float.parseFloat(latitudeStr);
+                } catch (NumberFormatException e){
+                    latitude = null;
+                }
+            } else {
+                latitude = null;
+            }
+
+            Float longitude;
+            if(latitudeStr != null){
+                try{
+                    longitude = Float.parseFloat(longitudeStr);
+                } catch (NumberFormatException e){
+                    longitude = null;
+                }
+            } else {
+                longitude = null;
+            }
+
 
             Cause cause = null;
             if(idCauseStr != null){
@@ -378,6 +426,8 @@ public class CourseServlet extends BaseWebServlet {
                     .distance(distance)
                     .maxParticipants(maxParticipants)
                     .prixParticipation(prixParticipation)
+                    .lat(latitude)
+                    .lon(longitude)
                     .obstacles(isObstacles.toString())
                     .cause(cause)
                     .organisateur(organisateur)
@@ -527,7 +577,9 @@ public class CourseServlet extends BaseWebServlet {
                 }
 
             }
-
+            if(cause != null){
+                course.setCause(cause);
+            }
             // Sauvegarde des modifications
             courseService.updateCourse(course);
             response.setStatus(HttpServletResponse.SC_OK);

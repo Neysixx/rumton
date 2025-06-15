@@ -34,6 +34,20 @@ public interface CourseService {
     List<Course> getCoursesByOrgaId(int idOrga);
 
     /**
+     * Récupère une liste de course triés par plus récent.
+     * @param limit le nombre de courses souhaités
+     * @return Une liste de cours
+     */
+    List<Course> getRecentCourses(int limit);
+
+    /**
+     * Récupère les courses d'une cause.
+     * @param causeId l'id de la cause
+     * @return Une liste de cours
+     */
+    List<Course> getCoursesByCauseId(int causeId);
+
+    /**
      * Met à jour les informations d'un cours existant.
      * @param course Le cours avec les informations mises à jour
      */

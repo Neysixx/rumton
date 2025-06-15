@@ -23,6 +23,12 @@ public class Participant {
     private List<Participation> participations;
 
     public String getUrlProfile() {
-        return urlProfile != null ? urlProfile : "/color_run_war_exploded/assets/img/defaultProfile.png";
+        if (urlProfile != null && !urlProfile.trim().isEmpty()) {
+            if (urlProfile.startsWith("/color_run_war_exploded/")) {
+                return urlProfile;
+            }
+            return "/color_run_war_exploded/uploads/" + urlProfile;
+        }
+        return "/color_run_war_exploded/assets/img/defaultProfile.png";
     }
 }

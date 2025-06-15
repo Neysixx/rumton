@@ -18,7 +18,7 @@ import java.util.Date;
 public class CourseRepositoryImpl implements CourseRepository {
     @Override
     public void save(Course course) {
-        String sql = "INSERT INTO COURSE (nom, description, date_depart, ville, code_postal, adresse, distance, max_participants, prix_participation, obstacles, id_organisateur, id_cause) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO COURSE (nom, description, date_depart, ville, code_postal, adresse, distance, max_participants, prix_participation, obstacles, id_organisateur, id_cause, lat, lon) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection connection = DatabaseConnection.getProdConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, course.getNom());
@@ -36,6 +36,16 @@ public class CourseRepositoryImpl implements CourseRepository {
                 stmt.setInt(12, course.getCause().getIdCause());
             } else {
                 stmt.setNull(12, java.sql.Types.INTEGER);
+            }
+            if(course.getLat() != null){
+                stmt.setFloat(13, course.getLat());
+            } else {
+                stmt.setNull(13, java.sql.Types.FLOAT);
+            }
+            if(course.getLon() != null){
+                stmt.setFloat(14, course.getLon());
+            } else {
+                stmt.setNull(14, java.sql.Types.FLOAT);
             }
             stmt.executeUpdate();
         } catch (SQLException e) {
@@ -92,8 +102,42 @@ public class CourseRepositoryImpl implements CourseRepository {
     }
 
     @Override
+    public List<Course> findRecentCourses(int limit) {
+        List<Course> courses = new ArrayList<>();
+        String sql = "SELECT * FROM COURSE ORDER BY date_depart DESC limit ?";
+        try (Connection connection = DatabaseConnection.getProdConnection();
+            PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, limit);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                courses.add(mapResultSetToCourse(rs));
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return courses;
+    }
+
+    @Override
+    public List<Course> findCoursesByCauseId(int causeId) {
+        List<Course> courses = new ArrayList<>();
+        String sql = "SELECT * FROM COURSE WHERE id_cause = ?";
+        try (Connection connection = DatabaseConnection.getProdConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, causeId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                courses.add(mapResultSetToCourse(rs));
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return courses;
+    }
+
+    @Override
     public void update(Course course) {
-        String sql = "UPDATE COURSE SET nom = ?, description = ?, date_depart = ?, ville = ?, code_postal = ?, adresse = ?, distance = ?, max_participants = ?, prix_participation = ?, obstacles = ?, id_cause = ? WHERE id_course = ?";
+        String sql = "UPDATE COURSE SET nom = ?, description = ?, date_depart = ?, ville = ?, code_postal = ?, adresse = ?, distance = ?, max_participants = ?, prix_participation = ?, obstacles = ?, id_cause = ?, lat = ?, lon = ? WHERE id_course = ?";
         try (Connection connection = DatabaseConnection.getProdConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, course.getNom());
@@ -112,6 +156,8 @@ public class CourseRepositoryImpl implements CourseRepository {
                 stmt.setNull(11, java.sql.Types.INTEGER);
             }
             stmt.setInt(12, course.getIdCourse());
+            stmt.setFloat(13, course.getLat());
+            stmt.setFloat(14, course.getLon());
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -161,6 +207,8 @@ public class CourseRepositoryImpl implements CourseRepository {
                 .distance(rs.getFloat("distance"))
                 .maxParticipants(rs.getInt("max_participants"))
                 .prixParticipation(rs.getFloat("prix_participation"))
+                .lat(rs.getFloat("lat"))
+                .lon(rs.getFloat("lon"))
                 .obstacles(rs.getString("obstacles"))
                 .organisateur(organisateur)
                 .cause(cause.orElse(null))

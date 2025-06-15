@@ -1,5 +1,6 @@
 package fr.esgi.color_run.servlet;
 
+import fr.esgi.color_run.service.CourseService;
 import fr.esgi.color_run.service.impl.CauseServiceImpl;
 import fr.esgi.color_run.service.impl.CourseServiceImpl;
 import jakarta.servlet.ServletException;
@@ -18,9 +19,12 @@ import java.io.IOException;
 @WebServlet(name = "homeServlet", value = "")
 public class HomeServlet extends BaseWebServlet {
 
+    private CourseService courseService;
+
     @Override
     public void init() {
         super.init();
+        courseService = new CourseServiceImpl();
     }
 
     /**
@@ -31,6 +35,7 @@ public class HomeServlet extends BaseWebServlet {
 
         // Création du contexte Thymeleaf
         Context context = new Context();
+        context.setVariable("courses", courseService.getRecentCourses(3));
 
         // Rendu de la page
         renderTemplate(request, response, "home", context);

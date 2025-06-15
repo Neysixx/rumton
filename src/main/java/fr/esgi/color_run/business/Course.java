@@ -26,6 +26,8 @@ public class Course {
     private float distance;
     private int maxParticipants;
     private float prixParticipation;
+    private Float lat;
+    private Float lon;
     private String obstacles;
 
     private List<Participation> participations; // Liste des participations

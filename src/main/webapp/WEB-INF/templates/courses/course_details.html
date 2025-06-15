@@ -17,7 +17,8 @@
 
             <ul id="nav-links">
                 <li><a href="/color_run_war_exploded/">Accueil</a></li>
-                <li><a href="#" class="active">Liste des courses</a></li>
+                <li><a href="/color_run_war_exploded/courses" class="active">Liste des courses</a></li>
+                <li th:if="${isAuth}"><a href="/color_run_war_exploded/causes">Causes</a></li>
                 <li th:if="${!isAuth}"><a href="/color_run_war_exploded/login">Se connecter</a></li>
                 <li th:if="${!isAuth}"><a class="btn-primary" href="/color_run_war_exploded/register">S'inscrire</a></li>
                 <li th:if="${isAuth && isAdmin}"><a href="/color_run_war_exploded/participants">Liste des participants</a></li>
@@ -54,6 +55,10 @@
                 <p th:text="${course.getAdresse()} + ', ' + ${course.getCodePostal()} + ' ' + ${course.getVille()}"></p>
             </article>
             <article>
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="80"  height="80"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-user"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
+                <p th:text="${numberParticipations.size() + '/' + course.getMaxParticipants()}"></p>
+            </article>
+            <article>
                 <svg  xmlns="http://www.w3.org/2000/svg"  width="80"  height="80"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-calendar"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" /><path d="M16 3v4" /><path d="M8 3v4" /><path d="M4 11h16" /><path d="M11 15h1" /><path d="M12 15v3" /></svg>
                 <p th:text="${course.getDateDepartFormatted()}" ></p>
             </article>
@@ -70,6 +75,19 @@
                 <p th:text="${course.getCause().getIntitule()}"></p>
             </article>
         </div>
+    </section>
+
+    <section th:if="${course.getLat() != 0.0 && course.getLon() != 0.0}">
+        <h2>Départ de la course</h2>
+        <iframe
+                id="mapIframe"
+                height="450"
+                style="border:0; width: 100%"
+                loading="lazy"
+                allowfullscreen
+                referrerpolicy="no-referrer-when-downgrade"
+                th:src="'https://www.google.com/maps?q=' + ${course.lat} + ',' + ${course.lon} + '&hl=fr&z=15&output=embed'" >
+        </iframe>
     </section>
 
     <section id="runner-list">
@@ -91,15 +109,11 @@
         </table>
     </section>
 
-    <section id="chat-section" th:if="${isInscrit}">
+    <section id="chat-section" th:if="${isInscrit && !isOrganisateur && !isAdmin}">
         <div class="form-container">
             <div class="messages" id="messageContainer">
-                <article class="me">
-                    <em>Tom PELUD</em>
-                    <p>Trop hâte de participer à la course</p>
-                </article>
                 <article th:each="message:${messages}" th:class="${message.getEmetteur().getIdParticipant() == participant.getIdParticipant() ? 'me' : ''}">
-                    <em th:text="${message.getEmetteur().getPrenom()} + ' ' + ${message.getEmetteur().getNom()}"></em>
+                    <em th:text="${message.getEmetteur().getPrenom()} + ' ' + ${message.getEmetteur().getNom()} + ' ' + ${message.getDatePublicationStr()}"></em>
                     <p th:text="${message.getContenu()}"></p>
                 </article>
             </div>
@@ -108,12 +122,20 @@
         </div>
     </section>
 
-    <section th:if="${!isInscrit}">
+    <section th:if="${!isInscrit && !isOrganisateur && !isAdmin && isAuth}">
         <h3 th:text="'Total à payer : ' + ${course.getPrixParticipation()} + ' €'"></h3>
         <form action="/color_run_war_exploded/participations" method="post">
             <input style="display: none" type="number" name="idCourse" th:value="${course.getIdCourse()}">
             <button type="submit" class="btn-primary">S'inscrire à la course</button>
         </form>
+    </section>
+
+    <section th:if="${!isAuth}">
+        <div class="alert-info" style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; padding: 15px; margin: 20px 0; color: #856404;">
+            <p><strong>Information :</strong> Vous devez être connecté pour participer à une course.</p>
+            <a href="/color_run_war_exploded/login" class="btn-primary">Se connecter</a>
+            <a href="/color_run_war_exploded/register" class="btn-secondary">S'inscrire</a>
+        </div>
     </section>
 </div>
 <footer>

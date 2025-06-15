@@ -18,6 +18,7 @@
             <ul id="nav-links">
                 <li><a href="/color_run_war_exploded/">Accueil</a></li>
                 <li><a href="/color_run_war_exploded/courses">Liste des courses</a></li>
+                <li th:if="${isAuth}"><a href="/color_run_war_exploded/causes">Causes</a></li>
                 <li th:if="${!isAuth}"><a href="/color_run_war_exploded/login">Se connecter</a></li>
                 <li th:if="${!isAuth}"><a class="btn-primary" href="/color_run_war_exploded/register">S'inscrire</a></li>
                 <li th:if="${isAuth && isAdmin}"><a href="/color_run_war_exploded/participants">Liste des participants</a></li>
@@ -43,6 +44,29 @@
 
     <section id="update-profile-section" class="mt-2">
         <form method="POST" class="form-container" enctype="multipart/form-data">
+            
+            <!-- Section photo de profil -->
+            <div class="form-group profile-picture-section" style="text-align: center; margin-bottom: 30px;">
+                <label for="profilePicture">Photo de profil:</label>
+                <div class="profile-picture-container" style="position: relative; display: inline-block; margin: 15px 0;">
+                    <img id="profilePreview" th:src="${user.getUrlProfile()}" alt="Photo de profil" 
+                         style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 3px solid #ddd;">
+                    <div class="profile-picture-overlay" style="position: absolute; bottom: 0; right: 0; background: #007bff; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer;"
+                         onclick="document.getElementById('profilePicture').click();">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708L14.5 5.207l-3-3L12.146.146zm-.793 1.207l-6.5 6.5a.5.5 0 0 0-.122.295L4.5 9.5l1.35-.232a.5.5 0 0 0 .295-.122l6.5-6.5-3-3z"/>
+                            <path d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                        </svg>
+                    </div>
+                </div>
+                <input type="file" id="profilePicture" name="profilePicture" accept="image/jpeg,image/jpg,image/png,image/gif" 
+                       style="display: none;" onchange="previewImage(this)">
+                <div class="file-info" style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                    <p>Formats acceptés : JPEG, PNG, GIF (max 5MB)</p>
+                    <p id="selectedFileName" style="color: #007bff; font-weight: bold;"></p>
+                </div>
+            </div>
+
             <div id="form-first-line">
                 <div class="form-group">
                     <label for="firstname">Prénom:</label>
@@ -95,5 +119,70 @@
 </footer>
 <script src="/color_run_war_exploded/assets/js/register.js"></script>
 <script src="/color_run_war_exploded/assets/js/main.js"></script>
+<script>
+    function previewImage(input) {
+        const file = input.files[0];
+        const preview = document.getElementById('profilePreview');
+        const fileName = document.getElementById('selectedFileName');
+        
+        if (file) {
+            // Validation de la taille
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            if (file.size > maxSize) {
+                alert('Le fichier est trop volumineux. Taille maximale : 5MB');
+                input.value = '';
+                return;
+            }
+            
+            // Validation du type
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Type de fichier non autorisé. Utilisez JPEG, PNG ou GIF');
+                input.value = '';
+                return;
+            }
+            
+            // Prévisualisation
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            
+            // Affichage du nom du fichier
+            fileName.textContent = `Fichier sélectionné : ${file.name}`;
+        } else {
+            fileName.textContent = '';
+        }
+    }
+    
+    // Validation du formulaire avant soumission
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const currentPassword = document.getElementById('currentPassword').value;
+        
+        // Si un nouveau mot de passe est saisi
+        if (newPassword) {
+            if (!currentPassword) {
+                alert('Veuillez saisir votre mot de passe actuel pour le modifier');
+                e.preventDefault();
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                alert('Les nouveaux mots de passe ne correspondent pas');
+                e.preventDefault();
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                alert('Le nouveau mot de passe doit contenir au moins 6 caractères');
+                e.preventDefault();
+                return;
+            }
+        }
+    });
+</script>
 </body>
 </html>
