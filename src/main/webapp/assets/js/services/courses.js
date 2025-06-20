@@ -18,7 +18,7 @@ function updateCourse(id) {
     formData.append("prixParticipation", document.getElementById('prixParticipation').value);
     formData.append("obstacles", document.getElementById('obstacles').checked); // true ou false
 
-    fetch(`/color_run_war_exploded/courses/${id}`, {
+    fetch(`/color_run_war_exploded/courses-edit/${id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
