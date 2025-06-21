@@ -96,12 +96,10 @@
             <tr class="header">
                 <th>Prénom Nom</th>
                 <th>Numéro dossard</th>
-                <th>Date d'inscription</th>
             </tr>
             <tr th:each="participation:${participations}">
                 <td th:text="${participation.getParticipant().getPrenom()} + ' ' + ${participation.getParticipant().getNom()}"></td>
                 <td th:text="${participation.getNumeroDossard()}">45</td>
-                <td th:text="${participation.getDateReservation()}">10/03/2025</td>
             </tr>
             <tr th:if="${participations.size() == 0}">
                 <td colspan="3">Aucun participant pour le moment</td>
