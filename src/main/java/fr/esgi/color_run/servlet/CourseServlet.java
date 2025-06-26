@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import fr.esgi.color_run.business.Cause;
 import fr.esgi.color_run.business.Course;
@@ -16,7 +15,6 @@ import fr.esgi.color_run.business.Participant;
 import fr.esgi.color_run.service.*;
 import fr.esgi.color_run.service.impl.*;
 import fr.esgi.color_run.util.DateUtil;
-import fr.esgi.color_run.util.DebugUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
@@ -171,79 +169,80 @@ public class CourseServlet extends BaseWebServlet {
                 renderError(request, response, "ID de course invalide");
             }
         } else {
-            if(Objects.equals(request.getServletPath(), "/courses")) {
-                // Ajout des courses à la vue
-                Boolean isOrga = Boolean.parseBoolean(request.getAttribute("is_organisateur").toString());
-                if (isOrga) {
-                    int userId = Integer.parseInt(request.getAttribute("user_id").toString());
-                    context.setVariable("courses", courseService.getCoursesByOrgaId(userId));
-                } else {
-                    context.setVariable("courses", courseService.getAllCourses());
-                }
-                context.setVariable("isAdmin", request.getAttribute("is_admin"));
-                context.setVariable("isOrganisateur", request.getAttribute("is_organisateur"));
-
-                String dateStr = request.getParameter("date");
-                String ville = request.getParameter("city");
-                String distanceStr = request.getParameter("distance");
-                String sort = request.getParameter("sort");
-
-                if (ville != null && (ville.equals("all") || ville.equalsIgnoreCase("Toutes les villes"))) {
-                    ville = "";
-                }
-
-                Date date = null;
-                Float minDistance = null;
-                Float maxDistance = null;
-
-                try {
-                    if (dateStr != null && !dateStr.isEmpty()) {
-                        date = new SimpleDateFormat("yyyy-MM-dd").parse(dateStr);
+            try {
+                if(Objects.equals(request.getServletPath(), "/courses")){
+                    // Logique d'affichage de la liste selon les rôles
+                    if (isAuthenticated && isOrganisateur) {
+                        // Organisateur : voit uniquement ses propres courses
+                        int userId = Integer.parseInt(request.getAttribute("user_id").toString());
+                        context.setVariable("courses", courseService.getCoursesByOrgaId(userId));
+                    } else {
+                        // Admin et participants : voient toutes les courses
+                        context.setVariable("courses", courseService.getAllCourses());
                     }
-                    if (distanceStr != null && !distanceStr.isEmpty() && distanceStr.contains("-")) {
-                        String[] parts = distanceStr.split("-");
-                        minDistance = Float.parseFloat(parts[0]);
-                        maxDistance = Float.parseFloat(parts[1]);
+                    context.setVariable("isAdmin", request.getAttribute("is_admin"));
+                    context.setVariable("isOrganisateur", request.getAttribute("is_organisateur"));
+
+                    String dateStr = request.getParameter("date");
+                    String ville = request.getParameter("city");
+                    String distanceStr = request.getParameter("distance");
+                    String sort = request.getParameter("sort");
+
+                    if (ville != null && (ville.equals("all") || ville.equalsIgnoreCase("Toutes les villes"))) {
+                        ville = "";
                     }
-                } catch (ParseException | NumberFormatException e) {
-                    renderError(request, response, "Paramètres de filtre invalides");
-                    return;
-                }
-                final Date finalDate = date;
-                final Float finalMinDistance = minDistance;
-                final Float finalMaxDistance = maxDistance;
-                final String finalVille = ville;
 
-                List<Course> filteredCourses = courseService.getAllCourses().stream()
-                        .filter(c -> finalDate == null || isSameDay(c.getDateDepart(), finalDate))
-                        .filter(c -> finalVille == null || finalVille.isEmpty() || c.getVille().equalsIgnoreCase(finalVille))
-                        .filter(c -> finalMinDistance == null || (c.getDistance() >= finalMinDistance && c.getDistance() <= finalMaxDistance))
-                        .sorted(getComparator(sort))
-                        .collect(Collectors.toList());
+                    Date date = null;
+                    Float minDistance = null;
+                    Float maxDistance = null;
 
-                System.out.println("Courses trouvées : " + filteredCourses.size());
+                    try {
+                        if (dateStr != null && !dateStr.isEmpty()) {
+                            date = new SimpleDateFormat("yyyy-MM-dd").parse(dateStr);
+                        }
+                        if (distanceStr != null && !distanceStr.isEmpty() && distanceStr.contains("-")) {
+                            String[] parts = distanceStr.split("-");
+                            minDistance = Float.parseFloat(parts[0]);
+                            maxDistance = Float.parseFloat(parts[1]);
+                        }
+                    } catch (ParseException | NumberFormatException e) {
+                        renderError(request, response, "Paramètres de filtre invalides");
+                        return;
+                    }
+                    final Date finalDate = date;
+                    final Float finalMinDistance = minDistance;
+                    final Float finalMaxDistance = maxDistance;
+                    final String finalVille = ville;
 
-                context.setVariable("courses", filteredCourses);
-                context.setVariable("isAdmin", request.getAttribute("is_admin"));
-                context.setVariable("isOrganisateur", request.getAttribute("is_organisateur"));
+                    List<Course> filteredCourses = courseService.getAllCourses().stream()
+                            .filter(c -> finalDate == null || isSameDay(c.getDateDepart(), finalDate))
+                            .filter(c -> finalVille == null || finalVille.isEmpty() || c.getVille().equalsIgnoreCase(finalVille))
+                            .filter(c -> finalMinDistance == null || (c.getDistance() >= finalMinDistance && c.getDistance() <= finalMaxDistance))
+                            .sorted(getComparator(sort))
+                            .collect(Collectors.toList());
 
-                List<String> villes = courseService.getAllCourses().stream()
-                        .map(Course::getVille)
-                        .filter(Objects::nonNull)
-                        .distinct()
-                        .sorted()
-                        .collect(Collectors.toList());
+                    System.out.println("Courses trouvées : " + filteredCourses.size());
 
-                context.setVariable("villes", villes);
-                renderTemplate(request, response, "courses/list", context);
-            }
-            else if (Objects.equals(request.getServletPath(), "/courses-create")) {
+                    context.setVariable("courses", filteredCourses);
+                    context.setVariable("isAdmin", request.getAttribute("is_admin"));
+                    context.setVariable("isOrganisateur", request.getAttribute("is_organisateur"));
+
+                    List<String> villes = courseService.getAllCourses().stream()
+                            .map(Course::getVille)
+                            .filter(Objects::nonNull)
+                            .distinct()
+                            .sorted()
+                            .collect(Collectors.toList());
+
+                    context.setVariable("villes", villes);
+                    renderTemplate(request, response, "courses/list", context);
+                }else if (Objects.equals(request.getServletPath(), "/courses-create")) {
                     // Création de course - uniquement pour organisateurs
                     if(!isOrganisateur){
                         renderError(request, response, "Vous ne pouvez pas créer de course si vous n'êtes pas organisateur");
                         return;
                     }
-                    
+
                     context.setVariable("causes", causeService.getAllCauses());
                     renderTemplate(request, response, "courses/createCourse", context);
                 }
@@ -279,38 +278,38 @@ public class CourseServlet extends BaseWebServlet {
                 renderError(request, response, "Le nom de la course est obligatoire");
                 return;
             }
-            
+
             String description = request.getParameter("description");
             // Description peut être null ou vide
-            
+
             String dateDepartStr = request.getParameter("dateDepart");
             String ville = request.getParameter("ville");
             if (ville == null || ville.trim().isEmpty()) {
                 renderError(request, response, "La ville est obligatoire");
                 return;
             }
-            
+
             String codePostalStr = request.getParameter("codePostal");
             if (codePostalStr == null || codePostalStr.trim().isEmpty()) {
                 renderError(request, response, "Le code postal est obligatoire");
                 return;
             }
-            
+
             String adresse = request.getParameter("adresse");
             // Adresse peut être null ou vide
-            
+
             String distanceStr = request.getParameter("distance");
             if (distanceStr == null || distanceStr.trim().isEmpty()) {
                 renderError(request, response, "La distance est obligatoire");
                 return;
             }
-            
+
             String maxParticipantsStr = request.getParameter("maxParticipants");
             if (maxParticipantsStr == null || maxParticipantsStr.trim().isEmpty()) {
                 renderError(request, response, "Le nombre maximum de participants est obligatoire");
                 return;
             }
-            
+
             String prixParticipationStr = request.getParameter("prixParticipation");
             if (prixParticipationStr == null || prixParticipationStr.trim().isEmpty()) {
                 renderError(request, response, "Le prix de participation est obligatoire");
@@ -319,11 +318,11 @@ public class CourseServlet extends BaseWebServlet {
 
             String latitudeStr = request.getParameter("lat");
             String longitudeStr = request.getParameter("long");
-            
+
             String obstacles = request.getParameter("obstacles");
             // Obstacles true ou false
             Boolean isObstacles = Objects.equals(obstacles, "on");
-            
+
             String idCauseStr = request.getParameter("idCause");
 
             // Conversions avec gestion des erreurs
@@ -338,7 +337,7 @@ public class CourseServlet extends BaseWebServlet {
                     return;
                 }
             }
-            
+
             int codePostal;
             try {
                 codePostal = Integer.parseInt(codePostalStr);
@@ -346,7 +345,7 @@ public class CourseServlet extends BaseWebServlet {
                 renderError(request, response, "Le code postal doit être un nombre");
                 return;
             }
-            
+
             float distance;
             try {
                 distance = Float.parseFloat(distanceStr);
@@ -354,7 +353,7 @@ public class CourseServlet extends BaseWebServlet {
                 renderError(request, response, "La distance doit être un nombre");
                 return;
             }
-            
+
             int maxParticipants;
             try {
                 maxParticipants = Integer.parseInt(maxParticipantsStr);
@@ -362,7 +361,7 @@ public class CourseServlet extends BaseWebServlet {
                 renderError(request, response, "Le nombre maximum de participants doit être un nombre entier");
                 return;
             }
-            
+
             float prixParticipation;
             try {
                 prixParticipation = Float.parseFloat(prixParticipationStr);
@@ -636,4 +635,3 @@ public class CourseServlet extends BaseWebServlet {
         }
     }
 }
-
