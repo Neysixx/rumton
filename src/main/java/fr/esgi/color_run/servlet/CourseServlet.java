@@ -112,7 +112,7 @@ public class CourseServlet extends BaseWebServlet {
                                 course -> {
                                     try {
                                         context.setVariable("course", course);
-
+                                        
                                         // Gestion selon les rôles pour l'affichage des détails
                                         if (isOrganisateur || isAdmin) {
                                             // Organisateurs et admins ne peuvent pas participer
@@ -128,7 +128,7 @@ public class CourseServlet extends BaseWebServlet {
                                             context.setVariable("isInscrit", false);
                                             context.setVariable("canParticipate", false);
                                         }
-
+                                        
                                         context.setVariable("participations", participationService.getParticipationsByCourse(courseId));
 
                                         if(Objects.equals(request.getServletPath(), "/courses")){
