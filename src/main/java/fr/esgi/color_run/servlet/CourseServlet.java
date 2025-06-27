@@ -29,6 +29,7 @@ public class CourseServlet extends BaseWebServlet {
     private CauseService causeService;
     private ParticipationService participationService;
     private MessageService messageService;
+    private StripeService stripeService;
 
     @Override
     public void init() {
@@ -37,6 +38,7 @@ public class CourseServlet extends BaseWebServlet {
         causeService = new CauseServiceImpl();
         participationService = new ParticipationServiceImpl();
         messageService = new MessageServiceImpl();
+        stripeService = new StripeServiceImpl();
     }
 
     private boolean isSameDay(Date d1, Date d2) {
@@ -405,8 +407,7 @@ public class CourseServlet extends BaseWebServlet {
 
                 // Recherche de la cause
                 try {
-                    cause = causeService.getCauseById(idCause)
-                            .orElseThrow(() -> new IllegalArgumentException("Cause non trouvée avec l'ID " + idCause));
+                    cause = causeService.getCauseById(idCause).orElseThrow(() -> new IllegalArgumentException("Cause non trouvée avec l'ID " + idCause));
                 } catch (Exception e) {
                     renderError(request, response, "Impossible de récupérer la cause associée : " + e.getMessage());
                     return;
@@ -432,8 +433,30 @@ public class CourseServlet extends BaseWebServlet {
                     .organisateur(organisateur)
                     .build();
 
-            // Sauvegarde de la course
+            // Sauvegarde de la course d'abord pour obtenir l'ID
             courseService.createCourse(course);
+            
+            // Créer le produit Stripe si le prix est supérieur à 0
+            if (prixParticipation > 0) {
+                // Récupérer la course créée avec son ID
+                final java.sql.Timestamp finalDateDepart = dateDepart;
+                List<Course> userCourses = courseService.getCoursesByOrgaId(organisateur.getIdParticipant());
+                Course createdCourse = userCourses.stream()
+                    .filter(c -> c.getNom().equals(nom) && c.getDateDepart().equals(finalDateDepart))
+                    .findFirst()
+                    .orElse(null);
+                
+                if (createdCourse != null) {
+                    String stripeProductId = stripeService.createProductForCourse(createdCourse);
+                    if (stripeProductId != null) {
+                        createdCourse.setStripeProductId(stripeProductId);
+                        courseService.updateCourse(createdCourse);
+                        System.out.println("Produit Stripe créé et associé à la course: " + stripeProductId);
+                    } else {
+                        System.err.println("Erreur lors de la création du produit Stripe pour la course: " + createdCourse.getNom());
+                    }
+                }
+            }
 
             // Redirection vers la liste des courses
             response.sendRedirect(request.getContextPath() + "/courses");
@@ -579,6 +602,34 @@ public class CourseServlet extends BaseWebServlet {
             if(cause != null){
                 course.setCause(cause);
             }
+            
+            // Mettre à jour le produit Stripe si le prix a changé ou si un produit existe
+            if (course.getPrixParticipation() > 0) {
+                if (course.getStripeProductId() != null) {
+                    // Mise à jour du produit existant
+                    boolean updateSuccess = stripeService.updateProduct(course.getStripeProductId(), course);
+                    if (updateSuccess) {
+                        System.out.println("Produit Stripe mis à jour: " + course.getStripeProductId());
+                    } else {
+                        System.err.println("Erreur lors de la mise à jour du produit Stripe: " + course.getStripeProductId());
+                    }
+                } else {
+                    // Créer un nouveau produit si le prix devient payant
+                    String stripeProductId = stripeService.createProductForCourse(course);
+                    if (stripeProductId != null) {
+                        course.setStripeProductId(stripeProductId);
+                        System.out.println("Nouveau produit Stripe créé: " + stripeProductId);
+                    }
+                }
+            } else if (course.getStripeProductId() != null) {
+                // Désactiver le produit si le prix devient gratuit
+                boolean deleteSuccess = stripeService.deleteProduct(course.getStripeProductId());
+                if (deleteSuccess) {
+                    course.setStripeProductId(null);
+                    System.out.println("Produit Stripe désactivé car course gratuite");
+                }
+            }
+            
             // Sauvegarde des modifications
             courseService.updateCourse(course);
             response.setStatus(HttpServletResponse.SC_OK);
@@ -619,6 +670,16 @@ public class CourseServlet extends BaseWebServlet {
             if (course.getOrganisateur().getIdParticipant() != currentUser.getIdParticipant()) {
                 renderError(request, response, "Vous n'êtes pas autorisé à supprimer cette course");
                 return;
+            }
+
+            // Supprimer le produit Stripe associé s'il existe
+            if (course.getStripeProductId() != null) {
+                boolean deleteSuccess = stripeService.deleteProduct(course.getStripeProductId());
+                if (deleteSuccess) {
+                    System.out.println("Produit Stripe supprimé: " + course.getStripeProductId());
+                } else {
+                    System.err.println("Erreur lors de la suppression du produit Stripe: " + course.getStripeProductId());
+                }
             }
 
             // Suppression de la course

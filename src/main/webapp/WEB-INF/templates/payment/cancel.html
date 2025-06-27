@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paiement annulé - Color Run</title>
+    <link rel="stylesheet" th:href="@{/assets/css/normalize.css}"/>
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}"/>
+    <style>
+        .payment-cancel {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            text-align: center;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .cancel-icon {
+            font-size: 4rem;
+            color: #ffc107;
+            margin-bottom: 1rem;
+        }
+        
+        .cancel-message {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(238, 90, 36, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-warning:hover {
+            background: #e0a800;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-cancel">
+        <div class="cancel-icon">⚠️</div>
+        
+        <h1>Paiement annulé</h1>
+        
+        <div class="cancel-message" th:text="${message}">
+            Paiement annulé. Vous pouvez réessayer à tout moment.
+        </div>
+        
+        <div class="action-buttons">
+            <!-- Si courseId est disponible, afficher le bouton pour réessayer le paiement -->
+            <div th:if="${courseId != null}">
+                <a th:href="@{'/payment/' + ${courseId}}" class="btn btn-warning">
+                    Réessayer le paiement
+                </a>
+                <a th:href="@{'/courses/' + ${courseId}}" class="btn btn-primary">
+                    Retour à la course
+                </a>
+            </div>
+            
+            <!-- Boutons généraux toujours disponibles -->
+            <a th:href="@{/courses}" class="btn btn-secondary">
+                Voir toutes les courses
+            </a>
+            <a th:href="@{/}" class="btn btn-secondary">
+                Accueil
+            </a>
+        </div>
+        
+        <div style="margin-top: 2rem; padding: 1rem; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #ffc107;">
+            <p style="margin: 0; color: #856404;">
+                <strong>Information :</strong> Aucun montant n'a été débité de votre compte. 
+                Vous pouvez reprendre le processus d'inscription quand vous le souhaitez.
+            </p>
+        </div>
+    </div>
+
+    <script th:src="@{/assets/js/main.js}"></script>
+</body>
+</html> 

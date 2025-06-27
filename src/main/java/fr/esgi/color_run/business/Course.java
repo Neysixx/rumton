@@ -29,6 +29,7 @@ public class Course {
     private Float lat;
     private Float lon;
     private String obstacles;
+    private String stripeProductId;
 
     private List<Participation> participations; // Liste des participations
 }

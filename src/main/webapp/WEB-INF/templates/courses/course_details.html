@@ -123,11 +123,33 @@
     </section>
 
     <section th:if="${!isInscrit && !isOrganisateur && !isAdmin && isAuth}">
-        <h3 th:text="'Total à payer : ' + ${course.getPrixParticipation()} + ' €'"></h3>
-        <form action="/color_run_war_exploded/participations" method="post">
-            <input style="display: none" type="number" name="idCourse" th:value="${course.getIdCourse()}">
-            <button type="submit" class="btn-primary">S'inscrire à la course</button>
-        </form>
+        <!-- Course gratuite -->
+        <div th:if="${course.getPrixParticipation() == 0}">
+            <h3>Inscription gratuite</h3>
+            <form action="/color_run_war_exploded/participations" method="post">
+                <input style="display: none" type="number" name="idCourse" th:value="${course.getIdCourse()}">
+                <button type="submit" class="btn-primary">S'inscrire gratuitement</button>
+            </form>
+        </div>
+        
+        <!-- Course payante -->
+        <div th:if="${course.getPrixParticipation() > 0}">
+            <h3 th:text="'Total à payer : ' + ${course.getPrixParticipation()} + ' €'"></h3>
+            <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                <h4 style="margin-top: 0; color: #495057;">💳 Paiement sécurisé avec Stripe</h4>
+                <p style="color: #6c757d; margin-bottom: 15px;">
+                    Votre paiement est sécurisé et traité par Stripe. Vous serez redirigé vers une page de paiement sécurisée.
+                </p>
+                <ul style="color: #6c757d; margin-bottom: 20px; padding-left: 20px;">
+                    <li>Paiement par carte bancaire</li>
+                    <li>Chiffrement SSL 256 bits</li>
+                    <li>Aucune donnée bancaire stockée sur nos serveurs</li>
+                </ul>
+                <a th:href="'/color_run_war_exploded/payment/' + ${course.getIdCourse()}" class="btn-primary" style="display: inline-block; padding: 12px 24px; font-size: 16px;">
+                    🔒 Procéder au paiement sécurisé
+                </a>
+            </div>
+        </div>
     </section>
 
     <section th:if="${!isAuth}">

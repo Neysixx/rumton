@@ -12,3 +12,5 @@ SMTP_USERNAME=;
 SMTP_PASSWORD=;
 BASE_URL=http://localhost:8080/color_run_war_exploded;
 
+# Stripe Configuration (Test Mode)
+stripe.secret.key=sk_test_YOUR_SECRET_KEY_HERE
