@@ -75,10 +75,6 @@ public class CourseServlet extends BaseWebServlet {
      */
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        // Vérification de l'authentification
-        if (!isAuthenticated(request, response)) {
-            return;
-        }
 
         Context context = new Context();
 
