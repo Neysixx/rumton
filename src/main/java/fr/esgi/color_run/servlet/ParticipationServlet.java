@@ -5,9 +5,11 @@ import fr.esgi.color_run.business.Participant;
 import fr.esgi.color_run.business.Participation;
 import fr.esgi.color_run.service.AuthService;
 import fr.esgi.color_run.service.CourseService;
+import fr.esgi.color_run.service.EmailService;
 import fr.esgi.color_run.service.ParticipationService;
 import fr.esgi.color_run.service.impl.AuthServiceImpl;
 import fr.esgi.color_run.service.impl.CourseServiceImpl;
+import fr.esgi.color_run.service.impl.EmailServiceImpl;
 import fr.esgi.color_run.service.impl.ParticipationServiceImpl;
 import fr.esgi.color_run.util.DebugUtil;
 import jakarta.servlet.ServletException;
@@ -29,12 +31,14 @@ import java.util.Optional;
 public class ParticipationServlet extends BaseWebServlet {
     private ParticipationService participationService;
     private CourseService courseService;
+    private EmailService emailService;
 
     @Override
     public void init() {
         super.init();
         participationService = new ParticipationServiceImpl();
         courseService = new CourseServiceImpl();
+        emailService = new EmailServiceImpl();
     }
 
     /**
@@ -189,7 +193,10 @@ public class ParticipationServlet extends BaseWebServlet {
             DebugUtil.log(this.getClass(), "Nouvelle participation créée : " + participation);
 
             // Enregistrement de la participation
-            participationService.createParticipation(participation);
+            Participation createdParticipation =  participationService.createParticipation(participation);
+
+            // Envoie du mail de téléchargement du dossard
+            emailService.envoyerDossardEmail(participant.getEmail(), createdParticipation.getIdParticipation());
 
             // Redirection vers la liste des courses
             response.sendRedirect(request.getContextPath() + "/courses/" + courseId);

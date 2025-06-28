@@ -42,6 +42,8 @@
         <p>Retrouvez le détail de la course</p>
     </section>
 
+    <a th:if="${isInscrit && !isOrganisateur && !isAdmin && isAuth}" style="width: 190px" class="btn-primary" target="_blank" th:href="'/color_run_war_exploded/dossard/' + ${participationId}">Télécharger votre dossard</a>
+
     <section id="course-desc" th:data-ville="${course.getVille()}">
         <div id="ville-loader" style="display: none;">Chargement...</div>
         <img id="ville-image" loading="lazy">
