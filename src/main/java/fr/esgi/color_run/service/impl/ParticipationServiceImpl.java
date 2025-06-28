@@ -111,6 +111,19 @@ public class ParticipationServiceImpl implements ParticipationService {
     }
 
     @Override
+    public int getParticipationIdByCourseAndParticipant(int courseId, int participantId) {
+        if (participantId <= 0) {
+            throw new IllegalArgumentException("ID de participant invalide");
+        }
+
+        if (courseId <= 0) {
+            throw new IllegalArgumentException("ID de course invalide");
+        }
+
+        return participationRepository.getParticipationIdByCourseAndParticipant(participantId, courseId);
+    }
+
+    @Override
     public int getLastBibNumberForCourse(int courseId) {
         if (courseId <= 0) {
             throw new IllegalArgumentException("ID de course invalide");

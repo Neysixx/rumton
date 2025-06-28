@@ -64,6 +64,20 @@
             <input type="number" id="codePostal" th:value="${course.getCodePostal()}" name="codePostal" class="input-classic" required>
         </div>
 
+        <div class="form-group hide" id="map">
+            <iframe
+                    id="mapIframe"
+                    height="450"
+                    style="border:0"
+                    loading="lazy"
+                    allowfullscreen
+                    referrerpolicy="no-referrer-when-downgrade"
+                    src="https://www.google.com/maps?q=48.8584,2.2945&hl=fr&z=15&output=embed">
+            </iframe>
+            <input type="hidden" id="lat" name="lat">
+            <input type="hidden" id="long" name="long">
+        </div>
+
         <div class="form-group">
             <label for="description">Description de votre merveilleuse course*</label>
             <textarea name="description" th:text="${course.getDescription()}" id="description" class="text-area-classic" placeholder=""></textarea>
@@ -113,7 +127,7 @@
                    th:checked="${course.getObstacles() == 'true'}" />
         </div>
 
-        <div th:if="${error}" class="error-message" th:text="${error}"></div>
+        <div class="error-message hide" id="error-message" th:text="${error}"></div>
 
         <button class="btn-primary" th:attr="onclick=|updateCourse(${course.getIdCourse()})|">Modifier</button>
     </div>
@@ -141,5 +155,6 @@
 </footer>
 <script src="/color_run_war_exploded/assets/js/main.js"></script>
 <script src="/color_run_war_exploded/assets/js/services/courses.js"></script>
+<script src="/color_run_war_exploded/assets/js/services/gouvApi.js"></script>
 </body>
 </html>

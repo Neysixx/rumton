@@ -42,8 +42,11 @@
         <p>Retrouvez le détail de la course</p>
     </section>
 
-    <section id="course-desc">
-        <img src="/color_run_war_exploded/assets/img/mock/embrun.jpg" alt="image de la ville">
+    <a th:if="${isInscrit && !isOrganisateur && !isAdmin && isAuth}" style="width: 190px" class="btn-primary" target="_blank" th:href="'/color_run_war_exploded/dossard/' + ${participationId}">Télécharger votre dossard</a>
+
+    <section id="course-desc" th:data-ville="${course.getVille()}">
+        <div id="ville-loader" style="display: none;">Chargement...</div>
+        <img id="ville-image" loading="lazy">
         <p th:text="${course.getDescription()}"></p>
     </section>
 
@@ -96,12 +99,10 @@
             <tr class="header">
                 <th>Prénom Nom</th>
                 <th>Numéro dossard</th>
-                <th>Date d'inscription</th>
             </tr>
             <tr th:each="participation:${participations}">
                 <td th:text="${participation.getParticipant().getPrenom()} + ' ' + ${participation.getParticipant().getNom()}"></td>
                 <td th:text="${participation.getNumeroDossard()}">45</td>
-                <td th:text="${participation.getDateReservation()}">10/03/2025</td>
             </tr>
             <tr th:if="${participations.size() == 0}">
                 <td colspan="3">Aucun participant pour le moment</td>
@@ -201,5 +202,6 @@
 </footer>
 <script src="/color_run_war_exploded/assets/js/main.js"></script>
 <script src="/color_run_war_exploded/assets/js/services/messages.js"></script>
+<script src="/color_run_war_exploded/assets/js/services/gouvApi.js"></script>
 </body>
 </html>

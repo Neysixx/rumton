@@ -31,4 +31,5 @@ public class Course {
     private String obstacles;
 
     private List<Participation> participations; // Liste des participations
+    private int participationIdUser; // id de la participation, utile pour télécharger le dossard de la course dans la page profile
 }
