@@ -127,7 +127,7 @@
                    th:checked="${course.getObstacles() == 'true'}" />
         </div>
 
-        <div th:if="${error}" class="error-message" th:text="${error}"></div>
+        <div class="error-message hide" id="error-message" th:text="${error}"></div>
 
         <button class="btn-primary" th:attr="onclick=|updateCourse(${course.getIdCourse()})|">Modifier</button>
     </div>

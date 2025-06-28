@@ -27,8 +27,16 @@ function updateCourse(id) {
     }).then(response => {
         if (response.ok) {
             window.location.href = `/color_run_war_exploded/courses`;
-        } else {
-            alert("Erreur lors de la mise à jour");
+        }
+        else {
+            const errorDiv = document.querySelector("#error-message")
+            errorDiv.classList.remove("hide")
+
+            response.json().then(errorData => {
+                errorDiv.innerHTML = errorData.error;
+            }).catch(() => {
+                errorDiv.innerHTML = "Erreur inconnue lors de la récupération de l'erreur.";
+            });
         }
     }).catch(error => {
         console.error("Erreur réseau :", error);
