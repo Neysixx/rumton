@@ -85,7 +85,7 @@
         <div class="courses-list">
 
             <article th:each="course:${courses}">
-                <div class="image"></div>
+                <div class="image" th:data-ville="${course.getVille()}"></div>
                 <div class="course-detail">
                     <p th:text="${course.nom}"></p>
                     <p th:text="${course.getDateDepartFormatted()}"></p>
@@ -123,5 +123,6 @@
 </footer>
 <script src="/color_run_war_exploded/assets/js/main.js"></script>
 <script src="/color_run_war_exploded/assets/js/filterSort.js"></script>
+<script src="/color_run_war_exploded/assets/js/services/gouvApi.js"></script>
 </body>
 </html>

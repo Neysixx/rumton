@@ -43,7 +43,8 @@
     </section>
 
     <section id="user-list-section">
-        <div class="users-list">
+        <a class="btn-secondary" href="/color_run_war_exploded/participant-create">Créer un utilisateur</a>
+        <div class="users-list mt-2">
             <article th:each="user : ${participants}" class="user-card">
                 <div class="user-info">
                     <img th:src="${user.urlProfile}" alt="User Profile">
