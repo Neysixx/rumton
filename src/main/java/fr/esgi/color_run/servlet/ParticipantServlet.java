@@ -13,14 +13,19 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static fr.esgi.color_run.util.CryptUtil.hashPassword;
 
 /**
  * Servlet pour gérer les participants
  */
-@WebServlet(name = "participantServlet", value = {"/participants", "/participants/*"})
+@WebServlet(name = "participantServlet", value = {"/participants", "/participants/*", "/participant-create"})
 public class ParticipantServlet extends BaseWebServlet {
 
     private AuthService authService;
@@ -76,6 +81,10 @@ public class ParticipantServlet extends BaseWebServlet {
 
                 renderTemplate(request, response, "admin/editUser", context);
             }
+            // URL pattern: /participant-create
+            else if (request.getServletPath().equals("/participant-create")) {
+                renderTemplate(request, response, "admin/createUser", context);
+            }
             // URL pattern: /participants
             else {
                 // Récupération de tous les participants
@@ -99,7 +108,10 @@ public class ParticipantServlet extends BaseWebServlet {
     }
 
     /**
-     * Traite les requêtes POST pour mettre à jour un participant
+     * Traite les requêtes POST pour créer un participant
+     * le mot de passe sera rempli par default en "Password123!"
+     * Si l'utilisateur créer veux se connecter il devra soit connaitre ce mot de passe
+     * ou utiliser mot de passe oublié
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -108,8 +120,71 @@ public class ParticipantServlet extends BaseWebServlet {
             renderError(request, response, "Utilisateur non authentifié");
             return;
         }
+
+        if(!isAdmin(request,response)) {
+            renderError(request, response, "Accès non autorisé");
+            return;
+        }
+
+        // Récupération des paramètres du formulaire
+        String nom = request.getParameter("nom");
+        String prenom = request.getParameter("prenom");
+        String email = request.getParameter("email");
+        String role = request.getParameter("role");
+        String defaultPassword = "Password123!";
+
+        Context context = new Context();
+
+        // Validation des données
+        if (nom == null || prenom == null || email == null || nom.isEmpty() || prenom.isEmpty() || email.isEmpty() || role.isEmpty()) {
+            context.setVariable("error", "Tous les champs sont obligatoires");
+            renderTemplate(request, response, "admin/createUser", context);
+            return;
+        }
+
+        // Vérification si l'email est déjà utilisé
+        if (participantService.existsByEmail(email)) {
+            context.setVariable("error", "Cette adresse email est déjà utilisée");
+            renderTemplate(request, response, "admin/createUser", context);
+            return;
+        }
+
+        // Création du participant
+        Participant participant = Participant.builder()
+                .nom(nom)
+                .prenom(prenom)
+                .email(email)
+                .motDePasse(hashPassword(defaultPassword))
+                .estOrganisateur(role.equals("organisateur"))
+                .dateCreation(new Date())
+                .estVerifie(true)
+                .build();
+
+        try {
+            participantService.creerParticipant(participant);
+            // Redirection vers la liste des utilisateur
+            response.sendRedirect(request.getContextPath() + "/participants");
+        } catch (Exception e) {
+            context.setVariable("error", "Une erreur est survenue lors de l'inscription: " + e.getMessage());
+            renderTemplate(request, response, "admin/createUser", context);
+        }
+    }
+
+    /**
+     * Traite les requêtes PUT pour mettre à jour un participant
+     */
+    @Override
+    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Vérification de l'authentification
+        if (!isAuthenticated(request, response)) {
+            renderError(request, response, "Utilisateur non authentifié");
+            return;
+        }
         
         try {
+            BufferedReader reader = request.getReader();
+            String body = reader.lines().collect(Collectors.joining(System.lineSeparator()));
+            Map<String, String> params = parseUrlEncodedBody(body);
             // Vérification du chemin
             String pathInfo = request.getPathInfo();
             if (pathInfo == null || !pathInfo.matches("/\\d+")) {
@@ -136,17 +211,17 @@ public class ParticipantServlet extends BaseWebServlet {
             }
             
             // Mise à jour des champs
-            String nom = request.getParameter("nom");
+            String nom = params.get("nom");
             if (nom != null && !nom.trim().isEmpty()) {
                 participant.setNom(nom);
             }
             
-            String prenom = request.getParameter("prenom");
+            String prenom = params.get("prenom");
             if (prenom != null && !prenom.trim().isEmpty()) {
                 participant.setPrenom(prenom);
             }
             
-            String email = request.getParameter("email");
+            String email = params.get("email");
             if (email != null && !email.trim().isEmpty() && !email.equals(participant.getEmail())) {
                 // Vérifier que l'email n'est pas déjà utilisé
                 if (participantService.existsByEmail(email)) {
@@ -158,7 +233,7 @@ public class ParticipantServlet extends BaseWebServlet {
             
             // Seul l'admin peut modifier ces champs
             if (isAdmin) {
-                String role = request.getParameter("role");
+                String role = params.get("role");
                 if (role != null) {
                     boolean estOrganisateur = role.equals("organisateur");
                     participant.setEstOrganisateur(estOrganisateur);
@@ -169,7 +244,7 @@ public class ParticipantServlet extends BaseWebServlet {
             participantService.updateParticipant(participant);
             
             // Réponse
-            response.sendRedirect(request.getContextPath() + "/participants");
+            response.setStatus(HttpServletResponse.SC_OK);
             
         } catch (NumberFormatException e) {
             renderError(request, response, "Format d'ID invalide");

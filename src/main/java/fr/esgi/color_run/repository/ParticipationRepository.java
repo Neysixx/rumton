@@ -58,6 +58,14 @@ public interface ParticipationRepository {
      * @return true si le participant est inscrit, false sinon
      */
     boolean existsByParticipantIdAndCourseId(int participantId, int courseId);
+
+    /**
+     * Récupère l'id de la participation a partir le la course Id et du participant
+     * @param participantId L'ID du participant
+     * @param courseId L'ID de la course
+     * @return l'id de la participation
+     */
+    int getParticipationIdByCourseAndParticipant(int participantId, int courseId);
     
     /**
      * Trouve le numéro de dossard maximum pour une course

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Dossard</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .dossard {
+            border: 2px solid #fc625d;
+            padding: 2em;
+            width: 400px;
+            margin: 2em auto;
+            text-align: center;
+        }
+        .numero { font-size: 3em; color: #fc625d; }
+    </style>
+</head>
+<body>
+<div class="dossard">
+    <h1>Dossard</h1>
+    <div class="numero" th:text="${participation.getNumeroDossard()}">123</div>
+    <p th:text="'Nom : ' + ${participant.getNom()}">Nom</p>
+    <p th:text="'Prénom : ' + ${participant.getPrenom()}">Prénom</p>
+    <p th:text="'Course : ' + ${course.getNom()}">Course</p>
+</div>
+</body>
+</html>

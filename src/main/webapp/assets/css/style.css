@@ -847,6 +847,19 @@ footer{
 
 /* Phones */
 @media (max-width: 767px) {
+    #list-causes{
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .otp-input {
+        width: 2rem;
+        height: 2rem;
+    }
+    
+    .modal-content{
+        width: 80%;
+    }
+
     h1{
         font-family: var(--title-font);
         font-size: 28px !important;
@@ -1115,6 +1128,11 @@ footer{
 
 /* Tablets */
 @media (min-width: 768px) and (max-width: 1700px) {
+
+    #list-causes{
+        grid-template-columns: repeat(2, 1fr);
+    }
+
     h1{
         font-family: var(--title-font);
         font-size: 48px !important;
