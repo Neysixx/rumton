@@ -588,7 +588,9 @@ public class CourseServlet extends BaseWebServlet {
             renderError(request, response, "ID de course invalide");
         } catch (Exception e) {
             e.printStackTrace();
-            renderError(request, response, "Une erreur est survenue lors de la mise à jour de la course : " + e.getMessage());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setContentType("application/json; charset=UTF-8");
+            response.getWriter().write("{\"error\": \"Une erreur est survenue: " + e.getMessage().replace("\"", "\\\"") + "\"}");
         }
     }
 
