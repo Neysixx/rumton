@@ -46,7 +46,7 @@ Toutes les courses sont payantes, une partie des fonds est reversée à la cause
 1. **Cloner le projet**
 
    ```bash
-   git clone https://github.com/ton-repo/rumton.git
+   git clone https://github.com/Neysixx/rumton.git
    cd rumton
    ```
 
