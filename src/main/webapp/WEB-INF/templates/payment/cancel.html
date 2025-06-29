@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paiement annulé - Color Run</title>
-    <link rel="stylesheet" th:href="@{/assets/css/normalize.css}"/>
-    <link rel="stylesheet" th:href="@{/assets/css/style.css}"/>
+    <link rel="stylesheet" href="/color_run_war_exploded/assets/css/normalize.css">
+    <link rel="stylesheet" href="/color_run_war_exploded/assets/css/style.css">
+    <title>Rumton - Paiement annulé</title>
+
     <style>
         .payment-cancel {
             max-width: 600px;
@@ -76,6 +77,20 @@
             background: #e0a800;
             transform: translateY(-2px);
         }
+        
+        .btn-secondary-yellow {
+            background: var(--secondary-color);
+            color: #212529;
+            border-radius: 12px;
+            padding: .65em 1.25em;
+            border: solid 1px var(--secondary-color);
+            transition: background-color .2s, color .2s;
+        }
+        
+        .btn-secondary-yellow:hover {
+            background: #ffe066;
+            color: var(--primary-color);
+        }
     </style>
 </head>
 <body>
@@ -89,21 +104,21 @@
         </div>
         
         <div class="action-buttons">
-            <!-- Si courseId est disponible, afficher le bouton pour réessayer le paiement -->
-            <div th:if="${courseId != null}">
-                <a th:href="@{'/payment/' + ${courseId}}" class="btn btn-warning">
+            <!-- Si course est disponible, afficher le bouton pour réessayer le paiement -->
+            <div th:if="${course != null}">
+                <a th:href="'/color_run_war_exploded/payment/' + ${course.idCourse}" class="btn btn-secondary-yellow">
                     Réessayer le paiement
                 </a>
-                <a th:href="@{'/courses/' + ${courseId}}" class="btn btn-primary">
+                <a th:href="'/color_run_war_exploded/courses/' + ${course.idCourse}" class="btn btn-primary">
                     Retour à la course
                 </a>
             </div>
             
             <!-- Boutons généraux toujours disponibles -->
-            <a th:href="@{/courses}" class="btn btn-secondary">
+            <a th:href="'/color_run_war_exploded/courses'" class="btn btn-secondary">
                 Voir toutes les courses
             </a>
-            <a th:href="@{/}" class="btn btn-secondary">
+            <a th:href="'/color_run_war_exploded/'" class="btn btn-secondary">
                 Accueil
             </a>
         </div>
@@ -116,6 +131,6 @@
         </div>
     </div>
 
-    <script th:src="@{/assets/js/main.js}"></script>
+    <script th:src="'/color_run_war_exploded/assets/js/main.js'"></script>
 </body>
 </html> 

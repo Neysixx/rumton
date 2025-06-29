@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.thymeleaf.context.Context;
 
 import java.io.IOException;
+import java.util.Date;
 
 /**
  * Servlet pour gérer les paiements Stripe
@@ -143,6 +144,13 @@ public class PaymentServlet extends BaseWebServlet {
             boolean paymentCompleted = stripeService.isPaymentCompleted(sessionId);
 
             if (paymentCompleted) {
+                // Récupérer la course
+                Course course = courseService.getCourseById(courseId).orElse(null);
+                if (course == null) {
+                    renderError(request, response, "Course introuvable");
+                    return;
+                }
+                
                 // Inscrire le participant à la course
                 Participant participant = getAuthenticatedParticipant(request);
                 
@@ -155,15 +163,16 @@ public class PaymentServlet extends BaseWebServlet {
                     int nextBibNumber = participationService.getLastBibNumberForCourse(courseId) + 1;
                     Participation participation = Participation.builder()
                             .participant(participant)
-                            .course(courseService.getCourseById(courseId).orElse(null))
+                            .course(course)
                             .numeroDossard(nextBibNumber)
+                            .dateReservation(new Date())
                             .build();
                     participationService.createParticipation(participation);
                     
                     Context context = new Context();
                     context.setVariable("success", true);
                     context.setVariable("message", "Paiement réussi ! Vous êtes maintenant inscrit à la course.");
-                    context.setVariable("courseId", courseId);
+                    context.setVariable("course", course);
                     
                     renderTemplate(request, response, "payment/success", context);
                 } else {
@@ -171,7 +180,7 @@ public class PaymentServlet extends BaseWebServlet {
                     Context context = new Context();
                     context.setVariable("success", true);
                     context.setVariable("message", "Paiement déjà traité. Vous êtes inscrit à la course.");
-                    context.setVariable("courseId", courseId);
+                    context.setVariable("course", course);
                     
                     renderTemplate(request, response, "payment/success", context);
                 }
@@ -199,7 +208,11 @@ public class PaymentServlet extends BaseWebServlet {
         String courseIdParam = request.getParameter("course_id");
         if (courseIdParam != null) {
             try {
-                context.setVariable("courseId", Integer.parseInt(courseIdParam));
+                int courseId = Integer.parseInt(courseIdParam);
+                Course course = courseService.getCourseById(courseId).orElse(null);
+                if (course != null) {
+                    context.setVariable("course", course);
+                }
             } catch (NumberFormatException e) {
                 // Ignorer si l'ID n'est pas valide
             }
