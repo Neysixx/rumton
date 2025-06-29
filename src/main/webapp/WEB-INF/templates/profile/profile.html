@@ -63,6 +63,7 @@
                     <p th:text="${course.getDistance()} + ' km'"></p>
                 </div>
                 <div class="btn-containers">
+                    <a th:href="'/color_run_war_exploded/courses-delete/' + ${course.getIdCourse()}" class="btn-primary">Supprimer</a>
                     <a th:href="'/color_run_war_exploded/courses-edit/' + ${course.getIdCourse()}" class="btn-primary">Modifier</a>
                     <a th:href="'/color_run_war_exploded/courses/' + ${course.getIdCourse()}" class="btn-secondary">Voir le détail</a>
                     <a th:href="'/color_run_war_exploded/courses/' + ${course.getIdCourse()}" class="btn-secondary">Chat</a>
@@ -79,6 +80,7 @@
                 <div class="btn-containers">
                     <a th:href="'/color_run_war_exploded/courses/' + ${course.getIdCourse()}" class="btn-secondary">Voir le détail</a>
                     <a th:href="'/color_run_war_exploded/courses/' + ${course.getIdCourse()}" class="btn-secondary">Chat</a>
+                    <a th:href="'/color_run_war_exploded/dossard/' + ${course.getParticipationIdUser()}" class="btn-primary">Télécharger votre dossard</a>
                 </div>
             </article>
             <article th:if="${!isOrga && courses.size() == 0}">Vous n'êtes inscrit à aucune course</article>
@@ -91,10 +93,10 @@
         <div class="text-container">
             <h3>Liens utiles</h3>
             <ul class="link-list">
-                <li><a href="">A propos</a></li>
-                <li><a href="">FAQ</a></li>
-                <li><a href="">Nous contacter</a></li>
-                <li><a href="">Mentions légales</a></li>
+                <li><a href="/color_run_war_exploded/about-us">A propos</a></li>
+                <li><a href="/color_run_war_exploded/faq">FAQ</a></li>
+                <li><a href="/color_run_war_exploded/contact">Nous contacter</a></li>
+                <li><a href="/color_run_war_exploded/legal-mentions">Mentions légales</a></li>
             </ul>
         </div>
         <div class="icons-container">

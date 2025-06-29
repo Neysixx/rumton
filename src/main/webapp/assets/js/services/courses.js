@@ -18,7 +18,7 @@ function updateCourse(id) {
     formData.append("prixParticipation", document.getElementById('prixParticipation').value);
     formData.append("obstacles", document.getElementById('obstacles').checked); // true ou false
 
-    fetch(`/color_run_war_exploded/courses/${id}`, {
+    fetch(`/color_run_war_exploded/courses-edit/${id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -27,8 +27,16 @@ function updateCourse(id) {
     }).then(response => {
         if (response.ok) {
             window.location.href = `/color_run_war_exploded/courses`;
-        } else {
-            alert("Erreur lors de la mise à jour");
+        }
+        else {
+            const errorDiv = document.querySelector("#error-message")
+            errorDiv.classList.remove("hide")
+
+            response.json().then(errorData => {
+                errorDiv.innerHTML = errorData.error;
+            }).catch(() => {
+                errorDiv.innerHTML = "Erreur inconnue lors de la récupération de l'erreur.";
+            });
         }
     }).catch(error => {
         console.error("Erreur réseau :", error);

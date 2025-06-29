@@ -23,7 +23,7 @@ import org.thymeleaf.context.Context;
 /**
  * Servlet pour gérer les courses
  */
-@WebServlet(name = "courseServlet", value = {"/courses", "/courses/*", "/courses-create", "/courses-edit/*"})
+@WebServlet(name = "courseServlet", value = { "/courses", "/courses/*", "/courses-create", "/courses-edit/*", "/courses-delete/*" })
 public class CourseServlet extends BaseWebServlet {
     private CourseService courseService;
     private CauseService causeService;
@@ -77,10 +77,6 @@ public class CourseServlet extends BaseWebServlet {
      */
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        // Vérification de l'authentification
-        if (!isAuthenticated(request, response)) {
-            return;
-        }
 
         Context context = new Context();
 
@@ -114,7 +110,7 @@ public class CourseServlet extends BaseWebServlet {
                                 course -> {
                                     try {
                                         context.setVariable("course", course);
-                                        
+
                                         // Gestion selon les rôles pour l'affichage des détails
                                         if (isOrganisateur || isAdmin) {
                                             // Organisateurs et admins ne peuvent pas participer
@@ -123,6 +119,11 @@ public class CourseServlet extends BaseWebServlet {
                                         } else if (isAuthenticated) {
                                             // Participants peuvent participer
                                             boolean isInscrit = participationService.isParticipantRegistered(getAuthenticatedParticipant(request).getIdParticipant(), courseId);
+                                            if(isInscrit) {
+                                                // id de la participation pour télécharger le dossard
+                                                int participationId = participationService.getParticipationIdByCourseAndParticipant(courseId, getAuthenticatedParticipant(request).getIdParticipant());
+                                                context.setVariable("participationId", participationId);
+                                            }
                                             context.setVariable("isInscrit", isInscrit);
                                             context.setVariable("canParticipate", !isInscrit);
                                         } else {
@@ -130,28 +131,50 @@ public class CourseServlet extends BaseWebServlet {
                                             context.setVariable("isInscrit", false);
                                             context.setVariable("canParticipate", false);
                                         }
-                                        
-                                        context.setVariable("participations", participationService.getParticipationsByCourse(courseId));
 
-                                        if(Objects.equals(request.getServletPath(), "/courses")){
-                                            context.setVariable("messages", messageService.getMessagesByCourse(courseId));
-                                            context.setVariable("numberParticipations", participationService.getParticipationsByCourse(courseId));
+                                        context.setVariable("participations",
+                                                participationService.getParticipationsByCourse(courseId));
+
+                                        if (Objects.equals(request.getServletPath(), "/courses")) {
+                                            context.setVariable("messages",
+                                                    messageService.getMessagesByCourse(courseId));
+                                            context.setVariable("numberParticipations",
+                                                    participationService.getParticipationsByCourse(courseId));
                                             renderTemplate(request, response, "courses/course_details", context);
-                                        } else {
-                                            // Page d'édition - vérifications pour organisateurs uniquement
-                                            if(!isOrganisateur){
-                                                renderError(request, response, "Vous ne pouvez pas modifier une course si vous n'êtes pas organisateur");
+                                        } else if (Objects.equals(request.getServletPath(), "/courses-edit")) {
+                                            // Page d'édition - vérifications pour organisateurs et admins
+                                            if (!isOrganisateur && !isAdmin) {
+                                                renderError(request, response,
+                                                        "Vous ne pouvez pas modifier une course si vous n'êtes pas organisateur ou administrateur");
                                                 return;
                                             }
                                             int userId = Integer.parseInt(request.getAttribute("user_id").toString());
-                                            if(userId != course.getOrganisateur().getIdParticipant()){
-                                                renderError(request, response, "Vous ne pouvez pas modifier une course qui ne vous appartient pas");
+                                            if (userId != course.getOrganisateur().getIdParticipant() && !isAdmin) {
+                                                renderError(request, response,
+                                                        "Vous ne pouvez pas modifier une course qui ne vous appartient pas");
                                                 return;
                                             }
-                                            course.setDateDepartFormatted(DateUtil.formatDateForDatetimeLocalInput(course.getDateDepart()));
+                                            course.setDateDepartFormatted(
+                                                    DateUtil.formatDateForDatetimeLocalInput(course.getDateDepart()));
                                             context.setVariable("course", course);
                                             context.setVariable("causes", causeService.getAllCauses());
                                             renderTemplate(request, response, "courses/course_edit", context);
+                                        } else if (Objects.equals(request.getServletPath(), "/courses-delete")) {
+                                            // Page de confirmation de suppression - vérifications pour organisateurs et
+                                            // admins
+                                            if (!isOrganisateur && !isAdmin) {
+                                                renderError(request, response,
+                                                        "Vous ne pouvez pas supprimer une course si vous n'êtes pas organisateur ou administrateur");
+                                                return;
+                                            }
+                                            int userId = Integer.parseInt(request.getAttribute("user_id").toString());
+                                            if (userId != course.getOrganisateur().getIdParticipant() && !isAdmin) {
+                                                renderError(request, response,
+                                                        "Vous ne pouvez pas supprimer une course qui ne vous appartient pas");
+                                                return;
+                                            }
+                                            context.setVariable("course", course);
+                                            renderTemplate(request, response, "courses/course_delete_confirm", context);
                                         }
                                     } catch (IOException e) {
                                         e.printStackTrace();
@@ -165,14 +188,13 @@ public class CourseServlet extends BaseWebServlet {
                                     } catch (IOException | ServletException e) {
                                         e.printStackTrace();
                                     }
-                                }
-                        );
+                                });
             } catch (NumberFormatException e) {
                 renderError(request, response, "ID de course invalide");
             }
         } else {
             try {
-                if(Objects.equals(request.getServletPath(), "/courses")){
+                if (Objects.equals(request.getServletPath(), "/courses")) {
                     // Logique d'affichage de la liste selon les rôles
                     if (isAuthenticated && isOrganisateur) {
                         // Organisateur : voit uniquement ses propres courses
@@ -240,13 +262,14 @@ public class CourseServlet extends BaseWebServlet {
                     renderTemplate(request, response, "courses/list", context);
                 }else if (Objects.equals(request.getServletPath(), "/courses-create")) {
                     // Création de course - uniquement pour organisateurs
-                    if(!isOrganisateur){
-                        renderError(request, response, "Vous ne pouvez pas créer de course si vous n'êtes pas organisateur");
+                    if (!isOrganisateur) {
+                        renderError(request, response,
+                                "Vous ne pouvez pas créer de course si vous n'êtes pas organisateur");
                         return;
                     }
 
                     context.setVariable("causes", causeService.getAllCauses());
-                    renderTemplate(request, response, "courses/createCourse", context);
+                    renderTemplate(request, response, "courses/create_course", context);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -255,7 +278,8 @@ public class CourseServlet extends BaseWebServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         // Vérification de l'authentification
         if (!isAuthenticated(request, response)) {
             return;
@@ -335,7 +359,8 @@ public class CourseServlet extends BaseWebServlet {
                     java.util.Date parsedDate = inputFormat.parse(dateDepartStr);
                     dateDepart = new java.sql.Timestamp(parsedDate.getTime());
                 } catch (java.text.ParseException e) {
-                    renderError(request, response, "Format de date de départ invalide. Utilisez le format yyyy-MM-ddTHH:mm");
+                    renderError(request, response,
+                            "Format de date de départ invalide. Utilisez le format yyyy-MM-ddTHH:mm");
                     return;
                 }
             }
@@ -373,10 +398,10 @@ public class CourseServlet extends BaseWebServlet {
             }
 
             Float latitude;
-            if(latitudeStr != null){
-                try{
+            if (latitudeStr != null) {
+                try {
                     latitude = Float.parseFloat(latitudeStr);
-                } catch (NumberFormatException e){
+                } catch (NumberFormatException e) {
                     latitude = null;
                 }
             } else {
@@ -384,19 +409,18 @@ public class CourseServlet extends BaseWebServlet {
             }
 
             Float longitude;
-            if(latitudeStr != null){
-                try{
+            if (latitudeStr != null) {
+                try {
                     longitude = Float.parseFloat(longitudeStr);
-                } catch (NumberFormatException e){
+                } catch (NumberFormatException e) {
                     longitude = null;
                 }
             } else {
                 longitude = null;
             }
 
-
             Cause cause = null;
-            if(idCauseStr != null){
+            if (idCauseStr != null) {
                 int idCause;
                 try {
                     idCause = Integer.parseInt(idCauseStr);
@@ -463,19 +487,21 @@ public class CourseServlet extends BaseWebServlet {
 
         } catch (Exception e) {
             e.printStackTrace();
-            renderError(request, response, "Une erreur est survenue lors de la création de la course : " + e.getMessage());
+            renderError(request, response,
+                    "Une erreur est survenue lors de la création de la course : " + e.getMessage());
         }
     }
 
     @Override
-    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPut(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         // Vérification de l'authentification
         if (!isAuthenticated(request, response)) {
             return;
         }
 
         // Vérification que l'utilisateur est un organisateur
-        if (!isOrganisateur(request, response)) {
+        if (!isOrganisateur(request, response) && !isAdmin(request, response)) {
             return;
         }
 
@@ -493,11 +519,15 @@ public class CourseServlet extends BaseWebServlet {
             Course course = courseService.getCourseById(courseId)
                     .orElseThrow(() -> new IllegalArgumentException("Course non trouvée avec l'ID " + courseId));
 
-            // Vérification que l'utilisateur est l'organisateur de la course
-            Participant currentUser = getAuthenticatedParticipant(request);
-            if (course.getOrganisateur().getIdParticipant() != currentUser.getIdParticipant()) {
-                renderError(request, response, "Vous n'êtes pas autorisé à modifier cette course");
-                return;
+            // Vérification que l'utilisateur est l'organisateur de la course ou un admin
+            boolean isAdminUser = isAdmin(request, response);
+            if (!isAdminUser) {
+                // Si ce n'est pas un admin, vérifier que c'est l'organisateur de la course
+                Participant currentUser = getAuthenticatedParticipant(request);
+                if (currentUser == null || course.getOrganisateur().getIdParticipant() != currentUser.getIdParticipant()) {
+                    renderError(request, response, "Vous n'êtes pas autorisé à modifier cette course");
+                    return;
+                }
             }
 
             // Mise à jour des champs
@@ -580,7 +610,7 @@ public class CourseServlet extends BaseWebServlet {
 
             String idCauseStr = params.get("idCause");
             Cause cause = null;
-            if(idCauseStr != null){
+            if (idCauseStr != null) {
                 int idCause;
                 try {
                     idCause = Integer.parseInt(idCauseStr);
@@ -599,7 +629,7 @@ public class CourseServlet extends BaseWebServlet {
                 }
 
             }
-            if(cause != null){
+            if (cause != null) {
                 course.setCause(cause);
             }
             
@@ -638,19 +668,21 @@ public class CourseServlet extends BaseWebServlet {
             renderError(request, response, "ID de course invalide");
         } catch (Exception e) {
             e.printStackTrace();
-            renderError(request, response, "Une erreur est survenue lors de la mise à jour de la course : " + e.getMessage());
+            renderError(request, response,
+                    "Une erreur est survenue lors de la mise à jour de la course : " + e.getMessage());
         }
     }
 
     @Override
-    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         // Vérification de l'authentification
         if (!isAuthenticated(request, response)) {
             return;
         }
 
         // Vérification que l'utilisateur est un organisateur
-        if (!isOrganisateur(request, response)) {
+        if (!isOrganisateur(request, response) && !isAdmin(request, response)) {
             return;
         }
 
@@ -665,11 +697,15 @@ public class CourseServlet extends BaseWebServlet {
             Course course = courseService.getCourseById(courseId)
                     .orElseThrow(() -> new IllegalArgumentException("Course non trouvée avec l'ID " + courseId));
 
-            // Vérification que l'utilisateur est l'organisateur de la course
-            Participant currentUser = getAuthenticatedParticipant(request);
-            if (course.getOrganisateur().getIdParticipant() != currentUser.getIdParticipant()) {
-                renderError(request, response, "Vous n'êtes pas autorisé à supprimer cette course");
-                return;
+            // Vérification que l'utilisateur est l'organisateur de la course ou un admin
+            boolean isAdminUser = isAdmin(request, response);
+            if (!isAdminUser) {
+                // Si ce n'est pas un admin, vérifier que c'est l'organisateur de la course
+                Participant currentUser = getAuthenticatedParticipant(request);
+                if (currentUser == null || course.getOrganisateur().getIdParticipant() != currentUser.getIdParticipant()) {
+                    renderError(request, response, "Vous n'êtes pas autorisé à supprimer cette course");
+                    return;
+                }
             }
 
             // Supprimer le produit Stripe associé s'il existe
@@ -692,7 +728,8 @@ public class CourseServlet extends BaseWebServlet {
             renderError(request, response, "ID de course invalide");
         } catch (Exception e) {
             e.printStackTrace();
-            renderError(request, response, "Une erreur est survenue lors de la suppression de la course : " + e.getMessage());
+            renderError(request, response,
+                    "Une erreur est survenue lors de la suppression de la course : " + e.getMessage());
         }
     }
 }

@@ -302,18 +302,53 @@ public class MessageServlet extends BaseWebServlet {
 
             Message message = optMessage.get();
             Participant currentUser = getAuthenticatedParticipant(request);
+            Course course = message.getCourse();
 
-            // Vérification que l'utilisateur est l'auteur du message
-            if (message.getEmetteur().getIdParticipant() != currentUser.getIdParticipant()) {
+            // Vérification des permissions de suppression
+            boolean canDelete = false;
+            String deleteReason = "";
+            
+            // L'auteur du message peut le supprimer
+            if (message.getEmetteur().getIdParticipant() == currentUser.getIdParticipant()) {
+                canDelete = true;
+                deleteReason = "author";
+            }
+            // L'organisateur de la course peut supprimer n'importe quel message de sa course
+            else if (course.getOrganisateur().getIdParticipant() == currentUser.getIdParticipant()) {
+                canDelete = true;
+                deleteReason = "organizer";
+            }
+            
+            if (!canDelete) {
                 renderError(request, response, "Vous n'êtes pas autorisé à supprimer ce message");
                 return;
             }
 
-            int courseId = message.getCourse().getIdCourse();
-            messageService.deleteMessage(messageId);
+            // Compter le nombre de réponses qui seront supprimées
+            int repliesCount = countAllReplies(messageId);
+            
+            // Supprimer le message (la suppression en cascade des réponses est gérée automatiquement)
+            boolean deleted = messageService.deleteMessage(messageId);
+            
+            if (!deleted) {
+                renderError(request, response, "Erreur lors de la suppression du message");
+                return;
+            }
 
-            // Redirection vers la liste des messages de la course
-            response.sendRedirect(request.getContextPath() + "/messages?courseId=" + courseId);
+            // Réponse JSON pour AJAX
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.setStatus(HttpServletResponse.SC_OK);
+            
+            Map<String, Object> responseData = new HashMap<>();
+            responseData.put("success", true);
+            responseData.put("messageId", messageId);
+            responseData.put("repliesDeleted", repliesCount);
+            responseData.put("deleteReason", deleteReason);
+            
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonResponse = mapper.writeValueAsString(responseData);
+            response.getWriter().write(jsonResponse);
 
         } catch (IllegalArgumentException e) {
             renderError(request, response, e.getMessage());
@@ -321,5 +356,19 @@ public class MessageServlet extends BaseWebServlet {
             e.printStackTrace();
             renderError(request, response, "Une erreur est survenue: " + e.getMessage());
         }
+    }
+    
+    /**
+     * Compte récursivement toutes les réponses à un message
+     */
+    private int countAllReplies(int parentId) {
+        List<Message> directReplies = messageService.getRepliesByParent(parentId);
+        int count = directReplies.size();
+        
+        for (Message reply : directReplies) {
+            count += countAllReplies(reply.getIdMessage());
+        }
+        
+        return count;
     }
 }

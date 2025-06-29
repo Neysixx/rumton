@@ -100,4 +100,22 @@ public class EmailServiceImpl implements EmailService {
             throw e;
         }
     }
+
+    @Override
+    public void envoyerDossardEmail(String email, int idParticipation) throws MessagingException {
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("L'email ne peut pas être null ou vide");
+        }
+
+        String downloadLink = BASE_URL + "/dossard/" + idParticipation;
+
+        // Corps du message en HTML
+        String htmlContent = "<h1>Lien de téléchargment de votre dossard</h1>"
+                + "<p>Bravo vous vous êtes inscrit à une course. Veuillez cliquer sur le lien ci-dessous pour vérifier télécharger votre dossard :</p>"
+                + "<p><a href='" + downloadLink + "'>Téléchargement du dossard</a></p>"
+                + "<p>Si le lien ne fonctionne pas, copiez et collez l'URL suivante dans votre navigateur :</p>"
+                + "<p>" + downloadLink + "</p>";
+
+        envoyerEmail(email, "Téléchargement de votre dossard", htmlContent);
+    }
 }

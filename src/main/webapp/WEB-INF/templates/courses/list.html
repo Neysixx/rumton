@@ -85,15 +85,21 @@
         <div class="courses-list">
 
             <article th:each="course:${courses}">
-                <div class="image"></div>
+                <div class="image" th:data-ville="${course.getVille()}"></div>
                 <div class="course-detail">
                     <p th:text="${course.nom}"></p>
                     <p th:text="${course.getDateDepartFormatted()}"></p>
                     <p th:text="${course.distance} + ' km'"></p>
                 </div>
                 <div class="btn-containers">
-                    <a th:if="${isOrganisateur}" th:href="'/color_run_war_exploded/courses-edit/' + ${course.getIdCourse()}" class="btn-primary">Modifier</a>
+                    <a th:if="${isAdmin}" th:href="'/color_run_war_exploded/courses-delete/' + ${course.getIdCourse()}" class="btn-primary">Supprimer</a>
+                    <a th:if="${isAdmin}" th:href="'/color_run_war_exploded/courses-edit/' + ${course.getIdCourse()}" class="btn-primary">Modifier</a>
+                    
+                    <a th:if="${isOrganisateur && !isAdmin && participant.idParticipant == course.organisateur.idParticipant}" th:href="'/color_run_war_exploded/courses-delete/' + ${course.getIdCourse()}" class="btn-primary">Supprimer</a>
+                    <a th:if="${isOrganisateur && !isAdmin && participant.idParticipant == course.organisateur.idParticipant}" th:href="'/color_run_war_exploded/courses-edit/' + ${course.getIdCourse()}" class="btn-primary">Modifier</a>
+                    
                     <a th:href="'/color_run_war_exploded/courses/' + ${course.idCourse}" class="btn-secondary">Voir le détail</a>
+                    
                     <a th:if="${!isOrganisateur && !isAdmin}" th:href="'/color_run_war_exploded/courses/' + ${course.idCourse}" class="btn-secondary">Participer</a>
                 </div>
             </article>
@@ -107,10 +113,10 @@
         <div class="text-container">
             <h3>Liens utiles</h3>
             <ul class="link-list">
-                <li><a href="">A propos</a></li>
-                <li><a href="">FAQ</a></li>
-                <li><a href="">Nous contacter</a></li>
-                <li><a href="">Mentions légales</a></li>
+                <li><a href="/color_run_war_exploded/about-us">A propos</a></li>
+                <li><a href="/color_run_war_exploded/faq">FAQ</a></li>
+                <li><a href="/color_run_war_exploded/contact">Nous contacter</a></li>
+                <li><a href="/color_run_war_exploded/legal-mentions">Mentions légales</a></li>
             </ul>
         </div>
         <div class="icons-container">
@@ -123,5 +129,6 @@
 </footer>
 <script src="/color_run_war_exploded/assets/js/main.js"></script>
 <script src="/color_run_war_exploded/assets/js/filterSort.js"></script>
+<script src="/color_run_war_exploded/assets/js/services/gouvApi.js"></script>
 </body>
 </html>

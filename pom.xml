@@ -106,6 +106,13 @@
             <version>1.6.2</version>
         </dependency>
 
+        <!-- PDF -->
+        <dependency>
+            <groupId>org.xhtmlrenderer</groupId>
+            <artifactId>flying-saucer-pdf-openpdf</artifactId>
+            <version>9.4.0</version>
+        </dependency>
+
         <!-- Stripe Java SDK -->
         <dependency>
             <groupId>com.stripe</groupId>

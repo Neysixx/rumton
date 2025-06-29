@@ -43,22 +43,17 @@
     </section>
 
     <section id="update-profile-section" class="mt-2">
-        <form method="POST" class="form-container">
+        <div class="form-container">
             <div id="form-first-line">
                 <div class="form-group">
-                    <label for="firstname">Prénom:</label>
-                    <input th:value="${user.getPrenom()}" type="text" placeholder="Prénom" id="firstname" name="prenom" class="input-classic" required>
+                    <label for="prenom">Prénom:</label>
+                    <input th:value="${user.getPrenom()}" type="text" placeholder="Prénom" id="prenom" name="prenom" class="input-classic" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="lastname">Nom de famille:</label>
-                    <input th:value="${user.getNom()}" type="text" name="nom" id="lastname" placeholder="Nom de famille" class="input-classic" required>
+                    <label for="nom">Nom de famille:</label>
+                    <input th:value="${user.getNom()}" type="text" name="nom" id="nom" placeholder="Nom de famille" class="input-classic" required>
                 </div>
-            </div>
-
-            <div class="form-group">
-                <label for="email">Nom de famille:</label>
-                <input th:value="${user.getEmail()}" type="email" name="email" id="email" placeholder="Email" class="input-classic" required>
             </div>
 
             <div class="form-group">
@@ -70,9 +65,9 @@
                 </select>
             </div>
 
-            <input type="submit" value="Enregistrer" class="btn-primary">
+            <input th:attr="onclick=|updateParticipant(${user.getIdParticipant()})|"  type="button" value="Enregistrer" class="btn-primary">
 
-        </form>
+        </div>
     </section>
 </div>
 <footer>
@@ -81,10 +76,10 @@
         <div class="text-container">
             <h3>Liens utiles</h3>
             <ul class="link-list">
-                <li><a href="">A propos</a></li>
-                <li><a href="">FAQ</a></li>
-                <li><a href="">Nous contacter</a></li>
-                <li><a href="">Mentions légales</a></li>
+                <li><a href="/color_run_war_exploded/about-us">A propos</a></li>
+                <li><a href="/color_run_war_exploded/faq">FAQ</a></li>
+                <li><a href="/color_run_war_exploded/contact">Nous contacter</a></li>
+                <li><a href="/color_run_war_exploded/legal-mentions">Mentions légales</a></li>
             </ul>
         </div>
         <div class="icons-container">
@@ -97,5 +92,6 @@
 </footer>
 <script src="/color_run_war_exploded/assets/js/register.js"></script>
 <script src="/color_run_war_exploded/assets/js/main.js"></script>
+<script src="/color_run_war_exploded/assets/js/services/participant.js"></script>
 </body>
 </html>

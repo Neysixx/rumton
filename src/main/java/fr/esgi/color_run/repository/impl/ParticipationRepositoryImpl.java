@@ -165,6 +165,23 @@ public class ParticipationRepositoryImpl implements ParticipationRepository {
     }
 
     @Override
+    public int getParticipationIdByCourseAndParticipant(int participantId, int courseId) {
+        String sql = "SELECT id_participation FROM PARTICIPATION WHERE id_participant = ? AND id_course = ?";
+        try (Connection connection = DatabaseConnection.getProdConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, participantId);
+            stmt.setInt(2, courseId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    @Override
     public Integer findMaxBibNumberByCourseId(int courseId) {
         String sql = "SELECT MAX(numero_dossard) FROM PARTICIPATION WHERE id_course = ?";
         try (Connection connection = DatabaseConnection.getProdConnection();

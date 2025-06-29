@@ -145,12 +145,18 @@ public class ProfileServlet extends BaseWebServlet {
                             .distinct()
                             .collect(Collectors.toList());
                 }
-                context.setVariable("courses", courses);
                 context.setVariable("user", currentUser == null ? currentAdmin : currentUser);
                 context.setVariable("isPublicView", false);
                 context.setVariable("isAdmin", request.getAttribute("is_admin"));
                 context.setVariable("isOwnProfile", true);
                 context.setVariable("isDemandeExist", currentUser != null && demandeOrganisateurService.hasDemandeEnCours(currentUser.getIdParticipant()));
+                if(currentUser != null) {
+                    courses.forEach(course -> {
+                        int participationId = participationService.getParticipationIdByCourseAndParticipant(course.getIdCourse(), currentUser.getIdParticipant());
+                        course.setParticipationIdUser(participationId);
+                    });
+                }
+                context.setVariable("courses", courses);
             }
             
             // Rendu de la page
