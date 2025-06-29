@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,62 +8,67 @@
     <link rel="stylesheet" href="/color_run_war_exploded/assets/css/style.css">
     <title>Rumton - Modifier une course</title>
 </head>
+
 <body>
-<div class="container">
-    <header>
-        <nav>
-            <a href="#"><img src="/color_run_war_exploded/assets/img/logo.png" alt="logo rumton "></a>
+    <div class="container">
+        <header>
+            <nav>
+                <a href="#"><img src="/color_run_war_exploded/assets/img/logo.png" alt="logo rumton "></a>
 
-            <button id="menu-toggle" aria-label="Ouvrir le menu">&#9776;</button>
+                <button id="menu-toggle" aria-label="Ouvrir le menu">&#9776;</button>
 
-            <ul id="nav-links">
-                <li><a href="/color_run_war_exploded/">Accueil</a></li>
-                <li><a href="/color_run_war_exploded/courses" class="active">Liste des courses</a></li>
-                <li th:if="${isAuth}"><a href="/color_run_war_exploded/causes">Causes</a></li>
-                <li th:if="${!isAuth}"><a href="/color_run_war_exploded/login">Se connecter</a></li>
-                <li th:if="${!isAuth}"><a class="btn-primary" href="/color_run_war_exploded/register">S'inscrire</a></li>
-                <li th:if="${isAuth && isAdmin}"><a href="/color_run_war_exploded/participants">Liste des participants</a></li>
-                <li th:if="${isAuth && isAdmin}"><a href="/color_run_war_exploded/demandes">Demandes organisateur</a></li>
-                <li th:if="${isAuth}" class="profile-container">
-                    <button class="profile-button" id="profileBtn">
-                        <img th:if="${isAdmin}" th:src="${admin.getUrlProfile()}" alt="User Profile">
-                        <img th:if="${!isAdmin}" th:src="${participant.getUrlProfile()}" alt="User Profile">
-                    </button>
-                    <div class="popover" id="profilePopover">
-                        <a href="/color_run_war_exploded/profile"><button>Profil</button></a>
-                        <a href="/color_run_war_exploded/logout"><button style="color: red">Déconnexion</button></a>
-                    </div>
-                </li>
-            </ul>
-        </nav>
-    </header>
+                <ul id="nav-links">
+                    <li><a href="/color_run_war_exploded/">Accueil</a></li>
+                    <li><a href="/color_run_war_exploded/courses" class="active">Liste des courses</a></li>
+                    <li th:if="${isAuth}"><a href="/color_run_war_exploded/causes">Causes</a></li>
+                    <li th:if="${!isAuth}"><a href="/color_run_war_exploded/login">Se connecter</a></li>
+                    <li th:if="${!isAuth}"><a class="btn-primary" href="/color_run_war_exploded/register">S'inscrire</a>
+                    </li>
+                    <li th:if="${isAuth && isAdmin}"><a href="/color_run_war_exploded/participants">Liste des participants</a></li>
+                    <li th:if="${isAuth && isAdmin}"><a href="/color_run_war_exploded/demandes">Demandes organisateur</a></li>
+                    <li th:if="${isAuth}" class="profile-container">
+                        <button class="profile-button" id="profileBtn">
+                            <img th:if="${isAdmin}" th:src="${admin.getUrlProfile()}" alt="User Profile">
+                            <img th:if="${!isAdmin}" th:src="${participant.getUrlProfile()}" alt="User Profile">
+                        </button>
+                        <div class="popover" id="profilePopover">
+                            <a href="/color_run_war_exploded/profile"><button>Profil</button></a>
+                            <a href="/color_run_war_exploded/logout"><button style="color: red">Déconnexion</button></a>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </header>
 
-    <section class="title-section" id="home-title-section">
-        <h1>Modifier une course colorée</h1>
-        <p>Participez au bonheur des participants et des cause en créer votre propre course</p>
-    </section>
+        <section class="title-section" id="home-title-section">
+            <h1>Modifier une course colorée</h1>
+            <p>Participez au bonheur des participants et des cause en créer votre propre course</p>
+        </section>
 
-    <div class="form-container">
-        <div class="form-group">
-            <label for="nom">Nom de la course *</label>
-            <input type="text" id="nom" name="nom" th:value="${course.getNom()}" class="input-classic" required>
-        </div>
+        <div class="form-container">
+            <div class="form-group">
+                <label for="nom">Nom de la course *</label>
+                <input type="text" id="nom" name="nom" th:value="${course.getNom()}" class="input-classic" required>
+            </div>
 
-        <div class="form-group">
-            <label for="adresse">Adresse de départ *</label>
-            <input type="text" id="adresse" name="adresse" th:value="${course.getAdresse()}" class="input-classic" autocomplete="off" required>
-            <ul id="autocomplete-results" class="autocomplete-list"></ul>
-        </div>
+            <div class="form-group">
+                <label for="adresse">Adresse de départ *</label>
+                <input type="text" id="adresse" name="adresse" th:value="${course.getAdresse()}" class="input-classic"
+                    autocomplete="off" required>
+                <ul id="autocomplete-results" class="autocomplete-list"></ul>
+            </div>
 
-        <div class="form-group">
-            <label for="ville">Ville de départ *</label>
-            <input type="text" id="ville" th:value="${course.getVille()}" name="ville" class="input-classic" required>
-        </div>
+            <div class="form-group">
+                <label for="ville">Ville de départ *</label>
+                <input type="text" id="ville" th:value="${course.getVille()}" name="ville" class="input-classic"
+                    required>
+            </div>
 
-        <div class="form-group">
-            <label for="codePostal">Code Postal *</label>
-            <input type="number" id="codePostal" th:value="${course.getCodePostal()}" name="codePostal" class="input-classic" required>
-        </div>
+            <div class="form-group">
+                <label for="codePostal">Code Postal *</label>
+                <input type="number" id="codePostal" th:value="${course.getCodePostal()}" name="codePostal"
+                    class="input-classic" required>
+            </div>
 
         <div class="form-group hide" id="map">
             <iframe
@@ -83,22 +89,20 @@
             <textarea name="description" th:text="${course.getDescription()}" id="description" class="text-area-classic" placeholder=""></textarea>
         </div>
 
-        <div class="form-group">
-            <label for="distance">Distance de la course (km)*</label>
-            <input type="number" step="0.1" id="distance" th:value="${course.getDistance()}" name="distance" class="input-classic" required>
-        </div>
+            <div class="form-group">
+                <label for="distance">Distance de la course (km)*</label>
+                <input type="number" step="0.1" id="distance" th:value="${course.getDistance()}" name="distance"
+                    class="input-classic" required>
+            </div>
 
-        <div class="form-group">
-            <label for="cause">Cause soutenue par votre course</label>
+            <div class="form-group">
+                <label for="cause">Cause soutenue par votre course</label>
 
-            <select name="idCause" id="cause" class="input-classic" required>
-                <option value="null" disabled
-                        th:selected="${course.cause == null}">
-                    -- Choisir une cause --
-                </option>
-                <option th:each="cause : ${causes}"
-                        th:value="${cause.idCause}"
-                        th:text="${cause.intitule}"
+                <select name="idCause" id="cause" class="input-classic" required>
+                    <option value="null" disabled th:selected="${course.cause == null}">
+                        -- Choisir une cause --
+                    </option>
+                    <option th:each="cause : ${causes}" th:value="${cause.idCause}" th:text="${cause.intitule}"
                         th:selected="${course.cause != null and cause.idCause == course.cause.idCause}">
                 </option>
             </select>
@@ -139,10 +143,10 @@
         <div class="text-container">
             <h3>Liens utiles</h3>
             <ul class="link-list">
-                <li><a href="">A propos</a></li>
-                <li><a href="">FAQ</a></li>
-                <li><a href="">Nous contacter</a></li>
-                <li><a href="">Mentions légales</a></li>
+                <li><a href="/color_run_war_exploded/about-us">A propos</a></li>
+                <li><a href="/color_run_war_exploded/faq">FAQ</a></li>
+                <li><a href="/color_run_war_exploded/contact">Nous contacter</a></li>
+                <li><a href="/color_run_war_exploded/legal-mentions">Mentions légales</a></li>
             </ul>
         </div>
         <div class="icons-container">
@@ -157,4 +161,5 @@
 <script src="/color_run_war_exploded/assets/js/services/courses.js"></script>
 <script src="/color_run_war_exploded/assets/js/services/gouvApi.js"></script>
 </body>
+
 </html>

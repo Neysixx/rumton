@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/color_run_war_exploded/assets/css/normalize.css">
     <link rel="stylesheet" href="/color_run_war_exploded/assets/css/style.css">
-    <title>Rumton - Modifier une cause</title>
+    <title>Rumton - FAQ</title>
 </head>
 <body>
 <div class="container">
@@ -16,9 +16,9 @@
             <button id="menu-toggle" aria-label="Ouvrir le menu">&#9776;</button>
 
             <ul id="nav-links">
-                <li><a href="/color_run_war_exploded/">Accueil</a></li>
+                <li><a href="#">Accueil</a></li>
                 <li><a href="/color_run_war_exploded/courses">Liste des courses</a></li>
-                <li th:if="${isAuth}"><a class="active" href="/color_run_war_exploded/causes">Causes</a></li>
+                <li><a href="/color_run_war_exploded/causes">Causes</a></li>
                 <li th:if="${!isAuth}"><a href="/color_run_war_exploded/login">Se connecter</a></li>
                 <li th:if="${!isAuth}"><a class="btn-primary" href="/color_run_war_exploded/register">S'inscrire</a></li>
                 <li th:if="${isAuth && isAdmin}"><a href="/color_run_war_exploded/participants">Liste des participants</a></li>
@@ -37,21 +37,68 @@
         </nav>
     </header>
 
-    <section class="title-section" id="home-title-section">
-        <h1>Modifier une cause</h1>
+    <section class="title-section" style="margin-top: 2em;">
+        <h1>Foire Aux Questions (FAQ)</h1>
+        <p>Retrouvez ici les réponses aux questions les plus fréquentes sur Rumton et les courses colorées.</p>
     </section>
 
-    <div class="form-container">
-        <div class="form-group">
-            <label for="intitule">Nom de la cause *</label>
-            <input type="text" id="intitule" name="intitule" th:value="${cause.getIntitule()}" class="input-classic" required>
-        </div>
+    <section class="legal-section">
+        <h4>Comment puis-je m’inscrire à une course&nbsp;?</h4>
+        <p>
+            Rendez-vous sur la page « Liste des courses », choisissez l’événement qui vous intéresse puis cliquez sur « S’inscrire ». Vous devrez créer un compte ou vous connecter pour finaliser votre inscription.
+        </p>
+    </section>
 
-        <div th:if="${error}" class="error-message" th:text="${error}"></div>
+    <section class="legal-section">
+        <h4>Comment devenir organisateur&nbsp;?</h4>
+        <p>
+            Lors de l'inscription vous pouvez sélectionner le rôle organisateur et indiquer les raisons de votre demande. La demande pour devenir organisteur est aussi disponible depuis votre profile si vous êtes participant. A la suite de votre demande, un administrateur devra approuver votre demande.
+        </p>
+    </section>
 
-        <input th:attr="onclick=|updateCause(${cause.getIdCause()})|"  type="button" value="Modifier" class="btn-primary">
-    </div>
+    <section class="legal-section">
+        <h4>Comment créer ma propre course colorée&nbsp;?</h4>
+        <p>
+            Après connexion, cliquez sur « Créer une course » dans le menu. Remplissez le formulaire avec les informations de votre événement, choisissez une cause à soutenir et validez. Votre course sera alors visible par toute la communauté. Attenttion pour créer un course vous devez être organisateur
+        </p>
+    </section>
+
+    <section class="legal-section">
+        <h4>Les courses sont-elles payantes&nbsp;?</h4>
+        <p>
+            Oui, chaque course est payante. Le tarif est fixé par l’organisateur et une partie des fonds est reversée à la cause associée à l’événement.
+        </p>
+    </section>
+
+    <section class="legal-section">
+        <h4>Comment obtenir mon dossard&nbsp;?</h4>
+        <p>
+            Une fois inscrit à une course, vous pouvez télécharger votre dossard depuis la page de l’événement ou depuis votre espace personnel.
+        </p>
+    </section>
+
+    <section class="legal-section">
+        <h4>Puis-je participer si je ne suis pas sportif&nbsp;?</h4>
+        <p>
+            Bien sûr&nbsp;! Les courses colorées sont ouvertes à tous, quel que soit votre niveau. L’objectif est de s’amuser et de partager un moment convivial.
+        </p>
+    </section>
+
+    <section class="legal-section">
+        <h4>Comment soutenir une cause&nbsp;?</h4>
+        <p>
+            Lors de l’inscription à une course, vous soutenez automatiquement la cause associée à l’événement. Vous pouvez aussi découvrir toutes les causes sur la page dédiée.
+        </p>
+    </section>
+
+    <section class="legal-section">
+        <h4>Comment contacter l’équipe Rumton&nbsp;?</h4>
+        <p>
+            Pour toute question ou suggestion, écrivez-nous à <a href="mailto:contact@rumton.fr">contact@rumton.fr</a>.
+        </p>
+    </section>
 </div>
+
 <footer>
     <div class="footer-container">
         <a href="#"><img src="/color_run_war_exploded/assets/img/logo.png" alt="logo rumton "></a>
@@ -73,6 +120,5 @@
     </div>
 </footer>
 <script src="/color_run_war_exploded/assets/js/main.js"></script>
-<script src="/color_run_war_exploded/assets/js/services/causes.js"></script>
 </body>
 </html>

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/color_run_war_exploded/assets/css/normalize.css">
     <link rel="stylesheet" href="/color_run_war_exploded/assets/css/style.css">
-    <title>Rumton - Modifier une cause</title>
+    <title>Rumton - Contactez nous</title>
 </head>
 <body>
 <div class="container">
@@ -16,9 +16,9 @@
             <button id="menu-toggle" aria-label="Ouvrir le menu">&#9776;</button>
 
             <ul id="nav-links">
-                <li><a href="/color_run_war_exploded/">Accueil</a></li>
+                <li><a href="#">Accueil</a></li>
                 <li><a href="/color_run_war_exploded/courses">Liste des courses</a></li>
-                <li th:if="${isAuth}"><a class="active" href="/color_run_war_exploded/causes">Causes</a></li>
+                <li><a href="/color_run_war_exploded/causes">Causes</a></li>
                 <li th:if="${!isAuth}"><a href="/color_run_war_exploded/login">Se connecter</a></li>
                 <li th:if="${!isAuth}"><a class="btn-primary" href="/color_run_war_exploded/register">S'inscrire</a></li>
                 <li th:if="${isAuth && isAdmin}"><a href="/color_run_war_exploded/participants">Liste des participants</a></li>
@@ -37,21 +37,43 @@
         </nav>
     </header>
 
-    <section class="title-section" id="home-title-section">
-        <h1>Modifier une cause</h1>
+    <section class="title-section" style="margin-top: 2em;">
+        <h1>Contactez-nous</h1>
+        <p>Une question, une suggestion ou besoin d’aide&nbsp;? Remplissez le formulaire ci-dessous ou contactez-nous directement par email.</p>
     </section>
 
-    <div class="form-container">
-        <div class="form-group">
-            <label for="intitule">Nom de la cause *</label>
-            <input type="text" id="intitule" name="intitule" th:value="${cause.getIntitule()}" class="input-classic" required>
-        </div>
+    <section class="legal-section">
+        <h4>Formulaire de contact</h4>
+        <form method="post" class="form-container">
+            <div class="form-group">
+                <label for="name">Nom&nbsp;:</label>
+                <input type="text" id="name" name="name" class="input-classic" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email&nbsp;:</label>
+                <input type="email" id="email" name="email" class="input-classic" required>
+            </div>
+            <div class="form-group">
+                <label for="message">Message&nbsp;:</label>
+                <textarea id="message" name="message" rows="5" class="text-area-classic" required></textarea>
+            </div>
+            <button type="submit" class="btn-primary">Envoyer</button>
+        </form>
+    </section>
 
-        <div th:if="${error}" class="error-message" th:text="${error}"></div>
+    <section class="legal-section">
+        <h4>Nos coordonnées</h4>
+        <p>
+            Email&nbsp;: <a href="mailto:contact@rumton.fr">contact@rumton.fr</a><br>
+            Adresse&nbsp;: 10 rue de la Couleur, 75000 Paris, France<br>
+            Instagram&nbsp;: <a href="#">@rumton</a><br>
+            TikTok&nbsp;: <a href="#">@rumton</a><br>
+            Facebook&nbsp;: <a href="#">Rumton France</a>
+        </p>
+    </section>
 
-        <input th:attr="onclick=|updateCause(${cause.getIdCause()})|"  type="button" value="Modifier" class="btn-primary">
-    </div>
 </div>
+
 <footer>
     <div class="footer-container">
         <a href="#"><img src="/color_run_war_exploded/assets/img/logo.png" alt="logo rumton "></a>
@@ -73,6 +95,5 @@
     </div>
 </footer>
 <script src="/color_run_war_exploded/assets/js/main.js"></script>
-<script src="/color_run_war_exploded/assets/js/services/causes.js"></script>
 </body>
 </html>

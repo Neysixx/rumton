@@ -120,6 +120,10 @@ h3{
     font-family: var(--title-font);
     font-size: 30px;
 }
+h4{
+    font-family: var(--title-font);
+    font-size: 22px;
+}
 
 ul{
     list-style-type: none;
@@ -843,6 +847,30 @@ footer{
     }
 }
 
+.legal-section {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(252, 98, 93, 0.08);
+    padding: 2.5em 2em 2em 2em;
+    margin: 2em 0;
+    border-left: 8px solid var(--primary-color);
+    transition: box-shadow 0.2s;
+}
+.legal-section:hover {
+    box-shadow: 0 8px 32px rgba(252, 98, 93, 0.16);
+}
+.legal-section h4 {
+    margin-top: 0;
+    color: var(--primary-color);
+    font-size: 1.5em;
+    margin-bottom: 0.5em;
+}
+.legal-section p {
+    margin: 0;
+    font-size: 1.1em;
+    color: #333;
+}
+
 /* MEDIA QUERIES */
 
 /* Phones */
@@ -871,6 +899,10 @@ footer{
     h3{
         font-family: var(--title-font);
         font-size: 15px !important;
+    }
+    h4{
+        font-family: var(--title-font);
+        font-size: 12px !important;
     }
 
     .container{
@@ -1144,6 +1176,10 @@ footer{
     h3{
         font-family: var(--title-font);
         font-size: 20px !important;
+    }
+    h4{
+        font-family: var(--title-font);
+        font-size: 15px !important;
     }
 
     .container{
