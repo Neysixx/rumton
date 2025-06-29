@@ -63,6 +63,7 @@
                     <p th:text="${course.getDistance()} + ' km'"></p>
                 </div>
                 <div class="btn-containers">
+                    <a th:href="'/color_run_war_exploded/courses-delete/' + ${course.getIdCourse()}" class="btn-primary">Supprimer</a>
                     <a th:href="'/color_run_war_exploded/courses-edit/' + ${course.getIdCourse()}" class="btn-primary">Modifier</a>
                     <a th:href="'/color_run_war_exploded/courses/' + ${course.getIdCourse()}" class="btn-secondary">Voir le détail</a>
                     <a th:href="'/color_run_war_exploded/courses/' + ${course.getIdCourse()}" class="btn-secondary">Chat</a>
