@@ -52,6 +52,29 @@
         </div>
     </section>
 
+    <section>
+        <!-- Affichage de l'état de la demande d'organisateur -->
+        <div th:if="${isOwnProfile && !isAdmin && !isOrga && demandeOrganisateur != null}" class="demande-status-container" style="margin-top: 15px; padding: 15px;">
+            <h4>État de votre demande d'organisateur</h4>
+            <div th:if="${demandeOrganisateur.status == 'EN_ATTENTE'}" style="border-color: #ffa500; background-color: #fff3cd; color: #856404; padding: 20px;">
+                <p><strong>Statut :</strong> <span style="color: #ffa500;">⏳ En attente de traitement</span></p>
+                <p><strong>Date de demande :</strong> <span th:text="${#dates.format(demandeOrganisateur.dateCreation, 'dd/MM/yyyy HH:mm')}"></span></p>
+                <p><em>Votre demande est en cours d'examen par nos équipes.</em></p>
+            </div>
+            <div th:if="${demandeOrganisateur.status == 'ACCEPTEE'}" style="border-color: #28a745; background-color: #d4edda; color: #155724; padding: 20px;">
+                <p><strong>Statut :</strong> <span style="color: #28a745;">✅ Demande acceptée</span></p>
+                <p><strong>Date de traitement :</strong> <span th:text="${#dates.format(demandeOrganisateur.dateTraitement.orElse(null), 'dd/MM/yyyy HH:mm')}"></span></p>
+                <p><em>Félicitations ! Vous êtes maintenant organisateur.</em></p>
+            </div>
+            <div th:if="${demandeOrganisateur.status == 'REFUSEE'}" style="border-color: #dc3545; background-color: #f8d7da; color: #721c24; padding: 20px;">
+                <p><strong>Statut :</strong> <span style="color: #dc3545;">❌ Demande refusée</span></p>
+                <p><strong>Date de traitement :</strong> <span th:text="${#dates.format(demandeOrganisateur.dateTraitement.orElse(null), 'dd/MM/yyyy HH:mm')}"></span></p>
+                <p><em>Votre demande n'a pas été acceptée. Vous pouvez soumettre une nouvelle demande.</em></p>
+                <a href="/color_run_war_exploded/demandes-create" class="btn-secondary" style="margin-top: 10px;">Faire une nouvelle demande</a>
+            </div>
+        </div>
+    </section>
+
     <section id="profile-list-course" th:if="${!isAdmin}">
         <h2>Liste de vos courses</h2>
         <div class="courses-list">
