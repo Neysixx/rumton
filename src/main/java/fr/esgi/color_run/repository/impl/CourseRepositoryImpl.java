@@ -18,7 +18,7 @@ import java.util.Date;
 public class CourseRepositoryImpl implements CourseRepository {
     @Override
     public void save(Course course) {
-        String sql = "INSERT INTO COURSE (nom, description, date_depart, ville, code_postal, adresse, distance, max_participants, prix_participation, obstacles, id_organisateur, id_cause, lat, lon) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO COURSE (nom, description, date_depart, ville, code_postal, adresse, distance, max_participants, prix_participation, obstacles, id_organisateur, id_cause, lat, lon, stripe_product_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection connection = DatabaseConnection.getProdConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, course.getNom());
@@ -46,6 +46,11 @@ public class CourseRepositoryImpl implements CourseRepository {
                 stmt.setFloat(14, course.getLon());
             } else {
                 stmt.setNull(14, java.sql.Types.FLOAT);
+            }
+            if(course.getStripeProductId() != null){
+                stmt.setString(15, course.getStripeProductId());
+            } else {
+                stmt.setNull(15, java.sql.Types.VARCHAR);
             }
             stmt.executeUpdate();
         } catch (SQLException e) {
@@ -137,7 +142,7 @@ public class CourseRepositoryImpl implements CourseRepository {
 
     @Override
     public void update(Course course) {
-        String sql = "UPDATE COURSE SET nom = ?, description = ?, date_depart = ?, ville = ?, code_postal = ?, adresse = ?, distance = ?, max_participants = ?, prix_participation = ?, obstacles = ?, id_cause = ?, lat = ?, lon = ? WHERE id_course = ?";
+        String sql = "UPDATE COURSE SET nom = ?, description = ?, date_depart = ?, ville = ?, code_postal = ?, adresse = ?, distance = ?, max_participants = ?, prix_participation = ?, obstacles = ?, id_cause = ?, lat = ?, lon = ?, stripe_product_id = ? WHERE id_course = ?";
         try (Connection connection = DatabaseConnection.getProdConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, course.getNom());
@@ -155,9 +160,22 @@ public class CourseRepositoryImpl implements CourseRepository {
             } else {
                 stmt.setNull(11, java.sql.Types.INTEGER);
             }
-            stmt.setInt(12, course.getIdCourse());
-            stmt.setFloat(13, course.getLat());
-            stmt.setFloat(14, course.getLon());
+            if(course.getLat() != null){
+                stmt.setFloat(12, course.getLat());
+            } else {
+                stmt.setNull(12, java.sql.Types.FLOAT);
+            }
+            if(course.getLon() != null){
+                stmt.setFloat(13, course.getLon());
+            } else {
+                stmt.setNull(13, java.sql.Types.FLOAT);
+            }
+            if(course.getStripeProductId() != null){
+                stmt.setString(14, course.getStripeProductId());
+            } else {
+                stmt.setNull(14, java.sql.Types.VARCHAR);
+            }
+            stmt.setInt(15, course.getIdCourse());
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -210,6 +228,7 @@ public class CourseRepositoryImpl implements CourseRepository {
                 .lat(rs.getFloat("lat"))
                 .lon(rs.getFloat("lon"))
                 .obstacles(rs.getString("obstacles"))
+                .stripeProductId(rs.getString("stripe_product_id"))
                 .organisateur(organisateur)
                 .cause(cause.orElse(null))
                 .build();

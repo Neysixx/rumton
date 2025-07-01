@@ -112,6 +112,13 @@
             <artifactId>flying-saucer-pdf-openpdf</artifactId>
             <version>9.4.0</version>
         </dependency>
+
+        <!-- Stripe Java SDK -->
+        <dependency>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+            <version>24.16.0</version>
+        </dependency>
     </dependencies>
 
     <build>

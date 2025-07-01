@@ -37,7 +37,13 @@ public class ParticipationRepositoryImpl implements ParticipationRepository {
             stmt.setInt(1, participation.getParticipant().getIdParticipant());
             stmt.setInt(2, participation.getCourse().getIdCourse());
             stmt.setInt(3, participation.getNumeroDossard());
-            stmt.setTimestamp(4, new Timestamp(participation.getDateReservation().getTime()));
+            
+            // Gérer le cas où la date de réservation est null
+            java.util.Date dateReservation = participation.getDateReservation();
+            if (dateReservation == null) {
+                dateReservation = new java.util.Date(); // Utiliser la date actuelle si null
+            }
+            stmt.setTimestamp(4, new Timestamp(dateReservation.getTime()));
 
             int affectedRows = stmt.executeUpdate();
             if (affectedRows == 0) {
@@ -199,7 +205,13 @@ public class ParticipationRepositoryImpl implements ParticipationRepository {
             stmt.setInt(1, participation.getParticipant().getIdParticipant());
             stmt.setInt(2, participation.getCourse().getIdCourse());
             stmt.setInt(3, participation.getNumeroDossard());
-            stmt.setTimestamp(4, new Timestamp(participation.getDateReservation().getTime()));
+            
+            // Gérer le cas où la date de réservation est null
+            java.util.Date dateReservation = participation.getDateReservation();
+            if (dateReservation == null) {
+                dateReservation = new java.util.Date(); // Utiliser la date actuelle si null
+            }
+            stmt.setTimestamp(4, new Timestamp(dateReservation.getTime()));
             stmt.setInt(5, participation.getIdParticipation());
             stmt.executeUpdate();
         } catch (SQLException e) {
