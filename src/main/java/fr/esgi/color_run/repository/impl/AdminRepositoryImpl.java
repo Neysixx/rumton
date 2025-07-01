@@ -16,8 +16,10 @@ public class AdminRepositoryImpl implements AdminRepository {
     public Admin save(Admin admin) {
         String sql = "INSERT INTO ADMIN (nom, prenom, email, mot_de_passe, url_profile) VALUES (?, ?, ?, ?, ?)";
         try (Connection connection = DatabaseConnection.getProdConnection();
-             PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
+             PreparedStatement stmt = connection == null ? null : connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            if (connection == null) {
+                throw new SQLException("La connexion est nulle");
+            }
             stmt.setString(1, admin.getNom());
             stmt.setString(2, admin.getPrenom());
             stmt.setString(3, admin.getEmail());
@@ -49,8 +51,10 @@ public class AdminRepositoryImpl implements AdminRepository {
     public Optional<Admin> findById(int id) {
         String sql = "SELECT * FROM ADMIN WHERE id_admin = ?";
         try (Connection connection = DatabaseConnection.getProdConnection();
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
-
+             PreparedStatement stmt = connection == null ? null : connection.prepareStatement(sql)) {
+            if (connection == null) {
+                throw new SQLException("La connexion est nulle");
+            }
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -69,9 +73,11 @@ public class AdminRepositoryImpl implements AdminRepository {
         List<Admin> admins = new ArrayList<>();
         String sql = "SELECT * FROM ADMIN";
         try (Connection connection = DatabaseConnection.getProdConnection();
-             Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
+             Statement stmt = connection == null ? null : connection.createStatement();
+             ResultSet rs = stmt == null ? null : stmt.executeQuery(sql)) {
+            if (connection == null) {
+                throw new SQLException("La connexion est nulle");
+            }
             while (rs.next()) {
                 admins.add(mapResultSetToAdmin(rs));
             }
@@ -86,7 +92,10 @@ public class AdminRepositoryImpl implements AdminRepository {
     public Optional<Admin> findByEmail(String email) {
         String sql = "SELECT * FROM ADMIN WHERE email = ?";
         try (Connection connection = DatabaseConnection.getProdConnection();
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
+             PreparedStatement stmt = connection == null ? null : connection.prepareStatement(sql)) {
+            if (connection == null) {
+                throw new SQLException("La connexion est nulle");
+            }
             stmt.setString(1, email);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -102,8 +111,10 @@ public class AdminRepositoryImpl implements AdminRepository {
     public void update(Admin admin) {
         String sql = "UPDATE ADMIN SET nom = ?, prenom = ?, email = ?, mot_de_passe = ?, url_profile = ? WHERE id_admin = ?";
         try (Connection connection = DatabaseConnection.getProdConnection();
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
-
+             PreparedStatement stmt = connection == null ? null : connection.prepareStatement(sql)) {
+            if (connection == null) {
+                throw new SQLException("La connexion est nulle");
+            }
             stmt.setString(1, admin.getNom());
             stmt.setString(2, admin.getPrenom());
             stmt.setString(3, admin.getEmail());
@@ -123,8 +134,10 @@ public class AdminRepositoryImpl implements AdminRepository {
     public void delete(int id) {
         String sql = "DELETE FROM ADMIN WHERE id_admin = ?";
         try (Connection connection = DatabaseConnection.getProdConnection();
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
-
+             PreparedStatement stmt = connection == null ? null : connection.prepareStatement(sql)) {
+            if (connection == null) {
+                throw new SQLException("La connexion est nulle");
+            }
             stmt.setInt(1, id);
             stmt.executeUpdate();
 

@@ -17,7 +17,8 @@ CREATE TABLE IF NOT EXISTS PARTICIPANT (
     mot_de_passe VARCHAR(255) NOT NULL,
     url_profile VARCHAR(255),
     est_organisateur BOOLEAN DEFAULT FALSE,
-    date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    est_verifie BOOLEAN DEFAULT FALSE
     );
 
 -- Table CAUSE
@@ -85,3 +86,14 @@ CREATE TABLE IF NOT EXISTS MESSAGE (
     FOREIGN KEY (id_course) REFERENCES COURSE(id_course) ON DELETE CASCADE,
     FOREIGN KEY (id_message_parent) REFERENCES MESSAGE(id_message) ON DELETE SET NULL
     );
+
+-- Table VERIFICATION
+CREATE TABLE IF NOT EXISTS VERIFICATION (
+                                            id_verification INT PRIMARY KEY AUTO_INCREMENT,
+                                            id_participant INT NOT NULL,
+                                            code VARCHAR(6) NOT NULL,
+    date_time TIMESTAMP NOT NULL,
+    date_time_completed TIMESTAMP,
+    FOREIGN KEY (id_participant) REFERENCES PARTICIPANT(id_participant)
+    );
+

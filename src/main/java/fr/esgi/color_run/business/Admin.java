@@ -1,7 +1,9 @@
 package fr.esgi.color_run.business;
 
 import lombok.*;
+import javax.annotation.Generated;
 
+@Generated("lombok")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
