@@ -107,8 +107,14 @@ public class DemandeOrganisateurServlet extends BaseWebServlet {
                     return;
                 }
                 
-                // Ajout à la vue
+                // Comptage des demandes en attente / traitées
+                long pendingCount = demandes.stream().filter(d -> d.getStatus().equals(EDemandeStatus.EN_ATTENTE.toString())).count();
+                long treatedCount = demandes.size() - pendingCount;
+
+                // Ajout au contexte
                 context.setVariable("demandes", demandes);
+                context.setVariable("pendingCount", pendingCount);
+                context.setVariable("treatedCount", treatedCount);
                 
                 renderTemplate(request, response, "admin/demandesOrganisateurs", context);
             } else if (request.getServletPath().equals("/demandes-create")) {

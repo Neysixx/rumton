@@ -3,6 +3,7 @@ package fr.esgi.color_run.servlet;
 import java.io.*;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.text.ParseException;
@@ -247,11 +248,26 @@ public class CourseServlet extends BaseWebServlet {
 
                     System.out.println("Courses trouvées : " + filteredCourses.size());
 
+                    // Si l'utilisateur est authentifié et n'est pas organisateur/admin, 
+                    // vérifier ses inscriptions pour chaque course
+                    if (isAuthenticated && !isOrganisateur && !isAdmin) {
+                        int participantId = getAuthenticatedParticipant(request).getIdParticipant();
+                        Map<Integer, Boolean> inscriptionsMap = new HashMap<>();
+                        for (Course course : filteredCourses) {
+                            boolean isInscrit = participationService.isParticipantRegistered(participantId, course.getIdCourse());
+                            inscriptionsMap.put(course.getIdCourse(), isInscrit);
+                        }
+                        context.setVariable("inscriptions", inscriptionsMap);
+                    }
+
                     context.setVariable("courses", filteredCourses);
                     context.setVariable("isAdmin", request.getAttribute("is_admin"));
                     context.setVariable("isOrganisateur", request.getAttribute("is_organisateur"));
 
+                    // Filtrer les villes des courses futures uniquement
+                    Date now = new Date();
                     List<String> villes = courseService.getAllCourses().stream()
+                            .filter(c -> c.getDateDepart().after(now)) // Seulement les courses futures
                             .map(Course::getVille)
                             .filter(Objects::nonNull)
                             .distinct()
