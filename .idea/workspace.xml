@@ -10,15 +10,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c4b4a43d-0c6a-4c9a-8783-96357c7dc247" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/EmailService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/EmailService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/impl/EmailServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/impl/EmailServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/DemandeOrganisateurServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/DemandeOrganisateurServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/DocumentationServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/DocumentationServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/webapp/WEB-INF/templates/admin/demandesOrganisateurs.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/templates/admin/demandesOrganisateurs.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/webapp/WEB-INF/templates/causes/cause_details.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/templates/causes/cause_details.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/webapp/WEB-INF/templates/causes/list.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/templates/causes/list.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/webapp/WEB-INF/templates/doc/contact.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/templates/doc/contact.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/ProfileServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/ProfileServlet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/WEB-INF/templates/profile/profile.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/templates/profile/profile.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,16 +34,28 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Database Script.script.sql.executor": "Run",
+    "Database Script.seed.sql.executor": "Run",
     "Maven.color_run [clean].executor": "Run",
     "Maven.color_run [install].executor": "Run",
     "Tomcat Server.Tomcat 10.1.40.executor": "Run",
-    "git-widget-placeholder": "fix/details",
+    "git-widget-placeholder": "feat/presentation-setup",
     "node.js.selected.package.tslint": "(autodetect)"
+  },
+  "keyToStringList": {
+    "RunConfigurationTargetLRU": [
+      "59c826d3-2bcc-47c4-8b1b-08e21a3cb9c7"
+    ]
   }
 }]]></component>
   <component name="RunManager" selected="Tomcat Server.Tomcat 10.1.40">
     <configuration name="script.sql" type="DatabaseScript" editBeforeRun="true" temporary="true" nameIsGenerated="true">
       <script-file value="$PROJECT_DIR$/src/main/resources/script.sql" />
+      <script-mode>FILE</script-mode>
+      <data-source id="59c826d3-2bcc-47c4-8b1b-08e21a3cb9c7" />
+      <method v="2" />
+    </configuration>
+    <configuration name="seed.sql" type="DatabaseScript" editBeforeRun="true" temporary="true" nameIsGenerated="true">
+      <script-file value="$PROJECT_DIR$/src/main/resources/seed.sql" />
       <script-mode>FILE</script-mode>
       <data-source id="59c826d3-2bcc-47c4-8b1b-08e21a3cb9c7" />
       <method v="2" />
@@ -141,11 +148,13 @@
       </method>
     </configuration>
     <list>
+      <item itemvalue="Database Script.seed.sql" />
       <item itemvalue="Database Script.script.sql" />
       <item itemvalue="Tomcat Server.Tomcat 10.1.40" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Database Script.seed.sql" />
         <item itemvalue="Database Script.script.sql" />
       </list>
     </recent_temporary>

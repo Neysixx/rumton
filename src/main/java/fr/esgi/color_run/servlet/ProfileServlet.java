@@ -2,6 +2,7 @@ package fr.esgi.color_run.servlet;
 
 import fr.esgi.color_run.business.Admin;
 import fr.esgi.color_run.business.Course;
+import fr.esgi.color_run.business.DemandeOrganisateur;
 import fr.esgi.color_run.business.Participant;
 import fr.esgi.color_run.business.Participation;
 import fr.esgi.color_run.service.*;
@@ -56,9 +57,29 @@ public class ProfileServlet extends BaseWebServlet {
         demandeOrganisateurService = new DemandeOrganisateurServiceImpl();
         
         // Création du répertoire d'upload s'il n'existe pas
-        String uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIRECTORY;
-        File uploadDir = new File(uploadPath);
-        if (!uploadDir.exists()) uploadDir.mkdirs();
+        try {
+            String uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIRECTORY;
+            File uploadDir = new File(uploadPath);
+            
+            if (!uploadDir.exists()) {
+                boolean created = uploadDir.mkdirs();
+                if (created) {
+                    System.out.println("Répertoire d'upload créé: " + uploadPath);
+                } else {
+                    System.err.println("Impossible de créer le répertoire d'upload: " + uploadPath);
+                }
+            } else {
+                System.out.println("Répertoire d'upload existant: " + uploadPath);
+            }
+            
+            // Vérification des permissions
+            if (!uploadDir.canWrite()) {
+                System.err.println("ATTENTION: Pas de permission d'écriture sur le répertoire d'upload: " + uploadPath);
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur lors de l'initialisation du répertoire d'upload: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -66,8 +87,6 @@ public class ProfileServlet extends BaseWebServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Vérification de l'authentification
-
         try {
             Participant currentUser = getAuthenticatedParticipant(request);
             Admin currentAdmin = getAuthenticatedAdmin(request);
@@ -109,22 +128,46 @@ public class ProfileServlet extends BaseWebServlet {
                     context.setVariable("isPublicView", true);
                 } else {
                     // Affichage du profil complet
-                    Participant user = participantService.getParticipantById(userId);
-                    Admin admin = adminService.getAdminById(userId);
+                    Participant user;
+                    Admin admin;
+
+                    // Si c'est son propre profil, utiliser directement les objets de session pour éviter tout conflit d'ID
+                    if (isOwnProfile) {
+                        user = currentUser; // peut être null si admin
+                        admin = currentAdmin; // peut être null si participant
+                    } else {
+                        // Sinon, charger depuis la base
+                        user = participantService.getParticipantById(userId);
+                        admin = adminService.getAdminById(userId);
+                    }
+
                     if (user == null && admin == null) {
                         renderError(request, response, "Utilisateur non trouvé");
                         return;
                     }
 
                     List<Course> courses = new ArrayList<>();
-                    if(isOrga) {
+                    if(isOrga && user != null) {
                         courses = courseService.getCoursesByOrgaId(user.getIdParticipant());
                     }
+                    
+                    // Récupération de l'état de la demande d'organisateur si applicable
+                    DemandeOrganisateur demandeOrganisateur = null;
+                    if (user != null && !user.isEstOrganisateur()) {
+                        List<DemandeOrganisateur> demandes = demandeOrganisateurService.getDemandesByParticipant(user.getIdParticipant());
+                        if (!demandes.isEmpty()) {
+                            // Prendre la dernière demande (la plus récente)
+                            demandeOrganisateur = demandes.get(0);
+                        }
+                    }
+                    
+
                     context.setVariable("courses", courses);
                     context.setVariable("user", user == null ? admin : user);
                     context.setVariable("isPublicView", false);
                     context.setVariable("isAdmin", isAdmin);
                     context.setVariable("isOwnProfile", isOwnProfile);
+                    context.setVariable("demandeOrganisateur", demandeOrganisateur);
                     if(isOwnProfile){
                         // Rendu de la page
                         renderTemplate(request, response, "profile/editProfile", context);
@@ -135,21 +178,36 @@ public class ProfileServlet extends BaseWebServlet {
                 // Affichage de son propre profil par défaut
                 boolean isAdmin = isAdmin(request, response);
                 List<Course> courses = new ArrayList<>();
-                if(Boolean.parseBoolean(request.getAttribute("is_organisateur").toString())) {
+                Object isOrgaAttribute = request.getAttribute("is_organisateur");
+                boolean isOrga = isOrgaAttribute != null && Boolean.parseBoolean(isOrgaAttribute.toString());
+                
+                if(isOrga && currentUser != null) {
                     courses = courseService.getCoursesByOrgaId(currentUser.getIdParticipant());
                 }
-                else if(!Boolean.parseBoolean(request.getAttribute("is_organisateur").toString()) && !isAdmin){
+                else if(!isOrga && !isAdmin && currentUser != null){
                     List<Participation> participations = participationService.getParticipationsByParticipant(currentUser.getIdParticipant());
                     courses = participations.stream()
                             .map(Participation::getCourse)
                             .distinct()
                             .collect(Collectors.toList());
                 }
+                
+                // Récupération de l'état de la demande d'organisateur si applicable
+                DemandeOrganisateur demandeOrganisateur = null;
+                if (currentUser != null && !currentUser.isEstOrganisateur()) {
+                    List<DemandeOrganisateur> demandes = demandeOrganisateurService.getDemandesByParticipant(currentUser.getIdParticipant());
+                    if (!demandes.isEmpty()) {
+                        // Prendre la dernière demande (la plus récente)
+                        demandeOrganisateur = demandes.get(0);
+                    }
+                }
+                
                 context.setVariable("user", currentUser == null ? currentAdmin : currentUser);
                 context.setVariable("isPublicView", false);
                 context.setVariable("isAdmin", request.getAttribute("is_admin"));
                 context.setVariable("isOwnProfile", true);
                 context.setVariable("isDemandeExist", currentUser != null && demandeOrganisateurService.hasDemandeEnCours(currentUser.getIdParticipant()));
+                context.setVariable("demandeOrganisateur", demandeOrganisateur);
                 if(currentUser != null) {
                     courses.forEach(course -> {
                         int participationId = participationService.getParticipationIdByCourseAndParticipant(course.getIdCourse(), currentUser.getIdParticipant());
@@ -267,6 +325,7 @@ public class ProfileServlet extends BaseWebServlet {
                     validateImageFile(filePart);
                     
                     String fileName = getFileName(filePart);
+                    System.out.println("Traitement de la photo de profil: " + fileName + " (" + filePart.getSize() + " bytes)");
                     
                     if (fileName != null && !fileName.trim().isEmpty()) {
                         // Supprimer l'ancienne photo de profil
@@ -279,10 +338,25 @@ public class ProfileServlet extends BaseWebServlet {
                         
                         // Chemin du fichier upload
                         String uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIRECTORY;
+                        File uploadDir = new File(uploadPath);
+                        
+                        // Vérification du répertoire
+                        if (!uploadDir.exists()) {
+                            boolean created = uploadDir.mkdirs();
+                            if (!created) {
+                                throw new IOException("Impossible de créer le répertoire d'upload: " + uploadPath);
+                            }
+                        }
+                        
+                        if (!uploadDir.canWrite()) {
+                            throw new IOException("Pas de permission d'écriture sur le répertoire d'upload: " + uploadPath);
+                        }
+                        
                         Path filePath = Paths.get(uploadPath, uniqueFileName);
                         
                         // Sauvegarde du fichier
                         Files.copy(filePart.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+                        System.out.println("Photo de profil sauvegardée: " + filePath.toString());
                         
                         // URL relative pour la base de données
                         String relativeUrl = "/color_run_war_exploded/" + UPLOAD_DIRECTORY + "/" + uniqueFileName;
@@ -294,9 +368,14 @@ public class ProfileServlet extends BaseWebServlet {
                         else {
                             admin.setUrlProfile(relativeUrl);
                         }
+                        System.out.println("URL de profil mise à jour: " + relativeUrl);
                     }
                 } catch (IllegalArgumentException e) {
                     renderError(request, response, e.getMessage());
+                    return;
+                } catch (IOException e) {
+                    System.err.println("Erreur lors de la sauvegarde de l'image: " + e.getMessage());
+                    renderError(request, response, "Erreur lors de la sauvegarde de l'image: " + e.getMessage());
                     return;
                 }
             }
@@ -364,14 +443,30 @@ public class ProfileServlet extends BaseWebServlet {
     private void deleteOldProfilePicture(String oldUrlProfile) {
         if (oldUrlProfile != null && !oldUrlProfile.contains("defaultProfile.png")) {
             try {
-                String realPath = getServletContext().getRealPath("") + File.separator + oldUrlProfile.replace("/", File.separator);
-                File oldFile = new File(realPath);
-                if (oldFile.exists()) {
-                    oldFile.delete();
+                // Extraire juste le nom du fichier depuis l'URL
+                // oldUrlProfile format: "/color_run_war_exploded/uploads/filename.jpg"
+                String fileName = null;
+                if (oldUrlProfile.contains(UPLOAD_DIRECTORY + "/")) {
+                    fileName = oldUrlProfile.substring(oldUrlProfile.lastIndexOf("/") + 1);
+                }
+                
+                if (fileName != null && !fileName.trim().isEmpty()) {
+                    String uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIRECTORY;
+                    File oldFile = new File(uploadPath, fileName);
+                    
+                    if (oldFile.exists() && oldFile.isFile()) {
+                        boolean deleted = oldFile.delete();
+                        if (deleted) {
+                            System.out.println("Ancienne photo supprimée : " + fileName);
+                        } else {
+                            System.err.println("Impossible de supprimer l'ancienne photo : " + fileName);
+                        }
+                    }
                 }
             } catch (Exception e) {
                 // Log l'erreur mais ne pas interrompre le processus
                 System.err.println("Erreur lors de la suppression de l'ancienne photo : " + e.getMessage());
+                e.printStackTrace();
             }
         }
     }
