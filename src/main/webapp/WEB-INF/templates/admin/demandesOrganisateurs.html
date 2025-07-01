@@ -30,7 +30,7 @@
             <ul id="nav-links">
                 <li><a href="/color_run_war_exploded/">Accueil</a></li>
                 <li><a href="/color_run_war_exploded/courses">Liste des courses</a></li>
-                <li th:if="${isAuth}"><a href="/color_run_war_exploded/causes">Causes</a></li>
+                <li><a href="/color_run_war_exploded/causes">Causes</a></li>
                 <li th:if="${!isAuth}"><a class="" href="#">Se connecter</a></li>
                 <li th:if="${!isAuth}"><a class="btn-primary" href="/color_run_war_exploded/register">S'inscrire</a></li>
                 <li th:if="${isAuth && isAdmin}"><a href="/color_run_war_exploded/participants">Liste des participants</a></li>
@@ -55,23 +55,61 @@
     </section>
 
     <section id="user-list-section">
+        <!-- Demandes en attente -->
+        <h2>Demandes en attente</h2>
         <div class="users-list">
-            <article th:each="demande : ${demandes}" class="user-card">
+            <article th:each="demande : ${demandes}" th:if="${demande.getStatus() == 'EN_ATTENTE'}" class="user-card">
                 <div class="user-info">
                     <img th:src="${demande.participant.urlProfile}" alt="User Profile">
                     <div>
                         <p><strong>Nom :</strong> <span th:text="${demande.participant.nom}"> </span></p>
                         <p><strong>Prénom :</strong> <span th:text="${demande.participant.prenom}"> </span></p>
                         <p><strong>Email :</strong> <span th:text="${demande.participant.email}"> </span></p>
+                        <p><strong>Date de demande :</strong> <span th:text="${#dates.format(demande.dateCreation, 'dd/MM/yyyy')}"></span></p>
                     </div>
                 </div>
-                <div th:if="${demande.getStatus() == 'EN_ATTENTE'}" class="btn-containers">
+                <div class="btn-containers">
                     <button class="btn-primary-outlined" th:attr="onclick=|showModal(`${demande.motivations}`, ${demande.getIdDemande()})|">Voir les motivations</button>
-                    <a th:attr="onclick=|updateDemandeStatus(${demande.getIdDemande()}, ${true})|" style="cursor: pointer"><svg  xmlns="http://www.w3.org/2000/svg"  width="30"  height="30"  viewBox="0 0 24 24"  fill="none"  stroke="green"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg></a>
-                    <a th:attr="onclick=|updateDemandeStatus(${demande.getIdDemande()}, ${false})|" style="cursor: pointer"><svg  xmlns="http://www.w3.org/2000/svg"  width="30"  height="30"  viewBox="0 0 24 24"  fill="none"  stroke="red"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-x"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg></a>
+                    <a th:attr="onclick=|updateDemandeStatus(${demande.getIdDemande()}, ${true})|" style="cursor: pointer" title="Accepter"><svg  xmlns="http://www.w3.org/2000/svg"  width="30"  height="30"  viewBox="0 0 24 24"  fill="none"  stroke="green"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg></a>
+                    <a th:attr="onclick=|updateDemandeStatus(${demande.getIdDemande()}, ${false})|" style="cursor: pointer" title="Refuser"><svg  xmlns="http://www.w3.org/2000/svg"  width="30"  height="30"  viewBox="0 0 24 24"  fill="none"  stroke="red"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-x"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg></a>
                 </div>
             </article>
+            <p th:if="${pendingCount == 0}" style="color: #666; padding: 20px; text-align: center;">Aucune demande en attente</p>
         </div>
+
+        <!-- Demandes traitées -->
+        <details style="margin-top: 30px;">
+            <summary style="cursor: pointer; font-size: 1.2em; font-weight: bold; padding: 10px 0; border-bottom: 1px solid #ddd;">
+                Demandes traitées
+                <span style="font-size: 0.9em; color: #666;">
+                    (<span th:text="${treatedCount}"></span> demandes)
+                </span>
+            </summary>
+            
+            <div class="users-list" style="margin-top: 15px;">
+                <article th:each="demande : ${demandes}" th:if="${demande.getStatus() != 'EN_ATTENTE'}" class="user-card" 
+                         th:style="${demande.getStatus() == 'ACCEPTEE'} ? 'border-left: 4px solid #28a745;' : 'border-left: 4px solid #dc3545;'">
+                    <div class="user-info">
+                        <img th:src="${demande.participant.urlProfile}" alt="User Profile">
+                        <div>
+                            <p><strong>Nom :</strong> <span th:text="${demande.participant.nom}"> </span></p>
+                            <p><strong>Prénom :</strong> <span th:text="${demande.participant.prenom}"> </span></p>
+                            <p><strong>Email :</strong> <span th:text="${demande.participant.email}"> </span></p>
+                            <p><strong>Date de demande :</strong> <span th:text="${#dates.format(demande.dateCreation, 'dd/MM/yyyy')}"></span></p>
+                            <p><strong>Statut :</strong> 
+                                <span th:text="${demande.getStatus() == 'ACCEPTEE'} ? 'Acceptée' : 'Refusée'" 
+                                      th:style="${demande.getStatus() == 'ACCEPTEE'} ? 'color: #28a745; font-weight: bold;' : 'color: #dc3545; font-weight: bold;'">
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="btn-containers">
+                        <button class="btn-primary-outlined" th:attr="onclick=|showModal(`${demande.motivations}`, ${demande.getIdDemande()})|">Voir les motivations</button>
+                    </div>
+                </article>
+                <p th:if="${treatedCount == 0}" style="color: #666; padding: 20px; text-align: center;">Aucune demande traitée</p>
+            </div>
+        </details>
     </section>
 </div>
 

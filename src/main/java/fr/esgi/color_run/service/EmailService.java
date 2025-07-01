@@ -31,4 +31,12 @@ public interface EmailService {
      * @throws MessagingException Si une erreur survient lors de l'envoi de l'email
      */
     void envoyerDossardEmail(String email, int idParticipation) throws MessagingException;
+
+    /**
+     * Envoie un email de réinitialisation de mot de passe
+     * @param email L'adresse email du destinataire
+     * @param resetUrl L'URL de réinitialisation
+     * @throws MessagingException Si une erreur survient lors de l'envoi de l'email
+     */
+    void envoyerEmailReinitialisationMotDePasse(String email, String resetUrl) throws MessagingException;
 }
