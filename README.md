@@ -53,6 +53,7 @@ Toutes les courses sont payantes, une partie des fonds est reversée à la cause
 2. **Configurer la base de données et les variables d’environnement**
 
    - Voir `src/main/resources/application.properties`
+   - Dupliquer ce ficher dans `src/test/ressources`
 
 3. **Installer les outils nécessaires**
 
@@ -60,7 +61,7 @@ Toutes les courses sont payantes, une partie des fonds est reversée à la cause
    - Installer h2
 
 4. **Lancer le projet**
-   - lancer le script script(1) pour setup la base de donnée
+   - lancer le script script(1) pour setup la base de donnée ( application / test )
    - créer une launch configuration avec Tomcat local, dans la section Deployment ajouter l'artifact "color_run:war exploded"
    - vous pouvez maintenant lancer le projet
 
