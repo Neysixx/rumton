@@ -121,4 +121,4 @@ Aucune donnée réelle n’est exploitée, et les événements/courses sont simu
 
 ---
 
-2025 © Rumton – Romain LAVAYSSIERE, Kyllian
+2025 © Rumton – Romain LAVAYSSIERE, Kyllian SENRENS, Tom PELUD
