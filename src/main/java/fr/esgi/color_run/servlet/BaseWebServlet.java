@@ -36,7 +36,7 @@ public abstract class BaseWebServlet extends HttpServlet {
      * 
      * @return true si l'utilisateur est authentifié, false sinon
      */
-    protected boolean isAuthenticated(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public boolean isAuthenticated(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String token = (String) request.getAttribute("jwt_token");
         return token != null;
     }
@@ -72,7 +72,7 @@ public abstract class BaseWebServlet extends HttpServlet {
     /**
      * Récupère l'administrateur actuellement connecté
      */
-    protected Admin getAuthenticatedAdmin(HttpServletRequest request) {
+    public Admin getAuthenticatedAdmin(HttpServletRequest request) {
         String token = (String) request.getAttribute("jwt_token");
         return authService.getAdminFromToken(token);
     }
@@ -80,7 +80,7 @@ public abstract class BaseWebServlet extends HttpServlet {
     /**
      * Rendu d'un template Thymeleaf
      */
-    protected void renderTemplate(HttpServletRequest request, HttpServletResponse response, String templateName, Context context) throws IOException, ServletException {
+    public void renderTemplate(HttpServletRequest request, HttpServletResponse response, String templateName, Context context) throws IOException, ServletException {
         TemplateEngine templateEngine = (TemplateEngine) getServletContext().getAttribute("templateEngine");
         response.setContentType("text/html;charset=UTF-8");
         boolean isAuthValue = this.isAuthenticated(request, response);
@@ -99,7 +99,7 @@ public abstract class BaseWebServlet extends HttpServlet {
     /**
      * Affiche une page d'erreur
      */
-    protected void renderError(HttpServletRequest request, HttpServletResponse response, String errorMessage) throws IOException, ServletException {
+    public void renderError(HttpServletRequest request, HttpServletResponse response, String errorMessage) throws IOException, ServletException {
         Context context = new Context();
         context.setVariable("error", errorMessage);
         renderTemplate(request, response, "error", context);

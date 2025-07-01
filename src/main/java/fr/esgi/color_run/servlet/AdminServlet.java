@@ -30,7 +30,7 @@ public class AdminServlet extends BaseWebServlet {
      * Traite les requêtes GET pour afficher les administrateurs
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Vérification de l'authentification et des droits d'administrateur
         if (!isAuthenticated(request, response)) {
             return;
@@ -88,7 +88,7 @@ public class AdminServlet extends BaseWebServlet {
      * Traite les requêtes POST pour créer un nouvel administrateur
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Vérification de l'authentification et des droits d'administrateur
         if (!isAuthenticated(request, response)) {
             renderError(request, response, "Droits d'administrateur requis");
@@ -140,7 +140,7 @@ public class AdminServlet extends BaseWebServlet {
      * Traite les requêtes PUT pour mettre à jour un administrateur
      */
     @Override
-    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Vérification de l'authentification et des droits d'administrateur
         if (!isAuthenticated(request, response)) {
             renderError(request, response, "Droits d'administrateur requis");
@@ -220,7 +220,7 @@ public class AdminServlet extends BaseWebServlet {
      * Traite les requêtes DELETE pour supprimer un administrateur
      */
     @Override
-    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Vérification de l'authentification et des droits d'administrateur
         if (!isAuthenticated(request, response)) {
             renderError(request, response, "Droits d'administrateur requis");
