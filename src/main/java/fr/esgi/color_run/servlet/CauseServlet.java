@@ -1,7 +1,6 @@
 package fr.esgi.color_run.servlet;
 
 import fr.esgi.color_run.business.Cause;
-import fr.esgi.color_run.business.Course;
 import fr.esgi.color_run.service.CauseService;
 import fr.esgi.color_run.service.CourseService;
 import fr.esgi.color_run.service.impl.CauseServiceImpl;
@@ -14,7 +13,6 @@ import org.thymeleaf.context.Context;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -37,12 +35,20 @@ public class CauseServlet extends BaseWebServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Vérification de l'authentification
-        if (!isAuthenticated(request, response)) {
-            return;
-        }
-
         Context context = new Context();
+        
+        // Vérifier l'authentification pour déterminer les droits
+        final Boolean isAuthenticated = isAuthenticated(request, response);
+        final Boolean isAdmin;
+        final Boolean isOrganisateur;
+        
+        if (isAuthenticated) {
+            isAdmin = Boolean.parseBoolean(request.getAttribute("is_admin").toString());
+            isOrganisateur = Boolean.parseBoolean(request.getAttribute("is_organisateur").toString());
+        } else {
+            isAdmin = false;
+            isOrganisateur = false;
+        }
 
         // Vérification si nous avons un ID de cause dans l'URL
         String pathInfo = request.getPathInfo();
@@ -57,9 +63,18 @@ public class CauseServlet extends BaseWebServlet {
                                 cause -> {
                                     try {
                                         context.setVariable("cause", cause);
-                                        context.setVariable("isAdmin", request.getAttribute("is_admin"));
-                                        context.setVariable("isOrganisateur", request.getAttribute("is_organisateur"));
+                                        context.setVariable("isAdmin", isAdmin);
+                                        context.setVariable("isOrganisateur", isOrganisateur);
                                         if(request.getServletPath().equals("/causes-edit")) {
+                                            // L'édition nécessite d'être admin
+                                            if (!isAuthenticated || !isAdmin) {
+                                                try {
+                                                    response.sendRedirect(request.getContextPath() + "/causes");
+                                                    return;
+                                                } catch (IOException e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
                                             renderTemplate(request, response, "causes/edit", context);
                                         }else{
                                             context.setVariable("courses", courseService.getCoursesByCauseId(causeId));
@@ -83,18 +98,20 @@ public class CauseServlet extends BaseWebServlet {
                 renderError(request, response, "ID de cause invalide");
             }
         } else if (request.getServletPath().equals("/causes-create")) {
-            if(!isAdmin(request, response)) {
+            // La création nécessite d'être authentifié et admin
+            if (!isAuthenticated || !isAdmin) {
                 response.sendRedirect(request.getContextPath() + "/causes");
+                return;
             }
             renderTemplate(request, response, "causes/create", context);
         } else {
-            // Récupération des causes
+            // Récupération des causes (accessible à tous)
             List<Cause> causes = causeService.getAllCauses();
 
             // Ajout des causes à la vue
             context.setVariable("causes", causes);
-            context.setVariable("isAdmin", request.getAttribute("is_admin"));
-            context.setVariable("isOrganisateur", request.getAttribute("is_organisateur"));
+            context.setVariable("isAdmin", isAdmin);
+            context.setVariable("isOrganisateur", isOrganisateur);
 
             // Rendu de la page
             renderTemplate(request, response, "causes/list", context);
