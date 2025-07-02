@@ -610,9 +610,15 @@ public class CourseServlet extends BaseWebServlet {
             }
 
             String prixParticipationStr = params.get("prixParticipation");
+            float oldPrice = course.getPrixParticipation();
+            boolean priceChanged = false;
             if (prixParticipationStr != null && !prixParticipationStr.trim().isEmpty()) {
                 try {
-                    course.setPrixParticipation(Float.parseFloat(prixParticipationStr));
+                    float newPrice = Float.parseFloat(prixParticipationStr);
+                    if (Math.abs(oldPrice - newPrice) > 0.01f) { // Considérer comme changé si différence > 1 centime
+                        priceChanged = true;
+                    }
+                    course.setPrixParticipation(newPrice);
                 } catch (NumberFormatException e) {
                     renderError(request, response, "Le prix de participation doit être un nombre");
                     return;
@@ -649,15 +655,27 @@ public class CourseServlet extends BaseWebServlet {
                 course.setCause(cause);
             }
             
-            // Mettre à jour le produit Stripe si le prix a changé ou si un produit existe
+            // Mettre à jour le produit Stripe selon les changements
             if (course.getPrixParticipation() > 0) {
                 if (course.getStripeProductId() != null) {
                     // Mise à jour du produit existant
-                    boolean updateSuccess = stripeService.updateProduct(course.getStripeProductId(), course);
-                    if (updateSuccess) {
-                        System.out.println("Produit Stripe mis à jour: " + course.getStripeProductId());
+                    boolean updateSuccess;
+                    if (priceChanged) {
+                        // Le prix a changé, utiliser la méthode spéciale qui gère les nouveaux prix
+                        updateSuccess = stripeService.updateProductWithPrice(course.getStripeProductId(), course, course.getPrixParticipation());
+                        if (updateSuccess) {
+                            System.out.println("Produit Stripe mis à jour avec nouveau prix: " + course.getStripeProductId());
+                        } else {
+                            System.err.println("Erreur lors de la mise à jour du produit Stripe avec nouveau prix: " + course.getStripeProductId());
+                        }
                     } else {
-                        System.err.println("Erreur lors de la mise à jour du produit Stripe: " + course.getStripeProductId());
+                        // Juste mettre à jour les infos du produit (nom, description, etc.)
+                        updateSuccess = stripeService.updateProduct(course.getStripeProductId(), course);
+                        if (updateSuccess) {
+                            System.out.println("Produit Stripe mis à jour: " + course.getStripeProductId());
+                        } else {
+                            System.err.println("Erreur lors de la mise à jour du produit Stripe: " + course.getStripeProductId());
+                        }
                     }
                 } else {
                     // Créer un nouveau produit si le prix devient payant
