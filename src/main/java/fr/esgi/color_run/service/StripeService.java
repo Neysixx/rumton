@@ -21,6 +21,23 @@ public interface StripeService {
     boolean updateProduct(String stripeProductId, Course course);
 
     /**
+     * Met à jour un produit Stripe existant avec un nouveau prix
+     * @param stripeProductId L'ID du produit Stripe à mettre à jour
+     * @param course La course avec les nouvelles informations
+     * @param newPrice Le nouveau prix (si différent de l'ancien)
+     * @return true si la mise à jour a réussi
+     */
+    boolean updateProductWithPrice(String stripeProductId, Course course, float newPrice);
+
+    /**
+     * Crée un nouveau prix pour un produit existant
+     * @param stripeProductId L'ID du produit Stripe
+     * @param newPrice Le nouveau prix
+     * @return L'ID du nouveau prix créé
+     */
+    String createNewPriceForProduct(String stripeProductId, float newPrice);
+
+    /**
      * Supprime un produit Stripe
      * @param stripeProductId L'ID du produit Stripe à supprimer
      * @return true si la suppression a réussi

@@ -8,6 +8,7 @@ import com.stripe.model.checkout.Session;
 import com.stripe.param.ProductCreateParams;
 import com.stripe.param.ProductUpdateParams;
 import com.stripe.param.PriceCreateParams;
+import com.stripe.param.PriceUpdateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import fr.esgi.color_run.business.Course;
 import fr.esgi.color_run.service.StripeService;
@@ -113,6 +114,77 @@ public class StripeServiceImpl implements StripeService {
             System.err.println("Erreur lors de la mise à jour du produit Stripe: " + e.getMessage());
             e.printStackTrace();
             return false;
+        }
+    }
+
+    @Override
+    public boolean updateProductWithPrice(String stripeProductId, Course course, float newPrice) {
+        try {
+            // D'abord mettre à jour les informations du produit
+            boolean productUpdated = updateProduct(stripeProductId, course);
+            if (!productUpdated) {
+                return false;
+            }
+
+            // Vérifier si le prix a réellement changé
+            String currentActivePriceId = getActivePriceForProduct(stripeProductId);
+            if (currentActivePriceId != null) {
+                Price currentPrice = Price.retrieve(currentActivePriceId);
+                long currentPriceInCents = currentPrice.getUnitAmount();
+                long newPriceInCents = Math.round(newPrice * 100);
+
+                // Si le prix n'a pas changé, pas besoin de créer un nouveau prix
+                if (currentPriceInCents == newPriceInCents) {
+                    System.out.println("Le prix n'a pas changé, pas de mise à jour nécessaire");
+                    return true;
+                }
+
+                // Désactiver l'ancien prix
+                PriceUpdateParams priceUpdateParams = PriceUpdateParams.builder()
+                        .setActive(false)
+                        .build();
+                currentPrice.update(priceUpdateParams);
+                System.out.println("Ancien prix désactivé: " + currentActivePriceId);
+            }
+
+            // Créer un nouveau prix
+            String newPriceId = createNewPriceForProduct(stripeProductId, newPrice);
+            if (newPriceId != null) {
+                System.out.println("Nouveau prix créé avec succès: " + newPriceId);
+                return true;
+            } else {
+                System.err.println("Erreur lors de la création du nouveau prix");
+                return false;
+            }
+
+        } catch (StripeException e) {
+            System.err.println("Erreur lors de la mise à jour du produit avec nouveau prix: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public String createNewPriceForProduct(String stripeProductId, float newPrice) {
+        try {
+            // Création du nouveau prix (en centimes)
+            long priceInCents = Math.round(newPrice * 100);
+            
+            PriceCreateParams priceParams = PriceCreateParams.builder()
+                    .setProduct(stripeProductId)
+                    .setUnitAmount(priceInCents)
+                    .setCurrency("eur")
+                    .setActive(true)
+                    .build();
+
+            Price newPriceObj = Price.create(priceParams);
+            System.out.println("Nouveau prix créé: " + newPriceObj.getId() + " pour " + newPrice + "€");
+            return newPriceObj.getId();
+
+        } catch (StripeException e) {
+            System.err.println("Erreur lors de la création du nouveau prix: " + e.getMessage());
+            e.printStackTrace();
+            return null;
         }
     }
 
