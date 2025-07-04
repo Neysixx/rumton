@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/color_run_war_exploded/assets/css/normalize.css">
+    <link rel="stylesheet" href="/color_run_war_exploded/assets/css/style.css">
+    <title>Rumton - Détail de la course</title>
+</head>
+<body>
+<div class="container">
+    <header>
+        <nav>
+            <a href="#"><img src="/color_run_war_exploded/assets/img/logo.png" alt="logo rumton "></a>
+
+            <button id="menu-toggle" aria-label="Ouvrir le menu">&#9776;</button>
+
+            <ul id="nav-links">
+                <li><a href="/color_run_war_exploded/">Accueil</a></li>
+                <li><a href="/color_run_war_exploded/courses" class="active">Liste des courses</a></li>
+                <li><a href="/color_run_war_exploded/causes">Causes</a></li>
+                <li th:if="${!isAuth}"><a href="/color_run_war_exploded/login">Se connecter</a></li>
+                <li th:if="${!isAuth}"><a class="btn-primary" href="/color_run_war_exploded/register">S'inscrire</a></li>
+                <li th:if="${isAuth && isAdmin}"><a href="/color_run_war_exploded/participants">Liste des participants</a></li>
+                <li th:if="${isAuth && isAdmin}"><a href="/color_run_war_exploded/demandes">Demandes organisateur</a></li>
+                <li th:if="${isAuth}" class="profile-container">
+                    <button class="profile-button" id="profileBtn">
+                        <img th:if="${isAdmin}" th:src="${admin.getUrlProfile()}" alt="User Profile">
+                        <img th:if="${!isAdmin}" th:src="${participant.getUrlProfile()}" alt="User Profile">
+                    </button>
+                    <div class="popover" id="profilePopover">
+                        <a href="/color_run_war_exploded/profile"><button>Profil</button></a>
+                        <a href="/color_run_war_exploded/logout"><button style="color: red">Déconnexion</button></a>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="title-section" id="home-title-section">
+        <h1 th:text="${course.getNom()}"></h1>
+        <p>Retrouvez le détail de la course</p>
+    </section>
+
+    <a th:if="${isInscrit && !isOrganisateur && !isAdmin && isAuth}" style="width: 190px" class="btn-primary" target="_blank" th:href="'/color_run_war_exploded/dossard/' + ${participationId}">Télécharger votre dossard</a>
+
+    <section id="course-desc" th:data-ville="${course.getVille()}">
+        <div id="ville-loader" style="display: none;">Chargement...</div>
+        <img id="ville-image" loading="lazy">
+        <p th:text="${course.getDescription()}"></p>
+    </section>
+
+    <section id="course-detail">
+        <h2>Détail de la course</h2>
+        <div id="detail-container">
+            <article>
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="80"  height="80"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-map-pin"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z" /></svg>
+                <p th:text="${course.getAdresse()} + ', ' + ${course.getCodePostal()} + ' ' + ${course.getVille()}"></p>
+            </article>
+            <article>
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="80"  height="80"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-user"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
+                <p th:text="${numberParticipations.size() + '/' + course.getMaxParticipants()}"></p>
+            </article>
+            <article>
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="80"  height="80"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-calendar"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" /><path d="M16 3v4" /><path d="M8 3v4" /><path d="M4 11h16" /><path d="M11 15h1" /><path d="M12 15v3" /></svg>
+                <p th:text="${course.getDateDepartFormatted()}" ></p>
+            </article>
+            <article>
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="80"  height="80"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-ruler-measure"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.875 12c.621 0 1.125 .512 1.125 1.143v5.714c0 .631 -.504 1.143 -1.125 1.143h-15.875a1 1 0 0 1 -1 -1v-5.857c0 -.631 .504 -1.143 1.125 -1.143h15.75z" /><path d="M9 12v2" /><path d="M6 12v3" /><path d="M12 12v3" /><path d="M18 12v3" /><path d="M15 12v2" /><path d="M3 3v4" /><path d="M3 5h18" /><path d="M21 3v4" /></svg>
+                <p th:text="'Distance : ' + ${course.getDistance()} + ' km'"></p>
+            </article>
+            <article>
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="80"  height="80"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-fence"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 12v4h16v-4z" /><path d="M6 16v4h4v-4m0 -4v-6l-2 -2l-2 2v6" /><path d="M14 16v4h4v-4m0 -4v-6l-2 -2l-2 2v6" /></svg>
+                <p th:text="'Obstacles : ' + ${course.getObstacles() == 'true' ? 'Oui' : 'Non'}"></p>
+            </article>
+            <article th:if="${course.getCause() != null}">
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="80"  height="80"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-heart-handshake"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /><path d="M12 6l-3.293 3.293a1 1 0 0 0 0 1.414l.543 .543c.69 .69 1.81 .69 2.5 0l1 -1a3.182 3.182 0 0 1 4.5 0l2.25 2.25" /><path d="M12.5 15.5l2 2" /><path d="M15 13l2 2" /></svg>
+                <p th:text="${course.getCause().getIntitule()}"></p>
+            </article>
+        </div>
+    </section>
+
+    <section th:if="${course.getLat() != 0.0 && course.getLon() != 0.0}">
+        <h2>Départ de la course</h2>
+        <iframe
+                id="mapIframe"
+                height="450"
+                style="border:0; width: 100%"
+                loading="lazy"
+                allowfullscreen
+                referrerpolicy="no-referrer-when-downgrade"
+                th:src="'https://www.google.com/maps?q=' + ${course.lat} + ',' + ${course.lon} + '&hl=fr&z=15&output=embed'" >
+        </iframe>
+    </section>
+
+    <section id="runner-list">
+        <h2>Liste des participants</h2>
+        <table>
+            <tr class="header">
+                <th>Prénom Nom</th>
+                <th>Numéro dossard</th>
+            </tr>
+            <tr th:each="participation:${participations}">
+                <td th:text="${participation.getParticipant().getPrenom()} + ' ' + ${participation.getParticipant().getNom()}"></td>
+                <td th:text="${participation.getNumeroDossard()}">45</td>
+            </tr>
+            <tr th:if="${participations.size() == 0}">
+                <td colspan="3">Aucun participant pour le moment</td>
+            </tr>
+        </table>
+    </section>
+
+    <!-- Section chat pour les participants inscrits -->
+    <section id="chat-section" th:if="${isInscrit && !isOrganisateur && !isAdmin}">
+        <h2>Chat de la course</h2>
+        <div class="form-container">
+            <div class="messages" id="messageContainer">
+                <article th:each="message:${messages}" th:class="${message.getEmetteur().getIdParticipant() == participant.getIdParticipant() ? 'me' : ''}">
+                    <div class="message-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <em th:text="${message.getEmetteur().getPrenom()} + ' ' + ${message.getEmetteur().getNom()} + ' ' + ${message.getDatePublicationStr()}"></em>
+                    </div>
+                    <p th:text="${message.getContenu()}"></p>
+                </article>
+                <div th:if="${messages.size() == 0}" style="text-align: center; color: #666; padding: 20px;">
+                    Aucun message pour le moment
+                </div>
+            </div>
+            <input type="text" placeholder="Entrez votre message" name="message" id="messageContent" class="input-classic" required>
+            <input th:attr="onclick=|postMessage(${course.getIdCourse()})|" type="submit" value="Envoyer" class="btn-primary" id="btnSendMessage">
+        </div>
+    </section>
+
+    <section id="chat-section-organizer" th:if="${isOrganisateur}">
+        <h2>Messages des participants</h2>
+        <div class="form-container">
+            <div class="messages" id="messageContainerOrganizer">
+                <article th:each="message:${messages}">
+                    <div class="message-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <em th:text="${message.getEmetteur().getPrenom()} + ' ' + ${message.getEmetteur().getNom()} + ' ' + ${message.getDatePublicationStr()}"></em>
+                        <button class="delete-message-btn" 
+                                th:attr="data-message-id=${message.getIdMessage()}"
+                                style="background: #dc3545; color: white; border: none; border-radius: 3px; padding: 4px 8px; font-size: 12px; cursor: pointer;"
+                                title="Supprimer ce message">
+                            🗑️ Supprimer
+                        </button>
+                    </div>
+                    <p th:text="${message.getContenu()}"></p>
+                </article>
+                <div th:if="${messages.size() == 0}" style="text-align: center; color: #666; padding: 20px;">
+                    Aucun message pour le moment
+                </div>
+            </div>
+            <div class="organizer-info" style="background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px; padding: 15px; margin: 20px 0; color: #0d47a1;">
+                <p><strong>Information :</strong> En tant qu'organisateur, vous pouvez lire et supprimer les messages des participants, mais vous ne pouvez pas envoyer de messages.</p>
+            </div>
+        </div>
+    </section>
+
+    <section th:if="${!isInscrit && !isOrganisateur && !isAdmin && isAuth}">
+        <!-- Course gratuite -->
+        <div th:if="${course.getPrixParticipation() == 0}">
+            <h3>Inscription gratuite</h3>
+            <form action="/color_run_war_exploded/participations" method="post">
+                <input style="display: none" type="number" name="idCourse" th:value="${course.getIdCourse()}">
+                <button type="submit" class="btn-primary">S'inscrire gratuitement</button>
+            </form>
+        </div>
+        
+        <!-- Course payante -->
+        <div th:if="${course.getPrixParticipation() > 0}">
+            <h3 th:text="'Total à payer : ' + ${course.getPrixParticipation()} + ' €'"></h3>
+            <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                <h4 style="margin-top: 0; color: #495057;">💳 Paiement sécurisé avec Stripe</h4>
+                <p style="color: #6c757d; margin-bottom: 15px;">
+                    Votre paiement est sécurisé et traité par Stripe. Vous serez redirigé vers une page de paiement sécurisée.
+                </p>
+                <ul style="color: #6c757d; margin-bottom: 20px; padding-left: 20px;">
+                    <li>Paiement par carte bancaire</li>
+                    <li>Chiffrement SSL 256 bits</li>
+                    <li>Aucune donnée bancaire stockée sur nos serveurs</li>
+                </ul>
+                <a th:href="'/color_run_war_exploded/payment/' + ${course.getIdCourse()}" class="btn-primary" style="display: inline-block; padding: 12px 24px; font-size: 16px;">
+                    🔒 Procéder au paiement sécurisé
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Message d'information pour les admins non organisateurs -->
+    <section th:if="${isAdmin && !isOrganisateur}">
+        <div class="alert-info" style="background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px; padding: 15px; margin: 20px 0; color: #0d47a1;">
+            <p><strong>Information :</strong> En tant qu'administrateur, vous ne pouvez pas participer aux courses.</p>
+        </div>
+    </section>
+    
+    <!-- Section pour les utilisateurs non connectés -->
+    <section th:if="${!isAuth}">
+        <div class="alert-info" style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; padding: 15px; margin: 20px 0; color: #856404;">
+            <p><strong>Information :</strong> Vous devez être connecté pour participer à une course.</p>
+            <a href="/color_run_war_exploded/login" class="btn-primary">Se connecter</a>
+            <a href="/color_run_war_exploded/register" class="btn-secondary">S'inscrire</a>
+        </div>
+    </section>
+</div>
+<footer>
+    <div class="footer-container">
+        <a href="#"><img src="/color_run_war_exploded/assets/img/logo.png" alt="logo rumton "></a>
+        <div class="text-container">
+            <h3>Liens utiles</h3>
+            <ul class="link-list">
+                <li><a href="/color_run_war_exploded/about-us">A propos</a></li>
+                <li><a href="/color_run_war_exploded/faq">FAQ</a></li>
+                <li><a href="/color_run_war_exploded/contact">Nous contacter</a></li>
+                <li><a href="/color_run_war_exploded/legal-mentions">Mentions légales</a></li>
+            </ul>
+        </div>
+        <div class="icons-container">
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="69"  height="69"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-instagram"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 8a4 4 0 0 1 4 -4h8a4 4 0 0 1 4 4v8a4 4 0 0 1 -4 4h-8a4 4 0 0 1 -4 -4z" /><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M16.5 7.5v.01" /></svg>
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="69"  height="69"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-tiktok"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M21 7.917v4.034a9.948 9.948 0 0 1 -5 -1.951v4.5a6.5 6.5 0 1 1 -8 -6.326v4.326a2.5 2.5 0 1 0 4 2v-11.5h4.083a6.005 6.005 0 0 0 4.917 4.917z" /></svg>
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="69"  height="69"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-facebook"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 10v4h3v7h4v-7h3l1 -4h-4v-2a1 1 0 0 1 1 -1h3v-4h-3a5 5 0 0 0 -5 5v2h-3" /></svg>
+        </div>
+        <p class="self-end">2025 © Color Run par AH & FX. Tous les droits réservés</p>
+    </div>
+</footer>
+<script src="/color_run_war_exploded/assets/js/main.js"></script>
+<script src="/color_run_war_exploded/assets/js/services/messages.js"></script>
+<script src="/color_run_war_exploded/assets/js/services/gouvApi.js"></script>
+</body>
+</html>

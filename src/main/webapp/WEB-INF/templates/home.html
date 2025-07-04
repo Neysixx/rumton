@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/color_run_war_exploded/assets/css/normalize.css">
+    <link rel="stylesheet" href="/color_run_war_exploded/assets/css/style.css">
+    <title>Rumton - Accueil</title>
+</head>
+<body>
+<div class="container">
+    <header>
+        <nav>
+            <a href="#"><img src="/color_run_war_exploded/assets/img/logo.png" alt="logo rumton "></a>
+
+            <button id="menu-toggle" aria-label="Ouvrir le menu">&#9776;</button>
+
+            <ul id="nav-links">
+                <li><a class="active" href="#">Accueil</a></li>
+                <li><a href="/color_run_war_exploded/courses">Liste des courses</a></li>
+                <li><a href="/color_run_war_exploded/causes">Causes</a></li>
+                <li th:if="${!isAuth}"><a href="/color_run_war_exploded/login">Se connecter</a></li>
+                <li th:if="${!isAuth}"><a class="btn-primary" href="/color_run_war_exploded/register">S'inscrire</a></li>
+                <li th:if="${isAuth && isAdmin}"><a href="/color_run_war_exploded/participants">Liste des participants</a></li>
+                <li th:if="${isAuth && isAdmin}"><a href="/color_run_war_exploded/demandes">Demandes organisateur</a></li>
+                <li th:if="${isAuth}" class="profile-container">
+                    <button class="profile-button" id="profileBtn">
+                        <img th:if="${isAdmin}" th:src="${admin.getUrlProfile()}" alt="User Profile">
+                        <img th:if="${!isAdmin}" th:src="${participant.getUrlProfile()}" alt="User Profile">
+                    </button>
+                    <div class="popover" id="profilePopover">
+                        <a href="/color_run_war_exploded/profile"><button>Profil</button></a>
+                        <a href="/color_run_war_exploded/logout"><button style="color: red">Déconnexion</button></a>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="title-section" id="home-title-section">
+        <p>Venez vivre l'expérience unique de la Color Run dans votre ville</p>
+        <h1>Rejoignez une explosion de couleurs, de fun et d'énergie !</h1>
+        <p>La Color Run, c'est bien  plus qu'une course : c'est une fête où chaque kilomètre devient un arc-en-ciel de bonheur. Que vous soyez coureur aguerri ou amateur de bonne humeur, vous êtes au bon endroit</p>
+        <ul>
+            <li><a class="btn-primary" href="/color_run_war_exploded/courses">Découvir les courses</a></li>
+            <li><a class="btn-primary" href="/color_run_war_exploded/register">Inscrivez-vous maintenant</a></li>
+        </ul>
+    </section>
+
+    <section id="home-concept">
+        <h2>Découvrez le concept de la Color Run</h2>
+        <div class="concept-container">
+            <img src="/color_run_war_exploded/assets/img/color-run-concept.jpg" width="507" alt="logo concept color run">
+            <p>La Color Run, c'est une course festive et accessible à tous, où le chrono n'a aucune importance. Laissez-vous emporter par une vague de couleurs à chaque kilomètre et terminez l'épreuve dans une ambiance de fête. Une seule règle : porter du blanc au départ et finir complétement coloré !</p>
+        </div>
+        <h3>Pourquoi participer</h3>
+        <div class="icons-container">
+            <article>
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="100"  height="100"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-confetti"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 5h2" /><path d="M5 4v2" /><path d="M11.5 4l-.5 2" /><path d="M18 5h2" /><path d="M19 4v2" /><path d="M15 9l-1 1" /><path d="M18 13l2 -.5" /><path d="M18 19h2" /><path d="M19 18v2" /><path d="M14 16.518l-6.518 -6.518l-4.39 9.58a1 1 0 0 0 1.329 1.329l9.579 -4.39z" /></svg>
+                <p>Une ambiance fun et conviviale</p>
+            </article>
+            <article>
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="100"  height="100"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-mood-smile-beam"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 21a9 9 0 1 1 0 -18a9 9 0 0 1 0 18z" /><path d="M10 10c-.5 -1 -2.5 -1 -3 0" /><path d="M17 10c-.5 -1 -2.5 -1 -3 0" /><path d="M14.5 15a3.5 3.5 0 0 1 -5 0" /></svg>
+                <p>Aucune pression juste du plaisir</p>
+            </article>
+            <article>
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="100"  height="100"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-old"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M11 21l-1 -4l-2 -3v-6" /><path d="M5 14l-1 -3l4 -3l3 2l3 .5" /><path d="M8 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M7 17l-2 4" /><path d="M16 21v-8.5a1.5 1.5 0 0 1 3 0v.5" /></svg>
+                <p>Accessible à tous les âges et niveaux</p>
+            </article>
+        </div>
+    </section>
+
+    <section id="home-next-step">
+        <h2>Nos prochaines étapes colorées</h2>
+        <div class="card-container">
+            <article th:each="course:${courses}">
+                <div class="image" th:data-ville="${course.getVille()}"></div>
+                <div>
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-map-pin"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z" /></svg>
+                    <p th:text="${course.getVille()}"></p>
+                </div>
+                <div>
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-calendar"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" /><path d="M16 3v4" /><path d="M8 3v4" /><path d="M4 11h16" /><path d="M11 15h1" /><path d="M12 15v3" /></svg>
+                    <p  th:text="${course.getDateDepartFormatted()}"></p>
+                </div>
+                <div class="btn-container">
+                    <a th:href="'/color_run_war_exploded/courses/' + ${course.getIdCourse()}" class="btn-secondary">
+                        Participer
+                    </a>
+                </div>
+            </article>
+        </div>
+        <a href="/color_run_war_exploded/courses" class="discover-more">Découvrir plus d'évênements <span>&rightarrow;</span></a>
+    </section>
+
+    <section id="home-join-adventure" class="section-base-style">
+        <img src="/color_run_war_exploded/assets/img/color-run-join.jpg" alt="image join color run">
+        <div class="text-container">
+            <h2>Rejoignez l'aventure !</h2>
+            <p>Prêt à vivre une expérience unique ? Inscrivez-vous en quelques clics et préparez-vous à une journée mémorable. Voici ce que vous recevez en participant :</p>
+            <ul class="custom-list">
+                <li>Un kit de bienvenue comprenant un t-shirt blanc officiel, un dossard, et des sacs de poudre colorée.</li>
+                <li>Une médaille souvenir pour célébrer votre exploit.</li>
+                <li>L'accès à l'after-party, où musique et couleurs seront au rendez-vous</li>
+            </ul>
+            <p>Alors, qu'attendez-vous ? Faites partie des milliers de coureurs qui partagent cette aventure incroyable !</p>
+            <ul class="list-btn">
+                <li><a class="btn-primary" href="/color_run_war_exploded/courses">Découvir les courses</a></li>
+                <li><a class="btn-primary" href="/color_run_war_exploded/register">Inscrivez-vous maintenant</a></li>
+            </ul>
+        </div>
+    </section>
+
+    <section id="home-be-volunteer" class="section-base-style reverse">
+        <img src="/color_run_war_exploded/assets/img/color-run-volonteer.jpg" alt="image join color run">
+        <div class="text-container">
+            <h2>Devenez un héros de la Color Run</h2>
+            <p>Envie de faire partie de l'envers du décor ? Rejoignez notre équipe de bénévoles et participez à l'organisation d'un événement inoubliable ! En tant que bénévole, vous pourrez :</p>
+            <ul class="custom-list">
+                <li>Accueillir et guider les participants.</li>
+                <li>Animer les zones colorées et assurer une ambiance de folie.</li>
+                <li>Distribuer des kits ou des rafraîchissements.</li>
+                <li>Partager des moments uniques avec l'équipe et les coureurs.</li>
+            </ul>
+            <p>En échange, vous vivrez une expérience enrichissante et recevrez un kit souvenir pour votre engagement. Merci de votre aide précieuse !</p>
+        </div>
+    </section>
+</div>
+
+<footer>
+    <div class="footer-container">
+        <a href="#"><img src="/color_run_war_exploded/assets/img/logo.png" alt="logo rumton "></a>
+        <div class="text-container">
+            <h3>Liens utiles</h3>
+            <ul class="link-list">
+                <li><a href="/color_run_war_exploded/about-us">A propos</a></li>
+                <li><a href="/color_run_war_exploded/faq">FAQ</a></li>
+                <li><a href="/color_run_war_exploded/contact">Nous contacter</a></li>
+                <li><a href="/color_run_war_exploded/legal-mentions">Mentions légales</a></li>
+            </ul>
+        </div>
+        <div class="icons-container">
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="69"  height="69"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-instagram"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 8a4 4 0 0 1 4 -4h8a4 4 0 0 1 4 4v8a4 4 0 0 1 -4 4h-8a4 4 0 0 1 -4 -4z" /><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M16.5 7.5v.01" /></svg>
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="69"  height="69"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-tiktok"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M21 7.917v4.034a9.948 9.948 0 0 1 -5 -1.951v4.5a6.5 6.5 0 1 1 -8 -6.326v4.326a2.5 2.5 0 1 0 4 2v-11.5h4.083a6.005 6.005 0 0 0 4.917 4.917z" /></svg>
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="69"  height="69"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-facebook"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 10v4h3v7h4v-7h3l1 -4h-4v-2a1 1 0 0 1 1 -1h3v-4h-3a5 5 0 0 0 -5 5v2h-3" /></svg>
+        </div>
+        <p class="self-end">2025 © Color Run par AH & FX. Tous les droits réservés</p>
+    </div>
+</footer>
+<script src="/color_run_war_exploded/assets/js/main.js"></script>
+<script src="/color_run_war_exploded/assets/js/services/gouvApi.js"></script>
+</body>
+</html>

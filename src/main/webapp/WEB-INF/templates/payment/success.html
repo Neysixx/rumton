@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/color_run_war_exploded/assets/css/normalize.css">
+    <link rel="stylesheet" href="/color_run_war_exploded/assets/css/style.css">
+    <title>Rumton - Paiement réussi</title>
+
+    <style>
+        .payment-success {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            text-align: center;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            color: #28a745;
+            margin-bottom: 1rem;
+        }
+
+        .success-message {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="payment-success">
+        <div class="success-icon">✅</div>
+
+        <h1>Paiement réussi !</h1>
+
+        <div class="success-message" th:text="${message}">
+            Paiement réussi ! Vous êtes maintenant inscrit à la course.
+        </div>
+
+        <div class="action-buttons">
+            <a th:href="'/color_run_war_exploded/courses/' + ${course.idCourse}" class="btn btn-primary">
+                Voir les détails de la course
+            </a>
+            <a th:href="'/color_run_war_exploded/courses'" class="btn btn-secondary">
+                Retour aux courses
+            </a>
+            <a th:href="'/color_run_war_exploded/profile'" class="btn btn-secondary">
+                Mon profil
+            </a>
+        </div>
+    </div>
+
+    <script th:src="'/color_run_war_exploded/assets/js/main.js'"></script>
+</body>
+
+</html>

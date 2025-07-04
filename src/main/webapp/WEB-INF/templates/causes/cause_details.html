@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/color_run_war_exploded/assets/css/normalize.css">
+    <link rel="stylesheet" href="/color_run_war_exploded/assets/css/style.css">
+    <title>Rumton - Détail de la cause</title>
+</head>
+<body>
+<div class="container">
+    <header>
+        <nav>
+            <a href="#"><img src="/color_run_war_exploded/assets/img/logo.png" alt="logo rumton "></a>
+
+            <button id="menu-toggle" aria-label="Ouvrir le menu">&#9776;</button>
+
+            <ul id="nav-links">
+                <li><a href="/color_run_war_exploded/">Accueil</a></li>
+                <li><a href="/color_run_war_exploded/courses">Liste des courses</a></li>
+                <li><a class="active" href="/color_run_war_exploded/causes">Causes</a></li>
+                <li th:if="${!isAuth}"><a href="/color_run_war_exploded/login">Se connecter</a></li>
+                <li th:if="${!isAuth}"><a class="btn-primary" href="/color_run_war_exploded/register">S'inscrire</a></li>
+                <li th:if="${isAuth && isAdmin}"><a href="/color_run_war_exploded/participants">Liste des participants</a></li>
+                <li th:if="${isAuth && isAdmin}"><a href="/color_run_war_exploded/demandes">Demandes organisateur</a></li>
+                <li th:if="${isAuth}" class="profile-container">
+                    <button class="profile-button" id="profileBtn">
+                        <img th:if="${isAdmin}" th:src="${admin.getUrlProfile()}" alt="User Profile">
+                        <img th:if="${!isAdmin}" th:src="${participant.getUrlProfile()}" alt="User Profile">
+                    </button>
+                    <div class="popover" id="profilePopover">
+                        <a href="/color_run_war_exploded/profile"><button>Profil</button></a>
+                        <a href="/color_run_war_exploded/logout"><button style="color: red">Déconnexion</button></a>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="title-section" id="home-title-section">
+        <h1 th:text="'Détail de la cause : ' + ${cause.getIntitule()}"></h1>
+    </section>
+
+    <section class="courses-list">
+        <h2>Courses soutenant cette cause</h2>
+        <article th:each="course:${courses}">
+            <div class="image" th:data-ville="${course.getVille()}"></div>
+            <div class="course-detail">
+                <p th:text="${course.nom}"></p>
+                <p th:text="${course.getDateDepartFormatted()}"></p>
+                <p th:text="${course.getDistance()} + ' km'"></p>
+            </div>
+            <div class="btn-containers">
+                <a th:href="'/color_run_war_exploded/courses/' + ${course.getIdCourse()}" class="btn-secondary">Voir le détail</a>
+                <a th:href="'/color_run_war_exploded/courses/' + ${course.getIdCourse()}" class="btn-secondary">Participer</a>
+            </div>
+        </article>
+        <article th:if="${courses.size() == 0}">Aucune course ne soutient cette cause pour le moment</article>
+    </section>
+</div>
+<footer>
+    <div class="footer-container">
+        <a href="#"><img src="/color_run_war_exploded/assets/img/logo.png" alt="logo rumton "></a>
+        <div class="text-container">
+            <h3>Liens utiles</h3>
+            <ul class="link-list">
+                <li><a href="/color_run_war_exploded/about-us">A propos</a></li>
+                <li><a href="/color_run_war_exploded/faq">FAQ</a></li>
+                <li><a href="/color_run_war_exploded/contact">Nous contacter</a></li>
+                <li><a href="/color_run_war_exploded/legal-mentions">Mentions légales</a></li>
+            </ul>
+        </div>
+        <div class="icons-container">
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="69"  height="69"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-instagram"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 8a4 4 0 0 1 4 -4h8a4 4 0 0 1 4 4v8a4 4 0 0 1 -4 4h-8a4 4 0 0 1 -4 -4z" /><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M16.5 7.5v.01" /></svg>
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="69"  height="69"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-tiktok"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M21 7.917v4.034a9.948 9.948 0 0 1 -5 -1.951v4.5a6.5 6.5 0 1 1 -8 -6.326v4.326a2.5 2.5 0 1 0 4 2v-11.5h4.083a6.005 6.005 0 0 0 4.917 4.917z" /></svg>
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="69"  height="69"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-facebook"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 10v4h3v7h4v-7h3l1 -4h-4v-2a1 1 0 0 1 1 -1h3v-4h-3a5 5 0 0 0 -5 5v2h-3" /></svg>
+        </div>
+        <p class="self-end">2025 © Color Run par AH & FX. Tous les droits réservés</p>
+    </div>
+</footer>
+<script src="/color_run_war_exploded/assets/js/main.js"></script>
+<script src="/color_run_war_exploded/assets/js/services/gouvApi.js"></script>
+</body>
+</html>

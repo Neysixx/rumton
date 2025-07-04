@@ -1,0 +1,16 @@
+db.url=jdbc:h2:PATH_TO_YOUR_DATABASE;
+db.user=sa
+db.password=
+
+db.test.url=jdbc:h2:mem:test;DB_CLOSE_DELAY=-1
+db.test.user=sa
+db.test.password=
+
+SMTP_HOST=smtp.gmail.com;
+SMTP_PORT=587;
+SMTP_USERNAME=;
+SMTP_PASSWORD=;
+BASE_URL=http://localhost:8080/color_run_war_exploded;
+
+# Stripe Configuration (Test Mode)
+stripe.secret.key=sk_test_YOUR_SECRET_KEY_HERE

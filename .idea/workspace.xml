@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ArtifactsWorkspaceSettings">
+    <artifacts-to-build>
+      <artifact name="color_run:war exploded" />
+    </artifacts-to-build>
+  </component>
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="c4b4a43d-0c6a-4c9a-8783-96357c7dc247" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/StripeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/StripeService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/impl/StripeServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/service/impl/StripeServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/CourseServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/esgi/color_run/servlet/CourseServlet.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "Neysixx"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Neysixx/rumton.git",
+    "accountId": "c0421ef5-89ef-452c-afc4-f5d237e0a3b7"
+  }
+}]]></component>
+  <component name="GoLibraries">
+    <option name="indexEntireGoPath" value="true" />
+  </component>
+  <component name="LogFilters">
+    <option name="FILTER_ERRORS" value="false" />
+    <option name="FILTER_WARNINGS" value="false" />
+    <option name="FILTER_INFO" value="true" />
+    <option name="FILTER_DEBUG" value="true" />
+    <option name="CUSTOM_FILTER" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 1
+}]]></component>
+  <component name="ProjectId" id="2zJnvFRmuwSVkpooxPBy2t7eoVj" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Database Script.script.sql.executor": "Run",
+    "Database Script.seed.sql.executor": "Run",
+    "Maven.color_run [clean].executor": "Run",
+    "Maven.color_run [install].executor": "Run",
+    "Tomcat Server.Tomcat 10.1.40.executor": "Run",
+    "git-widget-placeholder": "develop",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)"
+  },
+  "keyToStringList": {
+    "RunConfigurationTargetLRU": [
+      "59c826d3-2bcc-47c4-8b1b-08e21a3cb9c7"
+    ]
+  }
+}]]></component>
+  <component name="RunManager" selected="Tomcat Server.Tomcat 10.1.40">
+    <configuration name="script.sql" type="DatabaseScript" editBeforeRun="true" temporary="true" nameIsGenerated="true">
+      <script-file value="$PROJECT_DIR$/src/main/resources/script.sql" />
+      <script-mode>FILE</script-mode>
+      <data-source id="59c826d3-2bcc-47c4-8b1b-08e21a3cb9c7" />
+      <method v="2" />
+    </configuration>
+    <configuration name="seed.sql" type="DatabaseScript" editBeforeRun="true" temporary="true" nameIsGenerated="true">
+      <script-file value="$PROJECT_DIR$/src/main/resources/seed.sql" />
+      <script-mode>FILE</script-mode>
+      <data-source id="59c826d3-2bcc-47c4-8b1b-08e21a3cb9c7" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Tomcat 10.1.40" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" APPLICATION_SERVER_NAME="Tomcat 10.1.40" ALTERNATIVE_JRE_ENABLED="false" nameIsGenerated="true">
+      <option name="UPDATING_POLICY" value="restart-server" />
+      <deployment>
+        <artifact name="color_run:war exploded">
+          <settings>
+            <option name="CONTEXT_PATH" value="/color_run_war_exploded" />
+          </settings>
+        </artifact>
+      </deployment>
+      <server-settings>
+        <option name="BASE_DIRECTORY_NAME" value="bb98088b-d4c1-4168-858c-d4dc5c2523d9" />
+      </server-settings>
+      <predefined_log_file enabled="true" id="Tomcat" />
+      <predefined_log_file enabled="true" id="Tomcat Catalina" />
+      <predefined_log_file id="Tomcat Manager" />
+      <predefined_log_file id="Tomcat Host Manager" />
+      <predefined_log_file id="Tomcat Localhost Access" />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="14713" />
+      </RunnerSettings>
+      <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Cover">
+        <option name="USE_ENV_VARIABLES" value="true" />
+        <STARTUP>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </STARTUP>
+        <SHUTDOWN>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </SHUTDOWN>
+      </ConfigurationWrapper>
+      <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Debug">
+        <option name="USE_ENV_VARIABLES" value="true" />
+        <STARTUP>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </STARTUP>
+        <SHUTDOWN>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </SHUTDOWN>
+      </ConfigurationWrapper>
+      <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Profile">
+        <option name="USE_ENV_VARIABLES" value="true" />
+        <STARTUP>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </STARTUP>
+        <SHUTDOWN>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </SHUTDOWN>
+      </ConfigurationWrapper>
+      <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Run">
+        <option name="USE_ENV_VARIABLES" value="true" />
+        <STARTUP>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </STARTUP>
+        <SHUTDOWN>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </SHUTDOWN>
+      </ConfigurationWrapper>
+      <method v="2">
+        <option name="Make" enabled="true" />
+        <option name="BuildArtifacts" enabled="true">
+          <artifact name="color_run:war exploded" />
+        </option>
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Database Script.seed.sql" />
+      <item itemvalue="Database Script.script.sql" />
+      <item itemvalue="Tomcat Server.Tomcat 10.1.40" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Database Script.script.sql" />
+        <item itemvalue="Database Script.seed.sql" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-28b599e66164-intellij.indexing.shared.core-IU-242.23726.103" />
+        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-IU-242.23726.103" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="c4b4a43d-0c6a-4c9a-8783-96357c7dc247" name="Changes" comment="" />
+      <created>1751458276703</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1751458276703</updated>
+      <workItem from="1751458279126" duration="4019000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VgoProject">
+    <integration-enabled>false</integration-enabled>
+    <settings-migrated>true</settings-migrated>
+  </component>
+  <component name="XDebuggerManager">
+    <pin-to-top-manager>
+      <pinned-members>
+        <PinnedItemInfo parentTag="org.apache.catalina.connector.ResponseFacade" memberName="response" />
+      </pinned-members>
+    </pin-to-top-manager>
+  </component>
+</project>
